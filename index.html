@@ -22,14 +22,37 @@
         .neon-red { border: 1px solid var(--neon-red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
         .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
-        canvas { padding: 10px; background: white !important; border-radius: 1rem; }
+        canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .admin-only { display: none; }
         .info-row { background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
+
+        /* Estilos para impresión */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { position: absolute; left: 0; top: 0; width: 100%; text-align: center; }
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- VISTA MÓVIL DE ESCANEO -->
+    <div id="qr-modal" class="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center hidden p-6">
+        <div class="glass-card p-8 max-w-sm w-full text-center flex flex-col items-center">
+            <h3 id="qr-modal-name" class="text-xl font-black mb-4 uppercase text-cyan-400">Nombre del Activo</h3>
+            <div id="print-area" class="bg-white p-4 rounded-3xl mb-6">
+                <div id="qr-large"></div>
+                <p id="qr-modal-id" class="text-black text-[10px] font-bold mt-2 uppercase"></p>
+            </div>
+            <div class="flex gap-4 w-full no-print">
+                <button onclick="window.print()" class="flex-1 btn-primary py-3 rounded-xl font-black uppercase text-xs">
+                    <i class="fas fa-print mr-2"></i>Imprimir
+                </button>
+                <button onclick="closeQrModal()" class="flex-1 bg-white/10 py-3 rounded-xl font-black uppercase text-xs">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
     <div id="view-scan" class="fixed inset-0 z-[1000] bg-[#0a0b10] flex flex-col hidden overflow-y-auto">
         <div class="p-6 max-w-md mx-auto w-full space-y-6 pb-20">
             <div class="relative h-64 rounded-[2.5rem] overflow-hidden border-2 border-purple-500 shadow-2xl">
@@ -64,7 +87,6 @@
         </div>
     </div>
 
-    <!-- MODAL REPORTES -->
     <div id="report-modal" class="fixed inset-0 z-[1100] bg-black/80 backdrop-blur-sm flex items-center justify-center hidden p-6">
         <div class="glass-card p-8 max-w-md w-full">
             <h3 class="text-2xl font-black mb-6 text-yellow-400 uppercase">Reportar Falla</h3>
@@ -78,19 +100,17 @@
         </div>
     </div>
 
-    <!-- PANTALLA LOGIN -->
     <div id="login-screen" class="fixed inset-0 z-[500] flex items-center justify-center p-6">
         <div class="glass-card p-10 w-full max-w-md text-center">
             <h2 class="text-2xl font-black mb-8 tracking-tighter italic">UPTJAA <span class="text-cyan-400">ADMIN</span></h2>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold">
-                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold">
+                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold" required>
+                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold" required>
                 <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Entrar</button>
             </form>
         </div>
     </div>
 
-    <!-- INTERFAZ ADMIN -->
     <div id="app-interface" class="hidden flex h-screen w-full">
         <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <h1 class="font-black text-xl mb-12 tracking-tighter">UPTJAA <span class="text-purple-500">v4.0</span></h1>
@@ -203,13 +223,28 @@
         const db = firebase.database();
         let currentRole = 'operador';
         let currentAssetId = null;
+        let pendingScanId = new URLSearchParams(window.location.search).get('id');
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
 
-        // DETECCIÓN QR
+        // DETECCIÓN QR Y SEGURIDAD
         window.addEventListener('DOMContentLoaded', () => {
-            const params = new URLSearchParams(window.location.search);
-            const id = params.get('id');
-            if (id) loadAssetView(id);
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Si hay usuario y venía de un escaneo
+                    if (pendingScanId) {
+                        loadAssetView(pendingScanId);
+                        pendingScanId = null; 
+                    } else if (document.getElementById('view-scan').classList.contains('hidden')) {
+                        // Si ya estaba logueado y no es un escaneo directo, cargar app
+                        handleSuccessfulLogin(user);
+                    }
+                } else {
+                    // Si no hay usuario y trata de ver un activo (Escaneo)
+                    if (pendingScanId) {
+                        alert("Por favor, inicie sesión para ver los detalles del activo.");
+                    }
+                }
+            });
         });
 
         function loadAssetView(id) {
@@ -219,6 +254,7 @@
                     const a = snap.val();
                     document.getElementById('view-scan').classList.remove('hidden');
                     document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-interface').classList.add('hidden');
                     document.getElementById('scan-photo').src = a.imageUrl;
                     document.getElementById('scan-name').textContent = a.name;
                     document.getElementById('scan-serial').textContent = a.serial || 'N/A';
@@ -235,6 +271,23 @@
                     goHome();
                 }
             });
+        }
+
+        // FUNCIONES QR AMPLIADO E IMPRESIÓN
+        function openQrModal(id, name) {
+            document.getElementById('qr-modal').classList.remove('hidden');
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-id').textContent = "ID: " + id;
+            document.getElementById('qr-large').innerHTML = '';
+            new QRCode(document.getElementById('qr-large'), { 
+                text: BASE_URL + "?id=" + id, 
+                width: 250, 
+                height: 250 
+            });
+        }
+
+        function closeQrModal() {
+            document.getElementById('qr-modal').classList.add('hidden');
         }
 
         function goHome() {
@@ -283,7 +336,8 @@
                     else dan++;
 
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 flex flex-col items-center";
+                    card.className = "glass-card p-6 flex flex-col items-center cursor-pointer hover:scale-105 transition-transform";
+                    card.onclick = () => openQrModal(doc.key, a.name);
                     card.innerHTML = `
                         <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
                         <h3 class="font-black text-xs uppercase">${a.name}</h3>
@@ -291,6 +345,7 @@
                         <p class="text-[8px] text-slate-400 mb-4">IP: ${a.ip || 'N/A'}</p>
                         <div class="bg-white p-2 rounded-xl" id="qr-${doc.key}"></div>
                         <p class="text-[7px] text-purple-400 mt-2">ID: ${doc.key}</p>
+                        <p class="text-[8px] text-slate-500 mt-1 uppercase font-bold">Clic para imprimir</p>
                     `;
                     container.appendChild(card);
                     new QRCode(document.getElementById(`qr-${doc.key}`), { 
@@ -353,26 +408,37 @@
             });
         };
 
+        function handleSuccessfulLogin(user) {
+            db.ref('users').orderByChild('email').equalTo(user.email).once('value', snap => {
+                let userData = null;
+                snap.forEach(c => userData = c.val());
+                currentRole = userData?.role || 'operador';
+                
+                // Si el usuario venía de un escaneo, mostrar esa vista
+                if (pendingScanId) {
+                    loadAssetView(pendingScanId);
+                    pendingScanId = null;
+                } else {
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('app-interface').classList.remove('hidden');
+                    document.getElementById('display-user').textContent = userData?.name || user.email;
+                    if (currentRole === 'admin') {
+                        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                    }
+                    loadAssets();
+                    loadReports();
+                }
+            });
+        }
+
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             auth.signInWithEmailAndPassword(
                 document.getElementById('user-input').value,
                 document.getElementById('pass-input').value
             ).then(res => {
-                db.ref('users').orderByChild('email').equalTo(res.user.email).once('value', snap => {
-                    let userData = null;
-                    snap.forEach(c => userData = c.val());
-                    currentRole = userData?.role || 'operador';
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    document.getElementById('display-user').textContent = userData?.name || res.user.email;
-                    if (currentRole === 'admin') {
-                        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                    }
-                    loadAssets();
-                    loadReports();
-                });
-            }).catch(() => alert('Error de acceso'));
+                handleSuccessfulLogin(res.user);
+            }).catch(() => alert('Error de acceso: Verifique sus credenciales'));
         };
 
         function logout() {
@@ -380,7 +446,8 @@
         }
 
         setInterval(() => {
-            document.getElementById('current-time').textContent = new Date().toLocaleString('es-ES');
+            const timeEl = document.getElementById('current-time');
+            if(timeEl) timeEl.textContent = new Date().toLocaleString('es-ES');
         }, 1000);
     </script>
 </body>
