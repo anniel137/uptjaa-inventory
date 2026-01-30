@@ -22,11 +22,11 @@
         .neon-red { border: 1px solid var(--neon-red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
         .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
+        .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .admin-only { display: none; }
         .info-row { background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
 
-        /* Estilos para impresión */
         @media print {
             body * { visibility: hidden; }
             #print-area, #print-area * { visibility: visible; }
@@ -39,15 +39,13 @@
 
     <div id="qr-modal" class="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center hidden p-6">
         <div class="glass-card p-8 max-w-sm w-full text-center flex flex-col items-center">
-            <h3 id="qr-modal-name" class="text-xl font-black mb-4 uppercase text-cyan-400">Nombre del Activo</h3>
+            <h3 id="qr-modal-name" class="text-xl font-black mb-4 uppercase text-cyan-400">Activo</h3>
             <div id="print-area" class="bg-white p-4 rounded-3xl mb-6">
                 <div id="qr-large"></div>
                 <p id="qr-modal-id" class="text-black text-[10px] font-bold mt-2 uppercase"></p>
             </div>
             <div class="flex gap-4 w-full no-print">
-                <button onclick="window.print()" class="flex-1 btn-primary py-3 rounded-xl font-black uppercase text-xs">
-                    <i class="fas fa-print mr-2"></i>Imprimir
-                </button>
+                <button onclick="window.print()" class="flex-1 btn-primary py-3 rounded-xl font-black uppercase text-xs">Imprimir</button>
                 <button onclick="closeQrModal()" class="flex-1 bg-white/10 py-3 rounded-xl font-black uppercase text-xs">Cerrar</button>
             </div>
         </div>
@@ -62,28 +60,13 @@
             <div class="text-center">
                 <h1 id="scan-name" class="text-3xl font-black text-cyan-400 uppercase"></h1>
             </div>
-            
-            <div class="space-y-3">
-                <div class="info-row">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Serial</p>
-                    <p id="scan-serial" class="text-sm font-bold text-white">Cargando...</p>
-                </div>
-                <div class="info-row">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Dirección IP</p>
-                    <p id="scan-ip" class="text-sm font-bold text-cyan-400">Cargando...</p>
-                </div>
-                <div class="info-row">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Ubicación</p>
-                    <p id="scan-location" class="text-sm font-bold text-white">Cargando...</p>
-                </div>
+            <div class="space-y-3" id="scan-details">
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Serial</p><p id="scan-serial" class="text-sm font-bold text-white">...</p></div>
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">IP</p><p id="scan-ip" class="text-sm font-bold text-cyan-400">...</p></div>
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Ubicación</p><p id="scan-location" class="text-sm font-bold text-white">...</p></div>
             </div>
-            
-            <button onclick="openReportModal()" class="w-full btn-yellow py-4 rounded-2xl font-black uppercase text-xs shadow-lg text-white">
-                <i class="fas fa-exclamation-triangle mr-2"></i> Reportar Falla
-            </button>
-            <button onclick="goHome()" class="w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs text-white">
-                <i class="fas fa-times mr-2"></i> Finalizar
-            </button>
+            <button onclick="openReportModal()" class="w-full btn-yellow py-4 rounded-2xl font-black uppercase text-xs text-white">Reportar Falla</button>
+            <button onclick="goHome()" class="w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs text-white">Finalizar</button>
         </div>
     </div>
 
@@ -91,7 +74,7 @@
         <div class="glass-card p-8 max-w-md w-full">
             <h3 class="text-2xl font-black mb-6 text-yellow-400 uppercase">Reportar Falla</h3>
             <form id="report-form" class="space-y-4">
-                <textarea id="report-desc" placeholder="Describe la falla..." class="w-full bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-yellow-400 h-32 resize-none" required></textarea>
+                <textarea id="report-desc" placeholder="Describe la falla..." class="w-full bg-white/5 p-4 rounded-xl border border-white/10 outline-none h-32 resize-none" required></textarea>
                 <div class="flex gap-3">
                     <button type="submit" class="flex-1 btn-yellow py-3 rounded-xl font-black uppercase text-xs">Enviar</button>
                     <button type="button" onclick="closeReportModal()" class="flex-1 bg-white/10 py-3 rounded-xl font-black uppercase text-xs">Cancelar</button>
@@ -104,8 +87,8 @@
         <div class="glass-card p-10 w-full max-w-md text-center">
             <h2 class="text-2xl font-black mb-8 tracking-tighter italic">UPTJAA <span class="text-cyan-400">ADMIN</span></h2>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold" required>
-                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none focus:border-cyan-400 font-bold" required>
+                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold" required>
+                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold" required>
                 <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Entrar</button>
             </form>
         </div>
@@ -115,10 +98,10 @@
         <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <h1 class="font-black text-xl mb-12 tracking-tighter">UPTJAA <span class="text-purple-500">v4.0</span></h1>
             <nav class="flex-1 space-y-3">
-                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:bg-white/5 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
-                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:bg-white/5 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:bg-white/5 hover:text-yellow-500 transition-all admin-only"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:bg-white/5 hover:text-purple-400 transition-all admin-only"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
+                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
+                <button onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 admin-only"><i class="fas fa-bell w-8"></i> Reportes</button>
+                <button onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 admin-only"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate"></p>
@@ -135,33 +118,18 @@
             <div class="p-8 overflow-y-auto flex-1">
                 <section id="sec-dashboard">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass-card p-8 neon-purple relative">
-                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Total</h4>
-                            <p id="dash-total" class="text-5xl font-black">0</p>
-                            <i class="fas fa-database absolute top-6 right-6 text-purple-500 opacity-30 text-2xl"></i>
-                        </div>
-                        <div class="glass-card p-8 neon-green relative">
-                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Excelente</h4>
-                            <p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p>
-                            <i class="fas fa-check-circle absolute top-6 right-6 text-emerald-500 opacity-30 text-2xl"></i>
-                        </div>
-                        <div class="glass-card p-8 neon-orange relative">
-                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Mantenimiento</h4>
-                            <p id="dash-mantenimiento" class="text-5xl font-black text-amber-400">0</p>
-                            <i class="fas fa-tools absolute top-6 right-6 text-amber-500 opacity-30 text-2xl"></i>
-                        </div>
-                        <div class="glass-card p-8 neon-red relative">
-                            <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Dañados</h4>
-                            <p id="dash-danado" class="text-5xl font-black text-red-400">0</p>
-                            <i class="fas fa-times-circle absolute top-6 right-6 text-red-500 opacity-30 text-2xl"></i>
-                        </div>
+                        <div class="glass-card p-8 neon-purple"><h4 class="text-[10px] font-black uppercase mb-2">Total</h4><p id="dash-total" class="text-5xl font-black">0</p></div>
+                        <div class="glass-card p-8 neon-green"><h4 class="text-[10px] font-black uppercase mb-2 text-emerald-400">Excelente</h4><p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p></div>
+                        <div class="glass-card p-8 neon-orange"><h4 class="text-[10px] font-black uppercase mb-2 text-amber-400">Mantenimiento</h4><p id="dash-mantenimiento" class="text-5xl font-black text-amber-400">0</p></div>
+                        <div class="glass-card p-8 neon-red"><h4 class="text-[10px] font-black uppercase mb-2 text-red-400">Dañados</h4><p id="dash-danado" class="text-5xl font-black text-red-400">0</p></div>
                     </div>
                 </section>
 
                 <section id="sec-inventario" class="hidden space-y-8">
                     <div class="glass-card p-8 admin-only">
-                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
+                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="hidden" id="edit-id">
                             <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none" required>
                             <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none" required>
                             <input type="text" id="as-ip" placeholder="IP" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none">
@@ -172,7 +140,10 @@
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase"><i class="fas fa-plus-circle mr-2"></i>Registrar</button>
+                            <div class="col-span-full flex gap-2">
+                                <button type="submit" id="btn-asset-submit" class="flex-1 btn-primary p-4 rounded-xl font-black uppercase">Registrar</button>
+                                <button type="button" id="btn-cancel-edit" onclick="resetAssetForm()" class="hidden bg-white/10 px-6 rounded-xl font-black uppercase">Cancelar</button>
+                            </div>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
@@ -181,9 +152,7 @@
                 <section id="sec-reportes" class="hidden">
                     <div class="glass-card overflow-hidden">
                         <table class="w-full text-left text-sm">
-                            <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400">
-                                <tr><th class="p-6">Equipo</th><th class="p-6">Falla</th><th class="p-6">Fecha</th></tr>
-                            </thead>
+                            <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400"><tr><th class="p-6">Equipo</th><th class="p-6">Falla</th><th class="p-6">Fecha</th></tr></thead>
                             <tbody id="report-list-body"></tbody>
                         </table>
                     </div>
@@ -193,14 +162,8 @@
                     <div class="glass-card p-8">
                         <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Crear Usuario</h3>
                         <form id="form-user" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <input type="email" id="new-u-email" placeholder="Email" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required>
-                            <input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required>
-                            <input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required>
-                            <select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs uppercase">
-                                <option value="admin">Admin</option>
-                                <option value="operador">Operador</option>
-                            </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black text-xs uppercase"><i class="fas fa-user-plus mr-2"></i>Crear</button>
+                            <input type="email" id="new-u-email" placeholder="Email" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required><input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required><input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs" required><select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs uppercase"><option value="admin">Admin</option><option value="operador">Operador</option></select>
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black text-xs uppercase">Crear</button>
                         </form>
                     </div>
                 </section>
@@ -219,236 +182,158 @@
             appId: "1:898905793270:web:7e8e1219f999af6a88c2d7"
         };
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth(); 
-        const db = firebase.database();
+        const auth = firebase.auth(); const db = firebase.database();
         let currentRole = 'operador';
-        let currentAssetId = null;
-        let pendingScanId = new URLSearchParams(window.location.search).get('id');
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
 
-        // DETECCIÓN QR Y SEGURIDAD
+        // INICIO Y SESIÓN
         window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
             auth.onAuthStateChanged(user => {
                 if (user) {
-                    // Si hay usuario y venía de un escaneo
-                    if (pendingScanId) {
-                        loadAssetView(pendingScanId);
-                        pendingScanId = null; 
-                    } else if (document.getElementById('view-scan').classList.contains('hidden')) {
-                        // Si ya estaba logueado y no es un escaneo directo, cargar app
-                        handleSuccessfulLogin(user);
-                    }
-                } else {
-                    // Si no hay usuario y trata de ver un activo (Escaneo)
-                    if (pendingScanId) {
-                        alert("Por favor, inicie sesión para ver los detalles del activo.");
-                    }
-                }
+                    if (id) loadAssetView(id);
+                    else handleSuccessfulLogin(user);
+                } else if (id) alert("Inicie sesión para ver el activo.");
             });
         });
 
-        function loadAssetView(id) {
-            currentAssetId = id;
-            db.ref('assets/' + id).once('value').then(snap => {
-                if (snap.exists()) {
-                    const a = snap.val();
-                    document.getElementById('view-scan').classList.remove('hidden');
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app-interface').classList.add('hidden');
-                    document.getElementById('scan-photo').src = a.imageUrl;
-                    document.getElementById('scan-name').textContent = a.name;
-                    document.getElementById('scan-serial').textContent = a.serial || 'N/A';
-                    document.getElementById('scan-ip').textContent = a.ip || 'N/A';
-                    document.getElementById('scan-location').textContent = a.location || 'N/A';
-                    
-                    const badge = document.getElementById('scan-cond');
-                    badge.textContent = a.cond;
-                    if (a.cond === 'Excelente') badge.style.background = '#10b981';
-                    else if (a.cond === 'Mantenimiento') badge.style.background = '#f59e0b';
-                    else badge.style.background = '#ef4444';
-                } else {
-                    alert('Activo no encontrado');
-                    goHome();
-                }
+        function handleSuccessfulLogin(user) {
+            db.ref('users').orderByChild('email').equalTo(user.email).once('value', snap => {
+                let userData = null; snap.forEach(c => userData = c.val());
+                currentRole = userData?.role || 'operador';
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-interface').classList.remove('hidden');
+                document.getElementById('display-user').textContent = userData?.name || user.email;
+                if (currentRole === 'admin') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                loadAssets(); loadReports();
             });
         }
 
-        // FUNCIONES QR AMPLIADO E IMPRESIÓN
-        function openQrModal(id, name) {
-            document.getElementById('qr-modal').classList.remove('hidden');
-            document.getElementById('qr-modal-name').textContent = name;
-            document.getElementById('qr-modal-id').textContent = "ID: " + id;
-            document.getElementById('qr-large').innerHTML = '';
-            new QRCode(document.getElementById('qr-large'), { 
-                text: BASE_URL + "?id=" + id, 
-                width: 250, 
-                height: 250 
-            });
-        }
-
-        function closeQrModal() {
-            document.getElementById('qr-modal').classList.add('hidden');
-        }
-
-        function goHome() {
-            window.location.href = BASE_URL;
-        }
-
-        function openReportModal() {
-            document.getElementById('report-modal').classList.remove('hidden');
-        }
-
-        function closeReportModal() {
-            document.getElementById('report-modal').classList.add('hidden');
-        }
-
-        document.getElementById('report-form').onsubmit = (e) => {
-            e.preventDefault();
-            if (!currentAssetId) return;
-            db.ref('reports').push({
-                assetId: currentAssetId,
-                assetName: document.getElementById('scan-name').textContent,
-                description: document.getElementById('report-desc').value,
-                timestamp: new Date().toISOString()
-            }).then(() => {
-                alert('✓ Reporte enviado');
-                closeReportModal();
-            });
-        };
-
-        function showSection(id) {
-            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.charAt(0).toUpperCase() + id.slice(1);
-        }
-
+        // LÓGICA DE ACTIVOS (REGISTRO Y EDICIÓN)
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
-                let total = 0, exc = 0, mant = 0, dan = 0;
+                let stats = { total: 0, Excelente: 0, Mantenimiento: 0, Dañado: 0 };
                 
                 snap.forEach(doc => {
                     const a = doc.val();
-                    total++;
-                    if (a.cond === 'Excelente') exc++;
-                    else if (a.cond === 'Mantenimiento') mant++;
-                    else dan++;
-
+                    stats.total++; stats[a.cond]++;
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 flex flex-col items-center cursor-pointer hover:scale-105 transition-transform";
-                    card.onclick = () => openQrModal(doc.key, a.name);
+                    card.className = "glass-card p-6 flex flex-col items-center relative";
                     card.innerHTML = `
-                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
-                        <h3 class="font-black text-xs uppercase">${a.name}</h3>
-                        <p class="text-[9px] text-cyan-400 mb-2">${a.location}</p>
-                        <p class="text-[8px] text-slate-400 mb-4">IP: ${a.ip || 'N/A'}</p>
-                        <div class="bg-white p-2 rounded-xl" id="qr-${doc.key}"></div>
-                        <p class="text-[7px] text-purple-400 mt-2">ID: ${doc.key}</p>
-                        <p class="text-[8px] text-slate-500 mt-1 uppercase font-bold">Clic para imprimir</p>
+                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-edit"></i></button>` : ''}
+                        <div onclick="openQrModal('${doc.key}', '${a.name}')" class="cursor-pointer flex flex-col items-center w-full">
+                            <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
+                            <h3 class="font-black text-xs uppercase">${a.name}</h3>
+                            <p class="text-[9px] text-cyan-400 mb-2">${a.location}</p>
+                            <div class="bg-white p-2 rounded-xl" id="qr-${doc.key}"></div>
+                            <p class="text-[7px] text-purple-400 mt-2">ID: ${doc.key}</p>
+                        </div>
                     `;
                     container.appendChild(card);
-                    new QRCode(document.getElementById(`qr-${doc.key}`), { 
-                        text: BASE_URL + "?id=" + doc.key, 
-                        width: 80, 
-                        height: 80 
-                    });
+                    new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
-
-                document.getElementById('dash-total').textContent = total;
-                document.getElementById('dash-excelente').textContent = exc;
-                document.getElementById('dash-mantenimiento').textContent = mant;
-                document.getElementById('dash-danado').textContent = dan;
+                ['total','excelente','mantenimiento','danado'].forEach(id => document.getElementById('dash-'+id).textContent = stats[id.charAt(0).toUpperCase() + id.slice(1)] || stats[id] || 0);
             });
         }
 
-        function loadReports() {
-            db.ref('reports').on('value', snap => {
-                const tbody = document.getElementById('report-list-body');
-                tbody.innerHTML = '';
-                const reports = [];
-                snap.forEach(doc => reports.push({...doc.val(), id: doc.key}));
-                reports.reverse().forEach(r => {
-                    const row = tbody.insertRow();
-                    row.className = 'border-b border-white/5';
-                    row.innerHTML = `<td class="p-6 text-xs">${r.assetName}</td><td class="p-6 text-xs text-slate-400">${r.description}</td><td class="p-6 text-xs text-slate-500">${new Date(r.timestamp).toLocaleString()}</td>`;
-                });
+        function prepareEdit(id) {
+            db.ref('assets/' + id).once('value').then(snap => {
+                const a = snap.val();
+                document.getElementById('edit-id').value = id;
+                document.getElementById('as-name').value = a.name;
+                document.getElementById('as-serial').value = a.serial;
+                document.getElementById('as-ip').value = a.ip || '';
+                document.getElementById('as-loc').value = a.location;
+                document.getElementById('as-photo').value = a.imageUrl;
+                document.getElementById('as-cond').value = a.cond;
+                
+                document.getElementById('asset-form-title').textContent = "Editar Activo";
+                document.getElementById('btn-asset-submit').textContent = "Actualizar Cambios";
+                document.getElementById('btn-cancel-edit').classList.remove('hidden');
+                document.getElementById('sec-inventario').scrollIntoView({behavior: 'smooth'});
             });
+        }
+
+        function resetAssetForm() {
+            document.getElementById('form-asset').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('asset-form-title').textContent = "Registrar Activo";
+            document.getElementById('btn-asset-submit').textContent = "Registrar";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
         }
 
         document.getElementById('form-asset').onsubmit = (e) => {
             e.preventDefault();
-            db.ref('assets').push({
+            const editId = document.getElementById('edit-id').value;
+            const data = {
                 name: document.getElementById('as-name').value,
                 serial: document.getElementById('as-serial').value,
                 ip: document.getElementById('as-ip').value,
                 location: document.getElementById('as-loc').value,
                 imageUrl: document.getElementById('as-photo').value,
                 cond: document.getElementById('as-cond').value,
-                createdAt: new Date().toISOString()
-            }).then(() => {
-                alert('✓ Activo registrado');
-                e.target.reset();
-            });
-        };
+                updatedAt: new Date().toISOString()
+            };
 
-        document.getElementById('form-user').onsubmit = (e) => {
-            e.preventDefault();
-            const email = document.getElementById('new-u-email').value;
-            const pass = document.getElementById('new-u-pass').value;
-            auth.createUserWithEmailAndPassword(email, pass).then(() => {
-                return db.ref('users').push({
-                    email: email,
-                    name: document.getElementById('new-u-name').value,
-                    role: document.getElementById('new-u-role').value
+            if (editId) {
+                db.ref('assets/' + editId).update(data).then(() => {
+                    alert('✓ Activo actualizado');
+                    resetAssetForm();
                 });
-            }).then(() => {
-                alert('✓ Usuario creado');
-                e.target.reset();
-            });
+            } else {
+                data.createdAt = new Date().toISOString();
+                db.ref('assets').push(data).then(() => {
+                    alert('✓ Activo registrado');
+                    e.target.reset();
+                });
+            }
         };
 
-        function handleSuccessfulLogin(user) {
-            db.ref('users').orderByChild('email').equalTo(user.email).once('value', snap => {
-                let userData = null;
-                snap.forEach(c => userData = c.val());
-                currentRole = userData?.role || 'operador';
-                
-                // Si el usuario venía de un escaneo, mostrar esa vista
-                if (pendingScanId) {
-                    loadAssetView(pendingScanId);
-                    pendingScanId = null;
-                } else {
+        // MODALES Y OTROS
+        function openQrModal(id, name) {
+            document.getElementById('qr-modal').classList.remove('hidden');
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-id').textContent = "ID: " + id;
+            document.getElementById('qr-large').innerHTML = '';
+            new QRCode(document.getElementById('qr-large'), { text: BASE_URL + "?id=" + id, width: 250, height: 250 });
+        }
+
+        function loadAssetView(id) {
+            db.ref('assets/' + id).once('value').then(snap => {
+                if (snap.exists()) {
+                    const a = snap.val();
+                    document.getElementById('view-scan').classList.remove('hidden');
                     document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    document.getElementById('display-user').textContent = userData?.name || user.email;
-                    if (currentRole === 'admin') {
-                        document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                    }
-                    loadAssets();
-                    loadReports();
-                }
+                    document.getElementById('scan-photo').src = a.imageUrl;
+                    document.getElementById('scan-name').textContent = a.name;
+                    document.getElementById('scan-serial').textContent = a.serial;
+                    document.getElementById('scan-ip').textContent = a.ip || 'N/A';
+                    document.getElementById('scan-location').textContent = a.location;
+                    const badge = document.getElementById('scan-cond');
+                    badge.textContent = a.cond; badge.style.background = a.cond === 'Excelente' ? '#10b981' : (a.cond === 'Mantenimiento' ? '#f59e0b' : '#ef4444');
+                } else goHome();
             });
         }
 
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(
-                document.getElementById('user-input').value,
-                document.getElementById('pass-input').value
-            ).then(res => {
-                handleSuccessfulLogin(res.user);
-            }).catch(() => alert('Error de acceso: Verifique sus credenciales'));
+            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
+                .then(res => handleSuccessfulLogin(res.user))
+                .catch(() => alert('Error de acceso'));
         };
 
-        function logout() {
-            auth.signOut().then(() => location.reload());
+        function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
+        function goHome() { window.location.href = BASE_URL; }
+        function showSection(id) { 
+            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden')); 
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.getElementById('section-title').textContent = id.toUpperCase();
         }
-
-        setInterval(() => {
-            const timeEl = document.getElementById('current-time');
-            if(timeEl) timeEl.textContent = new Date().toLocaleString('es-ES');
-        }, 1000);
+        function logout() { auth.signOut().then(() => location.reload()); }
+        setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
 </html>
