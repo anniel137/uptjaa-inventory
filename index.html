@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPTJAA Inventory - Sistema de Gestión</title>
+    <title>SIGAT UPTJAA - Gestión de Activos</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -85,7 +85,10 @@
 
     <div id="login-screen" class="fixed inset-0 z-[500] flex items-center justify-center p-6">
         <div class="glass-card p-10 w-full max-w-md text-center">
-            <h2 class="text-2xl font-black mb-8 tracking-tighter italic">UPTJAA <span class="text-cyan-400">ADMIN</span></h2>
+            <div class="mb-8">
+                <h2 class="text-2xl font-black tracking-tighter italic">SIGAT <span class="text-cyan-400 text-sm block not-italic font-bold">UPTJAA</span></h2>
+                <p class="text-[10px] text-slate-400 uppercase tracking-widest mt-2">Gestión de Activos Tecnológicos</p>
+            </div>
             <form id="login-form" class="space-y-4">
                 <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold" required>
                 <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold" required>
@@ -96,7 +99,10 @@
 
     <div id="app-interface" class="hidden flex h-screen w-full">
         <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
-            <h1 class="font-black text-xl mb-12 tracking-tighter">UPTJAA <span class="text-purple-500">v4.0</span></h1>
+            <div class="mb-12">
+                <h1 class="font-black text-2xl tracking-tighter">SIGAT</h1>
+                <p class="text-[9px] font-bold text-purple-500 tracking-[0.2em] uppercase">Sistema de Activos</p>
+            </div>
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
                 <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
@@ -111,7 +117,10 @@
 
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="p-8 flex justify-between items-center">
-                <h2 id="section-title" class="text-3xl font-black uppercase tracking-tighter">Panel</h2>
+                <div>
+                    <h2 id="section-title" class="text-3xl font-black uppercase tracking-tighter">Panel</h2>
+                    <p class="text-[9px] text-slate-500 font-bold uppercase mt-1">UPTJAA - Gestión de Inventario</p>
+                </div>
                 <div id="current-time" class="text-[10px] font-bold text-slate-500"></div>
             </header>
             
