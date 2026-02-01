@@ -26,8 +26,8 @@
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .admin-only { display: none; }
         .info-row { background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
-
-        /* Estilo para que el logo brille */
+        
+        /* Efecto de brillo para el logo institucional */
         .logo-glow { filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5)); border: 2px solid rgba(0, 242, 255, 0.3); }
 
         @media print {
@@ -54,11 +54,29 @@
         </div>
     </div>
 
+    <div id="view-scan" class="fixed inset-0 z-[1000] bg-[#0a0b10] flex flex-col hidden overflow-y-auto">
+        <div class="p-6 max-w-md mx-auto w-full space-y-6 pb-20">
+            <div class="relative h-64 rounded-[2.5rem] overflow-hidden border-2 border-purple-500 shadow-2xl">
+                <img id="scan-photo" src="" class="w-full h-full object-cover">
+                <div id="scan-cond" class="absolute top-4 right-4 px-4 py-2 rounded-full text-xs font-black uppercase text-white shadow-lg"></div>
+            </div>
+            <div class="text-center">
+                <h1 id="scan-name" class="text-3xl font-black text-cyan-400 uppercase"></h1>
+            </div>
+            <div class="space-y-3" id="scan-details">
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Serial</p><p id="scan-serial" class="text-sm font-bold text-white">...</p></div>
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">IP</p><p id="scan-ip" class="text-sm font-bold text-cyan-400">...</p></div>
+                <div class="info-row"><p class="text-[10px] font-black text-slate-400 uppercase mb-1">Ubicación</p><p id="scan-location" class="text-sm font-bold text-white">...</p></div>
+            </div>
+            <button onclick="openReportModal()" class="w-full btn-yellow py-4 rounded-2xl font-black uppercase text-xs text-white">Reportar Falla</button>
+            <button onclick="goHome()" class="w-full bg-white/10 py-4 rounded-2xl font-black uppercase text-xs text-white">Finalizar</button>
+        </div>
+    </div>
+
     <div id="login-screen" class="fixed inset-0 z-[500] flex items-center justify-center p-6">
         <div class="glass-card p-10 w-full max-w-md text-center flex flex-col items-center">
-            <img src="https://github.com/anniel137/uptjaa-inventory/blob/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg?raw=true" 
-                 alt="Logo PoliAnzoategui" 
-                 class="w-32 h-32 mb-6 rounded-full object-cover logo-glow">
+            <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" 
+                 alt="Logo PoliAnzoategui" class="w-28 h-28 mb-6 rounded-full object-cover logo-glow">
             
             <div class="mb-8">
                 <h2 class="text-5xl font-black tracking-tighter italic text-white">SIGAT</h2>
@@ -98,9 +116,8 @@
                 </div>
                 <div class="flex items-center gap-4">
                     <div id="current-time" class="text-[10px] font-bold text-slate-500 text-right"></div>
-                    <img src="https://github.com/anniel137/uptjaa-inventory/blob/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg?raw=true" 
-                         alt="Logo" 
-                         class="w-14 h-14 rounded-xl object-cover logo-glow">
+                    <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" 
+                         alt="Logo" class="w-14 h-14 rounded-xl object-cover logo-glow">
                 </div>
             </header>
             
@@ -194,15 +211,7 @@
                 document.getElementById('app-interface').classList.remove('hidden');
                 document.getElementById('display-user').textContent = userData?.name || user.email;
                 if (currentRole === 'admin') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                loadAssets(); 
-                db.ref('reports').on('value', snap => {
-                    const list = document.getElementById('report-list-body');
-                    list.innerHTML = '';
-                    snap.forEach(doc => {
-                        const r = doc.val();
-                        list.innerHTML += `<tr class="border-b border-white/5 hover:bg-white/5 transition-all"><td class="p-6 font-bold uppercase text-xs">${r.assetName}</td><td class="p-6 text-slate-400 text-xs">${r.desc}</td><td class="p-6 text-[10px] text-slate-500 font-bold uppercase">${new Date(r.timestamp).toLocaleString()}</td></tr>`;
-                    });
-                });
+                loadAssets(); loadReports();
             });
         }
 
@@ -231,6 +240,88 @@
                     new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
                 ['total','excelente','mantenimiento','danado'].forEach(id => document.getElementById('dash-'+id).textContent = stats[id.charAt(0).toUpperCase() + id.slice(1)] || stats[id] || 0);
+            });
+        }
+
+        // El resto de tus funciones permanecen exactamente igual...
+        function loadReports() {
+            db.ref('reports').on('value', snap => {
+                const list = document.getElementById('report-list-body');
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const r = doc.val();
+                    list.innerHTML += `<tr class="border-b border-white/5"><td class="p-6 font-bold uppercase text-xs">${r.assetName}</td><td class="p-6 text-slate-400 text-xs">${r.desc}</td><td class="p-6 text-[10px] text-slate-500 font-bold uppercase">${new Date(r.timestamp).toLocaleString()}</td></tr>`;
+                });
+            });
+        }
+
+        function prepareEdit(id) {
+            db.ref('assets/' + id).once('value').then(snap => {
+                const a = snap.val();
+                document.getElementById('edit-id').value = id;
+                document.getElementById('as-name').value = a.name;
+                document.getElementById('as-serial').value = a.serial;
+                document.getElementById('as-ip').value = a.ip || '';
+                document.getElementById('as-loc').value = a.location;
+                document.getElementById('as-photo').value = a.imageUrl;
+                document.getElementById('as-cond').value = a.cond;
+                document.getElementById('asset-form-title').textContent = "Editar Activo";
+                document.getElementById('btn-asset-submit').textContent = "Actualizar Cambios";
+                document.getElementById('btn-cancel-edit').classList.remove('hidden');
+                document.getElementById('sec-inventario').scrollIntoView({behavior: 'smooth'});
+            });
+        }
+
+        function resetAssetForm() {
+            document.getElementById('form-asset').reset();
+            document.getElementById('edit-id').value = '';
+            document.getElementById('asset-form-title').textContent = "Registrar Activo";
+            document.getElementById('btn-asset-submit').textContent = "Registrar";
+            document.getElementById('btn-cancel-edit').classList.add('hidden');
+        }
+
+        document.getElementById('form-asset').onsubmit = (e) => {
+            e.preventDefault();
+            const editId = document.getElementById('edit-id').value;
+            const data = {
+                name: document.getElementById('as-name').value,
+                serial: document.getElementById('as-serial').value,
+                ip: document.getElementById('as-ip').value,
+                location: document.getElementById('as-loc').value,
+                imageUrl: document.getElementById('as-photo').value,
+                cond: document.getElementById('as-cond').value,
+                updatedAt: new Date().toISOString()
+            };
+            if (editId) {
+                db.ref('assets/' + editId).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
+            } else {
+                data.createdAt = new Date().toISOString();
+                db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
+            }
+        };
+
+        function openQrModal(id, name) {
+            document.getElementById('qr-modal').classList.remove('hidden');
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-id').textContent = "ID: " + id;
+            document.getElementById('qr-large').innerHTML = '';
+            new QRCode(document.getElementById('qr-large'), { text: BASE_URL + "?id=" + id, width: 250, height: 250 });
+        }
+
+        function loadAssetView(id) {
+            db.ref('assets/' + id).once('value').then(snap => {
+                if (snap.exists()) {
+                    const a = snap.val();
+                    document.getElementById('view-scan').classList.remove('hidden');
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('scan-photo').src = a.imageUrl;
+                    document.getElementById('scan-name').textContent = a.name;
+                    document.getElementById('scan-serial').textContent = a.serial;
+                    document.getElementById('scan-ip').textContent = a.ip || 'N/A';
+                    document.getElementById('scan-location').textContent = a.location;
+                    const badge = document.getElementById('scan-cond');
+                    badge.textContent = a.cond; badge.style.background = a.cond === 'Excelente' ? '#10b981' : (a.cond === 'Mantenimiento' ? '#f59e0b' : '#ef4444');
+                } else goHome();
             });
         }
 
