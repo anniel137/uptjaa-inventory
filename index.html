@@ -24,9 +24,8 @@
         .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
         .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
-        
-        /* Aseguramos que los elementos admin se vean por defecto hasta que el script decida */
-        .admin-only { display: block; } 
+        .info-row { background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .logo-glow { filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5)); border: 2px solid rgba(0, 242, 255, 0.3); }
 
         @media print {
             body * { visibility: hidden; }
@@ -108,8 +107,8 @@
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
                 <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 admin-only"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 admin-only"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-bell w-8"></i> Reportes</button>
+                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate"></p>
@@ -140,7 +139,7 @@
                 </section>
 
                 <section id="sec-inventario" class="hidden space-y-8">
-                    <div class="glass-card p-8 admin-only" id="form-registro-activos">
+                    <div class="glass-card p-8" id="form-registro-activos">
                         <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
@@ -174,14 +173,14 @@
                 
                 <section id="sec-usuarios" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Crear Usuario</h3>
+                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Gestión de Usuarios</h3>
                         <form id="form-user" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <input type="email" id="new-u-email" placeholder="Email" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs text-white" required>
                             <input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs text-white" required>
                             <input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-xs text-white" required>
                             <select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs uppercase text-white">
-                                <option value="admin">Admin</option>
-                                <option value="operador">Operador</option>
+                                <option value="admin">Administrador</option>
+                                <option value="operario">Operario</option>
                             </select>
                             <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black text-xs uppercase">Crear Usuario</button>
                         </form>
@@ -189,7 +188,7 @@
                     <div class="glass-card overflow-hidden">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400">
-                                <tr><th class="p-6">Nombre</th><th class="p-6">Email</th><th class="p-6">Rol</th></tr>
+                                <tr><th class="p-6">Nombre</th><th class="p-6">Email</th><th class="p-6">Rol</th><th class="p-6">Acción</th></tr>
                             </thead>
                             <tbody id="user-list-body"></tbody>
                         </table>
@@ -200,7 +199,6 @@
     </div>
 
     <script>
-        // TU CONFIGURACION DE FIREBASE SE MANTIENE
         const firebaseConfig = {
             apiKey: "AIzaSyD0rFUIbW_494SmefO7FRVhsBVW1aXxcDo",
             authDomain: "control-de-activos-1c3b7.firebaseapp.com",
@@ -212,7 +210,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
-        let currentRole = 'admin'; // Por defecto admin para que no se oculte nada al inicio
+        let currentRole = 'operario';
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -230,7 +228,7 @@
             db.ref('users/' + user.uid).once('value', snap => {
                 let userData = snap.val();
                 
-                // SI EL USUARIO NO EXISTE EN LA DB (como tu cuenta actual), LO CREAMOS COMO ADMIN
+                // Si el usuario no existe en la DB (primer login), lo creamos como Admin por seguridad
                 if (!userData) {
                     userData = { name: user.email.split('@')[0], email: user.email, role: 'admin' };
                     db.ref('users/' + user.uid).set(userData);
@@ -239,21 +237,27 @@
                 currentRole = userData.role;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
-                document.getElementById('display-user').textContent = userData.name;
+                document.getElementById('display-user').textContent = userData.name + " (" + currentRole + ")";
                 
-                // APLICAR VISIBILIDAD DE ROLES
-                const adminElements = document.querySelectorAll('.admin-only');
-                adminElements.forEach(el => {
-                    el.style.display = (currentRole === 'admin') ? 'block' : 'none';
-                });
-
-                if(currentRole === 'admin') loadUsersList();
+                applyPermissions();
                 loadAssets(); 
                 loadReports();
+                if(currentRole === 'admin') loadUsersList();
             });
         }
 
-        // --- LAS FUNCIONES DE USUARIOS ---
+        function applyPermissions() {
+            // Secciones laterales
+            document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            document.getElementById('nav-reportes').style.display = (currentRole === 'admin') ? 'flex' : 'none';
+            
+            // Formulario de activos (Ambos pueden agregar, pero admin tiene texto diferente)
+            document.getElementById('form-registro-activos').style.display = 'block';
+            
+            // Botones de editar en las cards se manejan en loadAssets()
+        }
+
+        // --- GESTIÓN DE USUARIOS ---
         document.getElementById('form-user').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('new-u-email').value;
@@ -261,15 +265,15 @@
             const name = document.getElementById('new-u-name').value;
             const role = document.getElementById('new-u-role').value;
             try {
+                // Registrar en Authentication
                 const userCredential = await auth.createUserWithEmailAndPassword(email, pass);
+                // Guardar en Database con el rol elegido
                 await db.ref('users/' + userCredential.user.uid).set({
                     name, email, role, createdAt: new Date().toISOString()
                 });
-                alert('✓ Usuario registrado con éxito'); 
+                alert('✓ Usuario creado como: ' + role); 
                 e.target.reset();
-            } catch (error) { 
-                alert('Error: ' + error.message); 
-            }
+            } catch (error) { alert('Error: ' + error.message); }
         };
 
         function loadUsersList() {
@@ -283,13 +287,26 @@
                         <tr class="border-b border-white/5">
                             <td class="p-6 font-bold text-xs uppercase text-white">${u.name}</td>
                             <td class="p-6 text-slate-400 text-xs">${u.email}</td>
-                            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
+                            <td class="p-6">
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">
+                                    ${u.role}
+                                </span>
+                            </td>
+                            <td class="p-6">
+                                <button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:text-red-400 text-xs"><i class="fas fa-trash"></i></button>
+                            </td>
                         </tr>`;
                 });
             });
         }
 
-        // --- TODO LO DEMAS SE MANTIENE IGUAL (Invertario, QR, Reportes) ---
+        function deleteUser(uid) {
+            if(confirm("¿Estás seguro de eliminar este usuario de la base de datos?")) {
+                db.ref('users/' + uid).remove().then(() => alert("Usuario eliminado de la base de datos."));
+            }
+        }
+
+        // --- GESTIÓN DE ACTIVOS ---
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
@@ -299,10 +316,15 @@
                     const a = doc.val(); stats.total++; stats[a.cond]++;
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col items-center relative";
+                    
+                    // Solo el Admin ve el botón de editar
+                    const editBtn = (currentRole === 'admin') ? 
+                        `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-edit"></i></button>` : '';
+
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-edit"></i></button>` : ''}
+                        ${editBtn}
                         <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
-                        <h3 class="font-black text-xs uppercase">${a.name}</h3>
+                        <h3 class="font-black text-xs uppercase text-white">${a.name}</h3>
                         <p class="text-[9px] text-cyan-400 mb-2">${a.location}</p>
                         <div class="bg-white p-2 rounded-xl" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
                     `;
@@ -324,8 +346,13 @@
                 ip: document.getElementById('as-ip').value, location: document.getElementById('as-loc').value,
                 imageUrl: document.getElementById('as-photo').value, cond: document.getElementById('as-cond').value
             };
-            if (editId) db.ref('assets/' + editId).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
-            else db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
+            
+            if (editId) {
+                if(currentRole !== 'admin') { alert("No tienes permiso para editar."); return; }
+                db.ref('assets/' + editId).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
+            } else {
+                db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
+            }
         };
 
         function prepareEdit(id) {
@@ -338,9 +365,10 @@
                 document.getElementById('as-loc').value = a.location;
                 document.getElementById('as-photo').value = a.imageUrl;
                 document.getElementById('as-cond').value = a.cond;
-                document.getElementById('asset-form-title').textContent = "Editar Activo";
+                document.getElementById('asset-form-title').textContent = "Editar Activo (Admin)";
                 document.getElementById('btn-asset-submit').textContent = "Actualizar";
                 document.getElementById('btn-cancel-edit').classList.remove('hidden');
+                document.getElementById('sec-inventario').scrollIntoView();
             });
         }
 
