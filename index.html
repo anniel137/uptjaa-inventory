@@ -23,6 +23,7 @@
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
         .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
         .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
+        .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; }
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .admin-only { display: none; }
         .info-row { background: rgba(255, 255, 255, 0.03); padding: 1rem; border-radius: 1rem; border: 1px solid rgba(255, 255, 255, 0.05); }
@@ -170,7 +171,7 @@
                 <section id="sec-reportes" class="hidden">
                     <div class="glass-card overflow-hidden">
                         <table class="w-full text-left text-sm">
-                            <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400"><tr><th class="p-6">Equipo</th><th class="p-6">Falla</th><th class="p-6">Fecha</th></tr></thead>
+                            <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400"><tr><th class="p-6">Equipo</th><th class="p-6">Falla</th><th class="p-6">Fecha</th><th class="p-6">Reportado por</th><th class="p-6">Acciones</th></tr></thead>
                             <tbody id="report-list-body"></tbody>
                         </table>
                     </div>
@@ -203,6 +204,10 @@
         const auth = firebase.auth(); const db = firebase.database();
         let currentRole = 'operador';
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
+        
+        // Variables para tracking
+        let currentAssetIdForReport = null;
+        let currentAssetNameForReport = null;
 
         window.addEventListener('DOMContentLoaded', () => {
             const params = new URLSearchParams(window.location.search);
@@ -216,14 +221,35 @@
         });
 
         function handleSuccessfulLogin(user) {
-            db.ref('users').orderByChild('email').equalTo(user.email).once('value', snap => {
-                let userData = null; snap.forEach(c => userData = c.val());
-                currentRole = userData?.role || 'operador';
+            db.ref('users/' + user.uid).once('value').then(userSnap => {
+                let userData = userSnap.val();
+                
+                // Si el usuario no existe en la DB, crearlo con createdAt
+                if (!userData) {
+                    const newUserData = {
+                        email: user.email,
+                        name: user.displayName || user.email.split('@')[0],
+                        role: 'operador',
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        lastLogin: firebase.database.ServerValue.TIMESTAMP
+                    };
+                    db.ref('users/' + user.uid).set(newUserData);
+                    userData = newUserData;
+                    currentRole = 'operador';
+                } else {
+                    // Actualizar lastLogin
+                    db.ref('users/' + user.uid).update({
+                        lastLogin: firebase.database.ServerValue.TIMESTAMP
+                    });
+                    currentRole = userData.role || 'operador';
+                }
+                
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
-                document.getElementById('display-user').textContent = userData?.name || user.email;
+                document.getElementById('display-user').textContent = userData.name || user.email;
                 if (currentRole === 'admin') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
-                loadAssets(); loadReports();
+                loadAssets(); 
+                loadReports();
             });
         }
 
@@ -239,7 +265,10 @@
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col items-center relative";
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-edit"></i></button>` : ''}
+                        ${currentRole === 'admin' ? `
+                            <button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-edit"></i></button>
+                            <button onclick="eliminarActivo('${doc.key}')" class="absolute top-4 right-4 btn-delete p-2 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-trash"></i></button>
+                        ` : ''}
                         <div class="flex flex-col items-center w-full">
                             <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
                             <h3 class="font-black text-xs uppercase">${a.name}</h3>
@@ -255,6 +284,14 @@
                 });
                 ['total','excelente','mantenimiento','danado'].forEach(id => document.getElementById('dash-'+id).textContent = stats[id.charAt(0).toUpperCase() + id.slice(1)] || stats[id] || 0);
             });
+        }
+
+        function eliminarActivo(id) {
+            if (confirm("¿Eliminar este activo permanentemente?\n\n⚠️ Esta acción no se puede deshacer.")) {
+                db.ref('assets/' + id).remove()
+                    .then(() => alert('✓ Activo eliminado correctamente'))
+                    .catch(error => alert('✗ Error: ' + error.message));
+            }
         }
 
         function prepareEdit(id) {
@@ -286,13 +323,27 @@
             e.preventDefault();
             const editId = document.getElementById('edit-id').value;
             const data = {
-                name: document.getElementById('as-name').value, serial: document.getElementById('as-serial').value,
-                ip: document.getElementById('as-ip').value, location: document.getElementById('as-loc').value,
-                imageUrl: document.getElementById('as-photo').value, cond: document.getElementById('as-cond').value,
+                name: document.getElementById('as-name').value, 
+                serial: document.getElementById('as-serial').value,
+                ip: document.getElementById('as-ip').value, 
+                location: document.getElementById('as-loc').value,
+                imageUrl: document.getElementById('as-photo').value, 
+                cond: document.getElementById('as-cond').value,
                 updatedAt: new Date().toISOString()
             };
-            if (editId) db.ref('assets/' + editId).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
-            else { data.createdAt = new Date().toISOString(); db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); }); }
+            
+            if (editId) {
+                db.ref('assets/' + editId).update(data).then(() => { 
+                    alert('✓ Actualizado correctamente'); 
+                    resetAssetForm(); 
+                });
+            } else { 
+                data.createdAt = new Date().toISOString(); 
+                db.ref('assets').push(data).then(() => { 
+                    alert('✓ Registrado correctamente'); 
+                    e.target.reset(); 
+                }); 
+            }
         };
 
         function openQrModal(id, name) {
@@ -307,6 +358,9 @@
             db.ref('assets/' + id).once('value').then(snap => {
                 if (snap.exists()) {
                     const a = snap.val();
+                    currentAssetIdForReport = id;
+                    currentAssetNameForReport = a.name;
+                    
                     document.getElementById('view-scan').classList.remove('hidden');
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('scan-photo').src = a.imageUrl;
@@ -315,10 +369,52 @@
                     document.getElementById('scan-ip').textContent = a.ip || 'N/A';
                     document.getElementById('scan-location').textContent = a.location;
                     const badge = document.getElementById('scan-cond');
-                    badge.textContent = a.cond; badge.style.background = a.cond === 'Excelente' ? '#10b981' : (a.cond === 'Mantenimiento' ? '#f59e0b' : '#ef4444');
+                    badge.textContent = a.cond; 
+                    badge.style.background = a.cond === 'Excelente' ? '#10b981' : (a.cond === 'Mantenimiento' ? '#f59e0b' : '#ef4444');
                 } else goHome();
             });
         }
+
+        function openReportModal() {
+            document.getElementById('report-modal').classList.remove('hidden');
+            document.getElementById('report-desc').value = '';
+            document.getElementById('report-desc').focus();
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-modal').classList.add('hidden');
+        }
+
+        document.getElementById('report-form').onsubmit = (e) => {
+            e.preventDefault();
+            const user = auth.currentUser;
+            const desc = document.getElementById('report-desc').value;
+            
+            if (!currentAssetIdForReport) {
+                alert('Error: No se pudo identificar el activo');
+                return;
+            }
+            
+            const reportData = {
+                assetId: currentAssetIdForReport,
+                assetName: currentAssetNameForReport,
+                desc: desc,
+                usuarioEmail: user.email,
+                usuarioUid: user.uid,
+                timestamp: new Date().toISOString(),
+                status: 'pendiente'
+            };
+            
+            db.ref('reports').push(reportData)
+                .then(() => {
+                    alert('✓ Reporte enviado correctamente');
+                    closeReportModal();
+                    goHome();
+                })
+                .catch(error => {
+                    alert('✗ Error al enviar reporte: ' + error.message);
+                });
+        };
 
         function loadReports() {
             db.ref('reports').on('value', snap => {
@@ -326,9 +422,28 @@
                 list.innerHTML = '';
                 snap.forEach(doc => {
                     const r = doc.val();
-                    list.innerHTML += `<tr class="border-b border-white/5"><td class="p-6 font-bold uppercase text-xs">${r.assetName}</td><td class="p-6 text-slate-400 text-xs">${r.desc}</td><td class="p-6 text-[10px] text-slate-500 font-bold uppercase">${new Date(r.timestamp).toLocaleString()}</td></tr>`;
+                    const acciones = currentRole === 'admin' ? 
+                        `<button onclick="eliminarReporte('${doc.key}')" class="btn-delete px-3 py-1 rounded-lg text-[10px] font-black uppercase"><i class="fas fa-trash"></i> Eliminar</button>` : 
+                        '';
+                    
+                    list.innerHTML += `
+                        <tr class="border-b border-white/5">
+                            <td class="p-6 font-bold uppercase text-xs">${r.assetName}</td>
+                            <td class="p-6 text-slate-400 text-xs">${r.desc}</td>
+                            <td class="p-6 text-[10px] text-slate-500 font-bold uppercase">${new Date(r.timestamp).toLocaleString()}</td>
+                            <td class="p-6 text-[10px] text-cyan-400">${r.usuarioEmail || 'N/A'}</td>
+                            <td class="p-6">${acciones}</td>
+                        </tr>`;
                 });
             });
+        }
+
+        function eliminarReporte(id) {
+            if (confirm("¿Eliminar este reporte permanentemente?")) {
+                db.ref('reports/' + id).remove()
+                    .then(() => alert('✓ Reporte eliminado'))
+                    .catch(error => alert('✗ Error: ' + error.message));
+            }
         }
 
         document.getElementById('login-form').onsubmit = (e) => {
@@ -346,6 +461,36 @@
             document.getElementById('section-title').textContent = id.toUpperCase();
         }
         function logout() { auth.signOut().then(() => location.reload()); }
+        
+        // Crear usuario (corrección del formulario)
+        document.getElementById('form-user').onsubmit = (e) => {
+            e.preventDefault();
+            const email = document.getElementById('new-u-email').value;
+            const password = document.getElementById('new-u-pass').value;
+            const name = document.getElementById('new-u-name').value;
+            const role = document.getElementById('new-u-role').value;
+            
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(userCredential => {
+                    const user = userCredential.user;
+                    return db.ref('users/' + user.uid).set({
+                        email: email,
+                        name: name,
+                        role: role,
+                        createdAt: firebase.database.ServerValue.TIMESTAMP,
+                        createdBy: auth.currentUser.uid
+                    });
+                })
+                .then(() => {
+                    alert('✓ Usuario creado correctamente');
+                    document.getElementById('form-user').reset();
+                    auth.signOut(); // Cerrar sesión del usuario creado
+                })
+                .catch(error => {
+                    alert('✗ Error al crear usuario: ' + error.message);
+                });
+        };
+        
         setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
