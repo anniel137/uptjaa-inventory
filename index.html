@@ -91,9 +91,23 @@
             
             <div class="p-8 overflow-y-auto flex-1">
                 <section id="sec-dashboard">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass-card p-8 neon-purple"><h4 class="text-[10px] font-black uppercase mb-2">Total</h4><p id="dash-total" class="text-5xl font-black">0</p></div>
-                        <div class="glass-card p-8 neon-green"><h4 class="text-[10px] font-black uppercase mb-2 text-emerald-400">Excelente</h4><p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p></div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                        <div class="glass-card p-8 neon-purple">
+                            <h4 class="text-[10px] font-black uppercase mb-2">Total Activos</h4>
+                            <p id="dash-total" class="text-5xl font-black">0</p>
+                        </div>
+                        <div class="glass-card p-8 neon-green">
+                            <h4 class="text-[10px] font-black uppercase mb-2 text-emerald-400">Excelente</h4>
+                            <p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p>
+                        </div>
+                        <div class="glass-card p-8 neon-orange">
+                            <h4 class="text-[10px] font-black uppercase mb-2 text-orange-400">Mantenimiento</h4>
+                            <p id="dash-mantenimiento" class="text-5xl font-black text-orange-400">0</p>
+                        </div>
+                        <div class="glass-card p-8 neon-red">
+                            <h4 class="text-[10px] font-black uppercase mb-2 text-red-400">Dañados</h4>
+                            <p id="dash-danado" class="text-5xl font-black text-red-400">0</p>
+                        </div>
                     </div>
                 </section>
 
@@ -102,16 +116,16 @@
                         <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
-                            <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="text" id="as-loc" placeholder="Ubicación" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="url" id="as-photo" placeholder="URL Foto" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white">
+                            <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="text" id="as-loc" placeholder="Ubicación" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="url" id="as-photo" placeholder="URL Foto" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white cursor-pointer">
                                 <option value="Excelente">Excelente</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar</button>
+                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase hover:opacity-90 transition-opacity">Guardar Activo</button>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
@@ -142,14 +156,13 @@
                 </section>
 
                 <section id="sec-reportes" class="hidden">
-                   <div class="glass-card p-8 text-center text-slate-500 font-bold">HISTORIAL DE REPORTES ACTIVO</div>
+                   <div class="glass-card p-8 text-center text-slate-500 font-bold uppercase tracking-widest">Historial de Reportes Críticos Activo</div>
                 </section>
             </div>
         </main>
     </div>
 
     <script>
-        // TU CONFIGURACIÓN
         const firebaseConfig = {
             apiKey: "AIzaSyD0rFUIbW_494SmefO7FRVhsBVW1aXxcDo",
             authDomain: "control-de-activos-1c3b7.firebaseapp.com",
@@ -163,8 +176,6 @@
         const auth = firebase.auth(); const db = firebase.database();
         let currentRole = 'operario';
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
-
-        // TU CORREO ADMINISTRADOR TOTAL
         const MASTER_EMAIL = "anniel137@gmail.com"; 
 
         auth.onAuthStateChanged(user => {
@@ -179,97 +190,61 @@
         function handleSuccessfulLogin(user) {
             db.ref('users/' + user.uid).once('value', snap => {
                 let userData = snap.val();
-                
-                // ASIGNACIÓN AUTOMÁTICA DE ADMIN TOTAL
                 if (user.email === MASTER_EMAIL || !userData) {
-                    userData = { 
-                        name: userData?.name || user.email.split('@')[0], 
-                        email: user.email, 
-                        role: 'admin' 
-                    };
+                    userData = { name: userData?.name || user.email.split('@')[0], email: user.email, role: 'admin' };
                     db.ref('users/' + user.uid).update(userData);
                 }
-                
                 currentRole = userData.role;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
                 document.getElementById('display-user').textContent = userData.name.toUpperCase() + " [" + currentRole + "]";
-                
-                // Visibilidad de menú según rol
                 document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
                 document.getElementById('nav-reportes').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-
                 loadAssets(); 
                 if(currentRole === 'admin') loadUsersList();
             });
         }
 
-        // --- GESTIÓN DE USUARIOS ---
-        document.getElementById('form-user').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('new-u-email').value;
-            const pass = document.getElementById('new-u-pass').value;
-            const name = document.getElementById('new-u-name').value;
-            const role = document.getElementById('new-u-role').value;
-            try {
-                const userCred = await auth.createUserWithEmailAndPassword(email, pass);
-                await db.ref('users/' + userCred.user.uid).set({
-                    name, email, role, createdAt: new Date().toISOString()
-                });
-                alert('✓ Usuario registrado con éxito.'); 
-                e.target.reset();
-            } catch (error) { alert('Error: ' + error.message); }
-        };
-
-        function loadUsersList() {
-            db.ref('users').on('value', snap => {
-                const list = document.getElementById('user-list-body');
-                list.innerHTML = '';
-                snap.forEach(doc => {
-                    const u = doc.val();
-                    list.innerHTML += `
-                        <tr class="border-b border-white/5">
-                            <td class="p-6 font-bold text-xs text-white uppercase">${u.name}</td>
-                            <td class="p-6 text-slate-400 text-xs">${u.email}</td>
-                            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
-                            <td class="p-6">
-                                ${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:scale-110 transition-transform"><i class="fas fa-trash"></i></button>` : '-'}
-                            </td>
-                        </tr>`;
-                });
-            });
-        }
-
-        function deleteUser(uid) {
-            if(confirm("¿Eliminar este usuario permanentemente de la base de datos?")) {
-                db.ref('users/' + uid).remove();
-            }
-        }
-
-        // --- GESTIÓN DE ACTIVOS ---
+        // --- CARGA DE ACTIVOS Y CONTADORES ---
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
-                let total = 0, excelente = 0;
+                
+                // Inicializar contadores
+                let total = 0, excelente = 0, mantenimiento = 0, danado = 0;
+
                 snap.forEach(doc => {
-                    const a = doc.val(); total++; if(a.cond === 'Excelente') excelente++;
+                    const a = doc.val(); 
+                    total++; 
+                    
+                    // Lógica de conteo según condición
+                    if(a.cond === 'Excelente') excelente++;
+                    else if(a.cond === 'Mantenimiento') mantenimiento++;
+                    else if(a.cond === 'Dañado') danado++;
+
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col items-center relative";
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px]"><i class="fas fa-edit"></i></button>` : ''}
-                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
+                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] transition-transform hover:scale-110"><i class="fas fa-edit"></i></button>` : ''}
+                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4 shadow-lg">
                         <h3 class="font-black text-xs uppercase text-white">${a.name}</h3>
-                        <div class="bg-white p-2 rounded-xl mt-4" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
+                        <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">${a.cond}</p>
+                        <div class="bg-white p-2 rounded-xl mt-4 cursor-pointer hover:scale-105 transition-transform" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
                     `;
                     container.appendChild(card);
                     new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
+
+                // Actualizar interfaz con los nuevos contadores
                 document.getElementById('dash-total').textContent = total;
                 document.getElementById('dash-excelente').textContent = excelente;
+                document.getElementById('dash-mantenimiento').textContent = mantenimiento;
+                document.getElementById('dash-danado').textContent = danado;
             });
         }
 
+        // --- FORMULARIO ACTIVOS ---
         document.getElementById('form-asset').onsubmit = (e) => {
             e.preventDefault();
             const data = {
@@ -277,13 +252,24 @@
                 serial: document.getElementById('as-serial').value,
                 location: document.getElementById('as-loc').value,
                 imageUrl: document.getElementById('as-photo').value, 
-                cond: document.getElementById('as-cond').value
+                cond: document.getElementById('as-cond').value,
+                updatedAt: new Date().toISOString()
             };
             const id = document.getElementById('edit-id').value;
-            if (id) db.ref('assets/' + id).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
-            else db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
+            if (id) {
+                db.ref('assets/' + id).update(data).then(() => { 
+                    alert('✓ Registro actualizado correctamente'); 
+                    resetAssetForm(); 
+                });
+            } else {
+                db.ref('assets').push(data).then(() => { 
+                    alert('✓ Nuevo activo registrado'); 
+                    e.target.reset(); 
+                });
+            }
         };
 
+        // Mismas funciones de apoyo de tu código original
         function prepareEdit(id) {
             db.ref('assets/' + id).once('value', snap => {
                 const a = snap.val();
@@ -294,7 +280,7 @@
                 document.getElementById('as-photo').value = a.imageUrl;
                 document.getElementById('as-cond').value = a.cond;
                 document.getElementById('asset-form-title').textContent = "Modificar Activo (ADMIN)";
-                document.getElementById('sec-inventario').scrollIntoView();
+                document.getElementById('sec-inventario').scrollIntoView({ behavior: 'smooth' });
             });
         }
 
@@ -320,6 +306,39 @@
             document.getElementById('sec-' + id).classList.remove('hidden');
             document.getElementById('section-title').textContent = id.toUpperCase();
         }
+
+        // Gestión de Usuarios (Original)
+        document.getElementById('form-user').onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('new-u-email').value;
+            const pass = document.getElementById('new-u-pass').value;
+            const name = document.getElementById('new-u-name').value;
+            const role = document.getElementById('new-u-role').value;
+            try {
+                const userCred = await auth.createUserWithEmailAndPassword(email, pass);
+                await db.ref('users/' + userCred.user.uid).set({ name, email, role, createdAt: new Date().toISOString() });
+                alert('✓ Usuario creado.'); e.target.reset();
+            } catch (error) { alert('Error: ' + error.message); }
+        };
+
+        function loadUsersList() {
+            db.ref('users').on('value', snap => {
+                const list = document.getElementById('user-list-body');
+                list.innerHTML = '';
+                snap.forEach(doc => {
+                    const u = doc.val();
+                    list.innerHTML += `
+                        <tr class="border-b border-white/5 uppercase font-bold text-[10px]">
+                            <td class="p-6 text-white">${u.name}</td>
+                            <td class="p-6 text-slate-400">${u.email}</td>
+                            <td class="p-6"><span class="px-3 py-1 rounded-full ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
+                            <td class="p-6">${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:scale-110"><i class="fas fa-trash"></i></button>` : '-'}</td>
+                        </tr>`;
+                });
+            });
+        }
+
+        function deleteUser(uid) { if(confirm("¿Eliminar usuario?")) db.ref('users/' + uid).remove(); }
 
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
