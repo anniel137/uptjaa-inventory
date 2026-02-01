@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS-ID - Sistema Integrado de Control de Activos Tecnológicos</title>
+    <title>NEXUS-ID - Estructura de Módulos</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -12,144 +12,227 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        :root { --bg-dark: #0a0b10; --glass: rgba(255, 255, 255, 0.05); --neon-purple: #bc13fe; --neon-cyan: #00f2ff; --neon-green: #10b981; --neon-orange: #f59e0b; --neon-red: #ef4444; }
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top right, #1a1b25, #0a0b10); color: white; min-height: 100vh; margin: 0; padding: 0; }
-        .glass-card { background: var(--glass); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2rem; }
-        .neon-purple { border: 1px solid var(--neon-purple); box-shadow: 0 0 15px rgba(188, 19, 254, 0.2); }
-        .neon-green { border: 1px solid var(--neon-green); box-shadow: 0 0 15px rgba(16, 185, 129, 0.2); }
-        .neon-orange { border: 1px solid var(--neon-orange); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
-        .neon-red { border: 1px solid var(--neon-red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
-        .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
-        .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
-        .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
-        canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
-        .logo-glow { filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5)); border: 2px solid rgba(0, 242, 255, 0.3); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;400;700;800&display=swap');
 
-        @media print {
-            body * { visibility: hidden; }
-            #print-area, #print-area * { visibility: visible; }
-            #print-area { position: absolute; left: 0; top: 0; width: 100%; text-align: center; }
-            .no-print { display: none !important; }
+        :root {
+            --bg-deep: #050608;
+            --accent-cyan: #00f2ff;
+            --accent-purple: #bc13fe;
+            --glass-bg: rgba(10, 15, 25, 0.7);
+            --glass-border: rgba(0, 242, 255, 0.2);
         }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at center, #0f172a 0%, #050608 100%);
+            color: #e2e8f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Efecto de Vidrio Esmerilado Premium */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        /* Estilo de Botones Circulares de la Imagen */
+        .nav-icon-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid rgba(0, 242, 255, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: rgba(0, 242, 255, 0.05);
+        }
+
+        .nav-icon-btn:hover {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 20px var(--accent-cyan);
+            transform: scale(1.1);
+        }
+
+        /* Tarjetas de Estadísticas de Colores */
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-purple { background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); }
+        .stat-green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .stat-orange { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .stat-red { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+        /* QR Modal High-Tech */
+        #qr-modal .glass-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid var(--accent-cyan);
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
+        }
+
+        /* Líneas de Conexión (Decorativas) */
+        .connect-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            height: 1px;
+            opacity: 0.3;
+        }
+
+        canvas {
+            border: 4px solid white;
+            border-radius: 10px;
+            background: white !important;
+        }
+
+        .admin-only { display: none; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-    <div id="qr-modal" class="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center hidden p-6">
-        <div class="glass-card p-8 max-w-sm w-full text-center flex flex-col items-center">
-            <h3 id="qr-modal-name" class="text-xl font-black mb-4 uppercase text-cyan-400">Activo</h3>
-            <div id="print-area" class="bg-white p-4 rounded-3xl mb-6">
-                <div id="qr-large"></div>
-                <p id="qr-modal-id" class="text-black text-[10px] font-bold mt-2 uppercase"></p>
+    <div id="login-screen" class="fixed inset-0 z-[5000] flex items-center justify-center bg-black/80 backdrop-blur-xl">
+        <div class="glass-panel p-10 w-full max-w-md border-t-4 border-t-[#00f2ff]">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-extrabold tracking-widest text-white italic">NEXUS-ID</h2>
+                <div class="h-1 w-20 bg-cyan-400 mx-auto mt-2"></div>
             </div>
-            <div class="flex gap-4 w-full no-print">
-                <button onclick="window.print()" class="flex-1 btn-primary py-3 rounded-xl font-black uppercase text-xs">Imprimir</button>
-                <button onclick="closeQrModal()" class="flex-1 bg-white/10 py-3 rounded-xl font-black uppercase text-xs">Cerrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="login-screen" class="fixed inset-0 z-[500] flex items-center justify-center p-6">
-        <div class="glass-card p-10 w-full max-w-md text-center flex flex-col items-center">
-            <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" alt="Logo" class="w-28 h-28 mb-6 rounded-full object-cover logo-glow">
-            <div class="mb-8">
-                <h2 class="text-5xl font-black tracking-tighter italic text-white">NEXUS-ID</h2>
-                <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Acceso Administrativo Maestro</p>
-            </div>
-            <form id="login-form" class="space-y-4 w-full">
-                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
-                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
-                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Iniciar Sesión</button>
+            <form id="login-form" class="space-y-6">
+                <input type="email" id="user-input" placeholder="ACCESS_EMAIL" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-cyan-400 transition-all text-white font-mono uppercase text-xs" required>
+                <input type="password" id="pass-input" placeholder="SECURITY_KEY" class="w-full p-4 bg-white/5 border border-white/10 rounded-xl outline-none focus:border-cyan-400 transition-all text-white font-mono uppercase text-xs" required>
+                <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-400 text-black font-black p-4 rounded-xl transition-all shadow-[0_0_15px_rgba(0,242,255,0.4)] uppercase text-sm tracking-widest">Inyectar Credenciales</button>
             </form>
         </div>
     </div>
 
-    <div id="app-interface" class="hidden flex h-screen w-full">
-        <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
-            <div class="mb-12">
-                <h1 class="font-black text-3xl tracking-tighter">NEXUS-ID</h1>
-                <p class="text-[8px] font-bold text-purple-500 uppercase leading-tight mt-1">Gestión de Activos</p>
+    <div id="app-interface" class="hidden max-w-[1400px] mx-auto relative">
+        
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 px-4">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter text-white">ESTRUCTURA DE MÓDULOS <span class="text-cyan-400 text-sm font-normal ml-2 tracking-widest uppercase">Vista Explosiva</span></h1>
+                <p id="current-time" class="text-xs font-mono text-cyan-500/80 mt-1"></p>
             </div>
-            <nav class="flex-1 space-y-3">
-                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
-                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
-            </nav>
-            <div class="p-4 glass-card rounded-2xl text-center">
-                <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate"></p>
-                <button onclick="logout()" class="text-[9px] text-red-400 font-black mt-1 uppercase">Cerrar Sesión</button>
+            <div class="flex items-center gap-4 mt-4 md:mt-0 glass-panel px-6 py-2">
+                <div class="text-right">
+                    <p id="display-user" class="text-xs font-bold text-white uppercase tracking-tighter"></p>
+                    <button onclick="logout()" class="text-[10px] text-red-400 hover:text-red-300 font-black uppercase">Desconectar</button>
+                </div>
+                <div class="w-10 h-10 rounded-full border-2 border-cyan-400 p-1">
+                    <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" class="rounded-full">
+                </div>
             </div>
-        </aside>
+        </header>
 
-        <main class="flex-1 flex flex-col overflow-hidden">
-            <header class="p-8 flex justify-between items-center">
-                <h2 id="section-title" class="text-3xl font-black uppercase tracking-tighter">Panel</h2>
-                <div id="current-time" class="text-[10px] font-bold text-slate-500"></div>
-            </header>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
             
-            <div class="p-8 overflow-y-auto flex-1">
+            <aside class="lg:col-span-1 flex lg:flex-col items-center justify-around lg:justify-start gap-8 lg:pt-10">
+                <button onclick="showSection('dashboard')" class="nav-icon-btn" title="Dashboard">
+                    <i class="fas fa-th-large text-cyan-400"></i>
+                </button>
+                <button onclick="showSection('inventario')" class="nav-icon-btn" title="Inventario">
+                    <i class="fas fa-archive text-purple-400"></i>
+                </button>
+                <button onclick="showSection('reportes')" class="nav-icon-btn admin-only" title="Reportes">
+                    <i class="fas fa-broadcast-tower text-green-400"></i>
+                </button>
+                <button onclick="showSection('usuarios')" class="nav-icon-btn admin-only" title="Usuarios">
+                    <i class="fas fa-user-shield text-orange-400"></i>
+                </button>
+            </aside>
+
+            <main class="lg:col-span-11">
+                
                 <section id="sec-dashboard">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                        <div class="glass-card p-8 neon-purple"><h4 class="text-[10px] font-black uppercase mb-2">Total</h4><p id="dash-total" class="text-5xl font-black">0</p></div>
-                        <div class="glass-card p-8 neon-green"><h4 class="text-[10px] font-black uppercase mb-2 text-emerald-400">Excelente</h4><p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p></div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8">
+                        <div class="stat-card stat-purple">
+                            <p class="text-[10px] font-bold uppercase mb-1">Total Activos</p>
+                            <p id="dash-total" class="text-4xl font-black">0</p>
+                        </div>
+                        <div class="stat-card stat-green">
+                            <p class="text-[10px] font-bold uppercase mb-1">Excelente</p>
+                            <p id="dash-excelente" class="text-4xl font-black">0</p>
+                        </div>
+                        <div class="stat-card stat-orange">
+                            <p class="text-[10px] font-bold uppercase mb-1">Mantenimiento</p>
+                            <p id="dash-mantenimiento" class="text-4xl font-black">0</p>
+                        </div>
+                        <div class="stat-card stat-red">
+                            <p class="text-[10px] font-bold uppercase mb-1">Dañados</p>
+                            <p id="dash-danado" class="text-4xl font-black">0</p>
+                        </div>
+                    </div>
+
+                    <div class="glass-panel p-8">
+                        <h2 class="text-sm font-black text-cyan-400 uppercase tracking-[0.3em] mb-6">Módulos de Red Activos</h2>
+                        <div id="assets-container" class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                            </div>
                     </div>
                 </section>
 
-                <section id="sec-inventario" class="hidden space-y-8">
-                    <div class="glass-card p-8" id="form-registro-activos">
-                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
+                <section id="sec-inventario" class="hidden space-y-6">
+                    <div class="glass-panel p-8 admin-only">
+                        <h3 id="asset-form-title" class="text-xl font-black mb-6 text-white uppercase italic">Registrar Nodo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
-                            <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="text" id="as-loc" placeholder="Ubicación" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="url" id="as-photo" placeholder="URL Foto" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white">
-                                <option value="Excelente">Excelente</option>
-                                <option value="Mantenimiento">Mantenimiento</option>
-                                <option value="Dañado">Dañado</option>
+                            <input type="text" id="as-name" placeholder="NOMBRE_EQUIPO" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-cyan-400 text-white font-mono text-xs">
+                            <input type="text" id="as-serial" placeholder="N_SERIAL" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-cyan-400 text-white font-mono text-xs">
+                            <input type="text" id="as-ip" placeholder="IP_DIRECCIÓN" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-cyan-400 text-white font-mono text-xs">
+                            <input type="text" id="as-loc" placeholder="UBICACIÓN_FÍSICA" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-cyan-400 text-white font-mono text-xs">
+                            <input type="url" id="as-photo" placeholder="URL_NODO_IMAGE" class="bg-white/5 p-4 rounded-xl border border-white/10 outline-none focus:border-cyan-400 text-white font-mono text-xs">
+                            <select id="as-cond" class="bg-cyan-600 p-4 rounded-xl font-black uppercase text-xs text-black">
+                                <option value="Excelente">Estado: Excelente</option>
+                                <option value="Mantenimiento">Estado: Mantenimiento</option>
+                                <option value="Dañado">Estado: Dañado</option>
                             </select>
-                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar</button>
+                            <div class="col-span-full">
+                                <button type="submit" id="btn-asset-submit" class="w-full bg-white text-black font-black p-4 rounded-xl hover:bg-cyan-400 transition-all uppercase tracking-widest text-xs">Ejecutar Registro</button>
+                            </div>
                         </form>
-                    </div>
-                    <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
-                </section>
-
-                <section id="sec-usuarios" class="hidden space-y-8">
-                    <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Nuevo Usuario</h3>
-                        <form id="form-user" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <input type="email" id="new-u-email" placeholder="Email" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs text-white">
-                                <option value="admin">Administrador Total</option>
-                                <option value="operario">Operario (Solo Ver/Agregar)</option>
-                            </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Crear Cuenta</button>
-                        </form>
-                    </div>
-                    <div class="glass-card overflow-hidden">
-                        <table class="w-full text-left text-sm">
-                            <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400">
-                                <tr><th class="p-6">Nombre</th><th class="p-6">Email</th><th class="p-6">Rol</th><th class="p-6">Acción</th></tr>
-                            </thead>
-                            <tbody id="user-list-body"></tbody>
-                        </table>
                     </div>
                 </section>
 
-                <section id="sec-reportes" class="hidden">
-                   <div class="glass-card p-8 text-center text-slate-500 font-bold">HISTORIAL DE REPORTES ACTIVO</div>
+                <section id="sec-usuarios" class="hidden">
+                    <div class="glass-panel p-8">
+                        <h3 class="text-xl font-black mb-6 text-orange-400 uppercase tracking-widest">Protocolo de Usuarios</h3>
+                        <form id="form-user" class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10">
+                            <input type="email" id="new-u-email" placeholder="EMAIL" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white font-mono text-[10px]">
+                            <input type="password" id="new-u-pass" placeholder="PASSWORD" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white font-mono text-[10px]">
+                            <input type="text" id="new-u-name" placeholder="IDENTIDAD" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white font-mono text-[10px]">
+                            <select id="new-u-role" class="bg-orange-600 p-4 rounded-xl font-black text-[10px] text-black uppercase">
+                                <option value="admin">ADMIN_ROOT</option>
+                                <option value="operador">OPERADOR_USER</option>
+                            </select>
+                            <button type="submit" class="col-span-full bg-white text-black font-black p-3 rounded-xl uppercase text-[10px]">Generar Acceso</button>
+                        </form>
+                    </div>
                 </section>
+            </main>
+        </div>
+    </div>
+
+    <div id="qr-modal" class="fixed inset-0 z-[6000] bg-black/90 backdrop-blur-md flex items-center justify-center hidden">
+        <div class="glass-panel p-10 max-w-sm w-full text-center border-2 border-cyan-400">
+            <h3 class="text-cyan-400 font-black uppercase tracking-widest mb-6">Módulo QR</h3>
+            <div id="print-area" class="flex flex-col items-center">
+                <div id="qr-large" class="mb-4"></div>
+                <p id="qr-modal-name" class="text-white font-bold text-sm uppercase"></p>
+                <p id="qr-modal-id" class="text-cyan-400/50 text-[8px] font-mono mt-2"></p>
             </div>
-        </main>
+            <div class="flex gap-4 mt-8 no-print">
+                <button onclick="window.print()" class="flex-1 bg-cyan-500 text-black font-black py-3 rounded-lg text-[10px] uppercase">Imprimir</button>
+                <button onclick="closeQrModal()" class="flex-1 border border-white/20 text-white font-black py-3 rounded-lg text-[10px] uppercase">Cerrar</button>
+            </div>
+        </div>
     </div>
 
     <script>
-        // TU CONFIGURACIÓN
+        // --- LÓGICA DE FIREBASE (MANTENIDA) ---
         const firebaseConfig = {
             apiKey: "AIzaSyD0rFUIbW_494SmefO7FRVhsBVW1aXxcDo",
             authDomain: "control-de-activos-1c3b7.firebaseapp.com",
@@ -161,173 +244,72 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
-        let currentRole = 'operario';
+        let currentRole = 'operador';
         let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
 
-        // TU CORREO ADMINISTRADOR TOTAL
-        const MASTER_EMAIL = "anniel137@gmail.com"; 
-
         auth.onAuthStateChanged(user => {
-            if (user) {
-                handleSuccessfulLogin(user);
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-interface').classList.add('hidden');
-            }
+            if (user) handleSuccessfulLogin(user);
         });
 
         function handleSuccessfulLogin(user) {
-            db.ref('users/' + user.uid).once('value', snap => {
-                let userData = snap.val();
-                
-                // ASIGNACIÓN AUTOMÁTICA DE ADMIN TOTAL
-                if (user.email === MASTER_EMAIL || !userData) {
-                    userData = { 
-                        name: userData?.name || user.email.split('@')[0], 
-                        email: user.email, 
-                        role: 'admin' 
-                    };
-                    db.ref('users/' + user.uid).update(userData);
-                }
-                
-                currentRole = userData.role;
+            db.ref('users').orderByChild('email').equalTo(user.email).once('value', snap => {
+                let userData = null; snap.forEach(c => userData = c.val());
+                currentRole = userData?.role || 'operador';
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
-                document.getElementById('display-user').textContent = userData.name.toUpperCase() + " [" + currentRole + "]";
-                
-                // Visibilidad de menú según rol
-                document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-                document.getElementById('nav-reportes').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-
-                loadAssets(); 
-                if(currentRole === 'admin') loadUsersList();
+                document.getElementById('display-user').textContent = userData?.name || user.email;
+                if (currentRole === 'admin') document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                loadAssets();
             });
         }
 
-        // --- GESTIÓN DE USUARIOS ---
-        document.getElementById('form-user').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('new-u-email').value;
-            const pass = document.getElementById('new-u-pass').value;
-            const name = document.getElementById('new-u-name').value;
-            const role = document.getElementById('new-u-role').value;
-            try {
-                const userCred = await auth.createUserWithEmailAndPassword(email, pass);
-                await db.ref('users/' + userCred.user.uid).set({
-                    name, email, role, createdAt: new Date().toISOString()
-                });
-                alert('✓ Usuario registrado con éxito.'); 
-                e.target.reset();
-            } catch (error) { alert('Error: ' + error.message); }
-        };
-
-        function loadUsersList() {
-            db.ref('users').on('value', snap => {
-                const list = document.getElementById('user-list-body');
-                list.innerHTML = '';
-                snap.forEach(doc => {
-                    const u = doc.val();
-                    list.innerHTML += `
-                        <tr class="border-b border-white/5">
-                            <td class="p-6 font-bold text-xs text-white uppercase">${u.name}</td>
-                            <td class="p-6 text-slate-400 text-xs">${u.email}</td>
-                            <td class="p-6"><span class="px-3 py-1 rounded-full text-[10px] font-black uppercase ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
-                            <td class="p-6">
-                                ${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:scale-110 transition-transform"><i class="fas fa-trash"></i></button>` : '-'}
-                            </td>
-                        </tr>`;
-                });
-            });
-        }
-
-        function deleteUser(uid) {
-            if(confirm("¿Eliminar este usuario permanentemente de la base de datos?")) {
-                db.ref('users/' + uid).remove();
-            }
-        }
-
-        // --- GESTIÓN DE ACTIVOS ---
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
-                let total = 0, excelente = 0;
+                let stats = { total: 0, Excelente: 0, Mantenimiento: 0, Dañado: 0 };
+                
                 snap.forEach(doc => {
-                    const a = doc.val(); total++; if(a.cond === 'Excelente') excelente++;
+                    const a = doc.val();
+                    stats.total++; stats[a.cond]++;
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 flex flex-col items-center relative";
+                    card.className = "glass-panel p-4 flex flex-col items-center hover:border-cyan-400 transition-all cursor-pointer";
+                    card.onclick = () => openQrModal(doc.key, a.name);
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px]"><i class="fas fa-edit"></i></button>` : ''}
-                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
-                        <h3 class="font-black text-xs uppercase text-white">${a.name}</h3>
-                        <div class="bg-white p-2 rounded-xl mt-4" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
+                        <img src="${a.imageUrl}" class="w-full h-24 rounded-lg object-cover mb-3 opacity-80">
+                        <h3 class="text-[10px] font-black uppercase text-white tracking-tighter">${a.name}</h3>
+                        <p class="text-[8px] text-cyan-400 font-mono">${a.location}</p>
                     `;
                     container.appendChild(card);
-                    new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
-                document.getElementById('dash-total').textContent = total;
-                document.getElementById('dash-excelente').textContent = excelente;
+                ['total','excelente','mantenimiento','danado'].forEach(id => {
+                    const el = document.getElementById('dash-'+id);
+                    if(el) el.textContent = stats[id.charAt(0).toUpperCase() + id.slice(1)] || stats[id] || 0;
+                });
             });
-        }
-
-        document.getElementById('form-asset').onsubmit = (e) => {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('as-name').value, 
-                serial: document.getElementById('as-serial').value,
-                location: document.getElementById('as-loc').value,
-                imageUrl: document.getElementById('as-photo').value, 
-                cond: document.getElementById('as-cond').value
-            };
-            const id = document.getElementById('edit-id').value;
-            if (id) db.ref('assets/' + id).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
-            else db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
-        };
-
-        function prepareEdit(id) {
-            db.ref('assets/' + id).once('value', snap => {
-                const a = snap.val();
-                document.getElementById('edit-id').value = id;
-                document.getElementById('as-name').value = a.name;
-                document.getElementById('as-serial').value = a.serial;
-                document.getElementById('as-loc').value = a.location;
-                document.getElementById('as-photo').value = a.imageUrl;
-                document.getElementById('as-cond').value = a.cond;
-                document.getElementById('asset-form-title').textContent = "Modificar Activo (ADMIN)";
-                document.getElementById('sec-inventario').scrollIntoView();
-            });
-        }
-
-        function resetAssetForm() {
-            document.getElementById('form-asset').reset();
-            document.getElementById('edit-id').value = '';
-            document.getElementById('asset-form-title').textContent = "Registrar Activo";
-        }
-
-        function openQrModal(id, name) {
-            document.getElementById('qr-modal').classList.remove('hidden');
-            document.getElementById('qr-modal-name').textContent = name;
-            document.getElementById('qr-modal-id').textContent = "ID: " + id;
-            document.getElementById('qr-large').innerHTML = '';
-            new QRCode(document.getElementById('qr-large'), { text: BASE_URL + "?id=" + id, width: 250, height: 250 });
-        }
-
-        function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
-        function logout() { auth.signOut().then(() => location.reload()); }
-        
-        function showSection(id) { 
-            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden')); 
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.toUpperCase();
         }
 
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
-                .catch(() => alert('Credenciales incorrectas'));
+                .catch(() => alert('ACCESO DENEGADO: Credenciales Invalidas'));
         };
 
-        setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString(); }, 1000);
+        function openQrModal(id, name) {
+            document.getElementById('qr-modal').classList.remove('hidden');
+            document.getElementById('qr-modal-name').textContent = name;
+            document.getElementById('qr-modal-id').textContent = "NODE_ID: " + id;
+            document.getElementById('qr-large').innerHTML = '';
+            new QRCode(document.getElementById('qr-large'), { text: BASE_URL + "?id=" + id, width: 200, height: 200 });
+        }
+
+        function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
+        function logout() { auth.signOut().then(() => location.reload()); }
+        function showSection(id) { 
+            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden')); 
+            document.getElementById('sec-' + id).classList.remove('hidden');
+        }
+        setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString() + " - UPTJAA_OS"; }, 1000);
     </script>
 </body>
 </html>
