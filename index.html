@@ -21,7 +21,6 @@
         .neon-orange { border: 1px solid var(--neon-orange); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
         .neon-red { border: 1px solid var(--neon-red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
-        .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
         .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .logo-glow { filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5)); border: 2px solid rgba(0, 242, 255, 0.3); }
@@ -58,15 +57,15 @@
                 <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Acceso Administrativo Maestro</p>
             </div>
             <form id="login-form" class="space-y-4 w-full">
-                <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
-                <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
+                <input type="email" id="user-input" value="anniel137@gmail.com" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
+                <input type="password" id="pass-input" value="123456" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
                 <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Iniciar Sesión</button>
             </form>
         </div>
     </div>
 
     <div id="app-interface" class="hidden flex h-screen w-full">
-        <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
+        <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 hidden md:flex flex-col p-6 shrink-0">
             <div class="mb-12">
                 <h1 class="font-black text-3xl tracking-tighter">NEXUS-ID</h1>
                 <p class="text-[8px] font-bold text-purple-500 uppercase leading-tight mt-1">Gestión de Activos</p>
@@ -86,14 +85,14 @@
         <main class="flex-1 flex flex-col overflow-hidden">
             <header class="p-8 flex justify-between items-center">
                 <h2 id="section-title" class="text-3xl font-black uppercase tracking-tighter">Panel</h2>
-                <div id="current-time" class="text-[10px] font-bold text-slate-500"></div>
+                <button onclick="logout()" class="md:hidden text-red-500 text-xl"><i class="fas fa-sign-out-alt"></i></button>
             </header>
             
             <div class="p-8 overflow-y-auto flex-1">
                 <section id="sec-dashboard">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="glass-card p-8 neon-purple">
-                            <h4 class="text-[10px] font-black uppercase mb-2">Total Activos</h4>
+                            <h4 class="text-[10px] font-black uppercase mb-2">Total</h4>
                             <p id="dash-total" class="text-5xl font-black">0</p>
                         </div>
                         <div class="glass-card p-8 neon-green">
@@ -101,7 +100,7 @@
                             <p id="dash-excelente" class="text-5xl font-black text-emerald-400">0</p>
                         </div>
                         <div class="glass-card p-8 neon-orange">
-                            <h4 class="text-[10px] font-black uppercase mb-2 text-orange-400">Mantenimiento</h4>
+                            <h4 class="text-[10px] font-black uppercase mb-2 text-orange-400">Mantenim.</h4>
                             <p id="dash-mantenimiento" class="text-5xl font-black text-orange-400">0</p>
                         </div>
                         <div class="glass-card p-8 neon-red">
@@ -112,20 +111,20 @@
                 </section>
 
                 <section id="sec-inventario" class="hidden space-y-8">
-                    <div class="glass-card p-8" id="form-registro-activos">
-                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
+                    <div class="glass-card p-8">
+                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
                             <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
                             <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
                             <input type="text" id="as-loc" placeholder="Ubicación" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
                             <input type="url" id="as-photo" placeholder="URL Foto" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
-                            <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white cursor-pointer">
+                            <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white">
                                 <option value="Excelente">Excelente</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase hover:opacity-90 transition-opacity">Guardar Activo</button>
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar</button>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
@@ -139,13 +138,13 @@
                             <input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
                             <input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
                             <select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs text-white">
-                                <option value="admin">Administrador Total</option>
-                                <option value="operario">Operario (Solo Ver/Agregar)</option>
+                                <option value="admin">Administrador</option>
+                                <option value="operario">Operario</option>
                             </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Crear Cuenta</button>
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Crear</button>
                         </form>
                     </div>
-                    <div class="glass-card overflow-hidden">
+                    <div class="overflow-x-auto">
                         <table class="w-full text-left text-sm">
                             <thead class="bg-white/5 text-[10px] font-black uppercase text-slate-400">
                                 <tr><th class="p-6">Nombre</th><th class="p-6">Email</th><th class="p-6">Rol</th><th class="p-6">Acción</th></tr>
@@ -156,9 +155,15 @@
                 </section>
 
                 <section id="sec-reportes" class="hidden">
-                   <div class="glass-card p-8 text-center text-slate-500 font-bold uppercase tracking-widest">Historial de Reportes Críticos Activo</div>
+                   <div class="glass-card p-8 text-center text-slate-500 font-bold uppercase tracking-widest">Reportes en construcción</div>
                 </section>
             </div>
+
+            <footer class="md:hidden bg-black/60 backdrop-blur-lg border-t border-white/10 flex justify-around p-4">
+                <button onclick="showSection('dashboard')" class="text-cyan-400 text-xl"><i class="fas fa-chart-line"></i></button>
+                <button onclick="showSection('inventario')" class="text-slate-400 text-xl"><i class="fas fa-box-open"></i></button>
+                <button onclick="showSection('usuarios')" class="text-slate-400 text-xl"><i class="fas fa-users-cog"></i></button>
+            </footer>
         </main>
     </div>
 
@@ -197,28 +202,21 @@
                 currentRole = userData.role;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
-                document.getElementById('display-user').textContent = userData.name.toUpperCase() + " [" + currentRole + "]";
-                document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-                document.getElementById('nav-reportes').style.display = (currentRole === 'admin') ? 'flex' : 'none';
+                document.getElementById('display-user').textContent = userData.name.toUpperCase();
                 loadAssets(); 
                 if(currentRole === 'admin') loadUsersList();
             });
         }
 
-        // --- CARGA DE ACTIVOS Y CONTADORES ---
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
-                
-                // Inicializar contadores
                 let total = 0, excelente = 0, mantenimiento = 0, danado = 0;
 
                 snap.forEach(doc => {
                     const a = doc.val(); 
                     total++; 
-                    
-                    // Lógica de conteo según condición
                     if(a.cond === 'Excelente') excelente++;
                     else if(a.cond === 'Mantenimiento') mantenimiento++;
                     else if(a.cond === 'Dañado') danado++;
@@ -226,17 +224,15 @@
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col items-center relative";
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] transition-transform hover:scale-110"><i class="fas fa-edit"></i></button>` : ''}
-                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4 shadow-lg">
-                        <h3 class="font-black text-xs uppercase text-white">${a.name}</h3>
-                        <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">${a.cond}</p>
-                        <div class="bg-white p-2 rounded-xl mt-4 cursor-pointer hover:scale-105 transition-transform" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
+                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px]"><i class="fas fa-edit"></i></button>` : ''}
+                        <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4">
+                        <h3 class="font-black text-xs uppercase">${a.name}</h3>
+                        <p class="text-[9px] text-slate-400 mt-1 uppercase">${a.cond}</p>
+                        <div class="bg-white p-2 rounded-xl mt-4" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
                     `;
                     container.appendChild(card);
                     new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
-
-                // Actualizar interfaz con los nuevos contadores
                 document.getElementById('dash-total').textContent = total;
                 document.getElementById('dash-excelente').textContent = excelente;
                 document.getElementById('dash-mantenimiento').textContent = mantenimiento;
@@ -244,7 +240,6 @@
             });
         }
 
-        // --- FORMULARIO ACTIVOS ---
         document.getElementById('form-asset').onsubmit = (e) => {
             e.preventDefault();
             const data = {
@@ -257,38 +252,13 @@
             };
             const id = document.getElementById('edit-id').value;
             if (id) {
-                db.ref('assets/' + id).update(data).then(() => { 
-                    alert('✓ Registro actualizado correctamente'); 
-                    resetAssetForm(); 
-                });
+                db.ref('assets/' + id).update(data).then(() => { alert('Actualizado'); resetAssetForm(); });
             } else {
-                db.ref('assets').push(data).then(() => { 
-                    alert('✓ Nuevo activo registrado'); 
-                    e.target.reset(); 
-                });
+                db.ref('assets').push(data).then(() => { alert('Registrado'); e.target.reset(); });
             }
         };
 
-        // Mismas funciones de apoyo de tu código original
-        function prepareEdit(id) {
-            db.ref('assets/' + id).once('value', snap => {
-                const a = snap.val();
-                document.getElementById('edit-id').value = id;
-                document.getElementById('as-name').value = a.name;
-                document.getElementById('as-serial').value = a.serial;
-                document.getElementById('as-loc').value = a.location;
-                document.getElementById('as-photo').value = a.imageUrl;
-                document.getElementById('as-cond').value = a.cond;
-                document.getElementById('asset-form-title').textContent = "Modificar Activo (ADMIN)";
-                document.getElementById('sec-inventario').scrollIntoView({ behavior: 'smooth' });
-            });
-        }
-
-        function resetAssetForm() {
-            document.getElementById('form-asset').reset();
-            document.getElementById('edit-id').value = '';
-            document.getElementById('asset-form-title').textContent = "Registrar Activo";
-        }
+        function resetAssetForm() { document.getElementById('form-asset').reset(); document.getElementById('edit-id').value = ''; }
 
         function openQrModal(id, name) {
             document.getElementById('qr-modal').classList.remove('hidden');
@@ -307,46 +277,11 @@
             document.getElementById('section-title').textContent = id.toUpperCase();
         }
 
-        // Gestión de Usuarios (Original)
-        document.getElementById('form-user').onsubmit = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('new-u-email').value;
-            const pass = document.getElementById('new-u-pass').value;
-            const name = document.getElementById('new-u-name').value;
-            const role = document.getElementById('new-u-role').value;
-            try {
-                const userCred = await auth.createUserWithEmailAndPassword(email, pass);
-                await db.ref('users/' + userCred.user.uid).set({ name, email, role, createdAt: new Date().toISOString() });
-                alert('✓ Usuario creado.'); e.target.reset();
-            } catch (error) { alert('Error: ' + error.message); }
-        };
-
-        function loadUsersList() {
-            db.ref('users').on('value', snap => {
-                const list = document.getElementById('user-list-body');
-                list.innerHTML = '';
-                snap.forEach(doc => {
-                    const u = doc.val();
-                    list.innerHTML += `
-                        <tr class="border-b border-white/5 uppercase font-bold text-[10px]">
-                            <td class="p-6 text-white">${u.name}</td>
-                            <td class="p-6 text-slate-400">${u.email}</td>
-                            <td class="p-6"><span class="px-3 py-1 rounded-full ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
-                            <td class="p-6">${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:scale-110"><i class="fas fa-trash"></i></button>` : '-'}</td>
-                        </tr>`;
-                });
-            });
-        }
-
-        function deleteUser(uid) { if(confirm("¿Eliminar usuario?")) db.ref('users/' + uid).remove(); }
-
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
-                .catch(() => alert('Credenciales incorrectas'));
+                .catch(() => alert('Error de acceso'));
         };
-
-        setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
 </html>
