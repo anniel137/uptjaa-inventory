@@ -21,7 +21,6 @@
         .neon-orange { border: 1px solid var(--neon-orange); box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); }
         .neon-red { border: 1px solid var(--neon-red); box-shadow: 0 0 15px rgba(239, 68, 68, 0.2); }
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
-        .btn-yellow { background: linear-gradient(90deg, #f59e0b, #d97706); }
         .btn-edit { background: rgba(0, 242, 255, 0.1); color: #00f2ff; border: 1px solid #00f2ff; }
         canvas { padding: 10px; background: white !important; border-radius: 1rem; cursor: pointer; }
         .logo-glow { filter: drop-shadow(0 0 10px rgba(0, 242, 255, 0.5)); border: 2px solid rgba(0, 242, 255, 0.3); }
@@ -55,12 +54,12 @@
             <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" alt="Logo" class="w-28 h-28 mb-6 rounded-full object-cover logo-glow">
             <div class="mb-8">
                 <h2 class="text-5xl font-black tracking-tighter italic text-white">NEXUS-ID</h2>
-                <p id="login-subtitle" class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Acceso Administrativo Maestro</p>
+                <p id="login-subtitle" class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Gestión de Inventario Tecnológico</p>
             </div>
             <form id="login-form" class="space-y-4 w-full">
                 <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
                 <input type="password" id="pass-input" placeholder="Clave" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
-                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Iniciar Sesión</button>
+                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Entrar al Sistema</button>
             </form>
         </div>
     </div>
@@ -69,17 +68,17 @@
         <aside class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <div class="mb-12">
                 <h1 class="font-black text-3xl tracking-tighter">NEXUS-ID</h1>
-                <p class="text-[8px] font-bold text-purple-500 uppercase leading-tight mt-1">Gestión de Activos</p>
+                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1 tracking-widest">Control Central</p>
             </div>
             <nav class="flex-1 space-y-3">
-                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
-                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
+                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
+                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-bell w-8"></i> Reportes</button>
+                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate"></p>
-                <button onclick="logout()" class="text-[9px] text-red-400 font-black mt-1 uppercase">Cerrar Sesión</button>
+                <button onclick="logout()" class="text-[9px] text-red-400 font-black mt-1 uppercase hover:underline">Cerrar Sesión</button>
             </div>
         </aside>
 
@@ -90,23 +89,39 @@
             </header>
             
             <div class="p-8 overflow-y-auto flex-1">
-                <section id="sec-scan-view" class="hidden max-w-2xl mx-auto">
-                    <div class="glass-card p-10 neon-purple flex flex-col items-center text-center">
-                        <img id="scan-img" src="" class="w-64 h-64 object-cover rounded-3xl mb-6 border-4 border-white/10">
-                        <h2 id="scan-name" class="text-4xl font-black uppercase italic mb-2"></h2>
-                        <span id="scan-cond" class="px-6 py-2 rounded-full bg-white/10 font-black text-xs mb-8 uppercase"></span>
-                        
-                        <div class="grid grid-cols-2 gap-4 w-full text-left">
-                            <div class="bg-white/5 p-4 rounded-2xl">
-                                <p class="text-[8px] text-cyan-400 font-black uppercase">Serial de Equipo</p>
-                                <p id="scan-serial" class="font-bold"></p>
-                            </div>
-                            <div class="bg-white/5 p-4 rounded-2xl">
-                                <p class="text-[8px] text-cyan-400 font-black uppercase">Ubicación Física</p>
-                                <p id="scan-loc" class="font-bold"></p>
+                
+                <section id="sec-scan-view" class="hidden max-w-xl mx-auto pb-12">
+                    <div id="scan-status-banner" class="w-full p-4 rounded-t-3xl text-center font-black uppercase tracking-widest text-[10px]">
+                        INFORMACIÓN DEL ACTIVO
+                    </div>
+                    <div class="glass-card overflow-hidden border-t-0 rounded-t-none">
+                        <div class="relative h-80 w-full bg-slate-900">
+                            <img id="scan-img" src="" class="w-full h-full object-cover">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#0a0b10] via-transparent to-transparent"></div>
+                            <div class="absolute bottom-6 left-6 right-6">
+                                <span id="scan-cond-badge" class="px-3 py-1 rounded-lg text-[9px] font-black uppercase border border-white/20"></span>
+                                <h2 id="scan-name" class="text-4xl font-black uppercase italic mt-2 text-white drop-shadow-lg"></h2>
+                                <p id="scan-id-display" class="text-[9px] font-bold text-cyan-400 mt-1 tracking-widest uppercase"></p>
                             </div>
                         </div>
-                        <button onclick="location.href=location.pathname" class="mt-8 text-[10px] font-black uppercase text-slate-400 hover:text-white">← Volver al Panel General</button>
+                        <div class="p-6 space-y-4">
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                    <div class="w-12 h-12 flex items-center justify-center bg-cyan-500/20 rounded-xl text-cyan-400"><i class="fas fa-barcode"></i></div>
+                                    <div><p class="text-[9px] text-slate-500 font-black uppercase">Serial</p><p id="scan-serial" class="text-lg font-bold text-white"></p></div>
+                                </div>
+                                <div class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                                    <div class="w-12 h-12 flex items-center justify-center bg-purple-500/20 rounded-xl text-purple-400"><i class="fas fa-map-marker-alt"></i></div>
+                                    <div><p class="text-[9px] text-slate-500 font-black uppercase">Ubicación</p><p id="scan-loc" class="text-lg font-bold text-white"></p></div>
+                                </div>
+                            </div>
+                            <div class="pt-6 flex flex-col gap-3">
+                                <button id="btn-report-issue" class="w-full bg-red-500 hover:bg-red-600 text-white py-5 rounded-2xl font-black uppercase text-xs transition-all flex items-center justify-center gap-3">
+                                    <i class="fas fa-exclamation-triangle"></i> Reportar Daño / Defecto
+                                </button>
+                                <button onclick="location.href=location.pathname" class="w-full bg-white/5 py-4 rounded-2xl font-black uppercase text-[10px] text-slate-400">Volver al Inventario</button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -133,19 +148,19 @@
 
                 <section id="sec-inventario" class="hidden space-y-8">
                     <div class="glass-card p-8" id="form-registro-activos">
-                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Registrar Activo</h3>
+                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase text-purple-400">Gestión de Activos</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
-                            <input type="text" id="as-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
-                            <input type="text" id="as-serial" placeholder="Serial" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
-                            <input type="text" id="as-loc" placeholder="Ubicación" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
-                            <input type="url" id="as-photo" placeholder="URL Foto" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="text" id="as-name" placeholder="Nombre del Equipo" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="text" id="as-serial" placeholder="Serial o Placa" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="text" id="as-loc" placeholder="Ubicación Física" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
+                            <input type="url" id="as-photo" placeholder="URL Imagen" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white outline-none" required>
                             <select id="as-cond" class="bg-purple-600 p-4 rounded-xl font-black uppercase text-xs text-white cursor-pointer">
                                 <option value="Excelente">Excelente</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase hover:opacity-90 transition-opacity">Guardar Activo</button>
+                            <button type="submit" id="btn-asset-submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase hover:opacity-90">Guardar en Base de Datos</button>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
@@ -153,14 +168,14 @@
 
                 <section id="sec-usuarios" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Nuevo Usuario</h3>
+                        <h3 class="text-xl font-black mb-6 uppercase text-purple-400">Añadir Personal</h3>
                         <form id="form-user" class="grid grid-cols-1 md:grid-cols-4 gap-4">
                             <input type="email" id="new-u-email" placeholder="Email" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
-                            <input type="password" id="new-u-pass" placeholder="Clave" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
+                            <input type="password" id="new-u-pass" placeholder="Contraseña" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
                             <input type="text" id="new-u-name" placeholder="Nombre" class="bg-white/5 p-4 rounded-xl border border-white/10 text-white" required>
                             <select id="new-u-role" class="bg-purple-600 p-4 rounded-xl font-black text-xs text-white">
-                                <option value="admin">Administrador Total</option>
-                                <option value="operario">Operario (Solo Ver/Agregar)</option>
+                                <option value="admin">Administrador</option>
+                                <option value="operario">Operario</option>
                             </select>
                             <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Crear Cuenta</button>
                         </form>
@@ -175,12 +190,8 @@
                     </div>
                 </section>
 
-                <section id="sec-reportes" class="hidden">
-                   <div class="glass-card p-8 text-center text-slate-400 font-bold uppercase tracking-widest border border-dashed border-white/20">
-                        <i class="fas fa-satellite-dish mb-4 text-3xl text-purple-500"></i><br>
-                        Historial de Reportes Críticos Activo y Sincronizado
-                    </div>
-                </section>
+                <section id="sec-reportes" class="hidden space-y-6"></section>
+
             </div>
         </main>
     </div>
@@ -197,25 +208,17 @@
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
+        
         let currentRole = 'operario';
         let BASE_URL = window.location.origin + window.location.pathname;
         const MASTER_EMAIL = "anniel137@gmail.com"; 
 
-        // DETECCION DE QR EN URL
         const urlParams = new URLSearchParams(window.location.search);
         const scannedAssetId = urlParams.get('id');
 
-        if(scannedAssetId) {
-            document.getElementById('login-subtitle').textContent = "AUTENTICACIÓN REQUERIDA PARA VER ACTIVO";
-        }
-
         auth.onAuthStateChanged(user => {
-            if (user) {
-                handleSuccessfulLogin(user);
-            } else {
-                document.getElementById('login-screen').classList.remove('hidden');
-                document.getElementById('app-interface').classList.add('hidden');
-            }
+            if (user) { handleSuccessfulLogin(user); } 
+            else { document.getElementById('login-screen').classList.remove('hidden'); document.getElementById('app-interface').classList.add('hidden'); }
         });
 
         function handleSuccessfulLogin(user) {
@@ -229,76 +232,118 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
                 document.getElementById('display-user').textContent = userData.name.toUpperCase() + " [" + currentRole + "]";
-                
-                // AJUSTE DE PERMISOS: Los operarios ahora ven reportes
                 document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-                document.getElementById('nav-reportes').style.display = 'flex'; // Visible para ambos
 
-                // Lógica de visualización post-escaneo
-                if(scannedAssetId) {
-                    showScannedAsset(scannedAssetId);
-                } else {
-                    showSection('dashboard');
-                    loadAssets(); 
-                }
-                
+                if(scannedAssetId) showScannedAsset(scannedAssetId);
+                else { showSection('dashboard'); loadAssets(); }
                 if(currentRole === 'admin') loadUsersList();
             });
         }
 
-        // CARGAR UN SOLO ACTIVO (QR)
+        // MOSTRAR ACTIVO ESCANEADO
         function showScannedAsset(id) {
             db.ref('assets/' + id).once('value', snap => {
                 const a = snap.val();
                 if(a) {
                     showSection('scan-view');
-                    document.getElementById('section-title').textContent = "VISTA DE ACTIVO ESCANEADO";
                     document.getElementById('scan-img').src = a.imageUrl;
                     document.getElementById('scan-name').textContent = a.name;
-                    document.getElementById('scan-cond').textContent = a.cond;
                     document.getElementById('scan-serial').textContent = a.serial;
                     document.getElementById('scan-loc').textContent = a.location;
+                    document.getElementById('scan-id-display').textContent = "NEXUS ID: " + id;
                     
-                    // Colores según condición
-                    const badge = document.getElementById('scan-cond');
-                    if(a.cond === 'Excelente') badge.className = "px-6 py-2 rounded-full bg-emerald-500/20 text-emerald-400 font-black text-xs mb-8 uppercase border border-emerald-500/30";
-                    if(a.cond === 'Mantenimiento') badge.className = "px-6 py-2 rounded-full bg-orange-500/20 text-orange-400 font-black text-xs mb-8 uppercase border border-orange-500/30";
-                    if(a.cond === 'Dañado') badge.className = "px-6 py-2 rounded-full bg-red-500/20 text-red-400 font-black text-xs mb-8 uppercase border border-red-500/30";
+                    const badge = document.getElementById('scan-cond-badge');
+                    const banner = document.getElementById('scan-status-banner');
+                    badge.textContent = a.cond;
 
-                } else {
-                    alert("Activo no encontrado o eliminado.");
-                    location.href = BASE_URL;
-                }
+                    if(a.cond === 'Excelente') {
+                        badge.className = "px-3 py-1 rounded-lg text-[9px] font-black uppercase bg-emerald-500 text-white";
+                        banner.className = "bg-emerald-500/20 text-emerald-400 w-full p-4 rounded-t-3xl text-center font-black uppercase tracking-widest text-[10px]";
+                    } else if(a.cond === 'Mantenimiento') {
+                        badge.className = "px-3 py-1 rounded-lg text-[9px] font-black uppercase bg-orange-500 text-white";
+                        banner.className = "bg-orange-500/20 text-orange-400 w-full p-4 rounded-t-3xl text-center font-black uppercase tracking-widest text-[10px]";
+                    } else {
+                        badge.className = "px-3 py-1 rounded-lg text-[9px] font-black uppercase bg-red-600 text-white";
+                        banner.className = "bg-red-600/20 text-red-400 w-full p-4 rounded-t-3xl text-center font-black uppercase tracking-widest text-[10px]";
+                    }
+                    document.getElementById('btn-report-issue').onclick = () => crearReporte(a.name, id);
+                } else { alert("Activo no encontrado."); location.href = BASE_URL; }
             });
         }
 
-        // --- CARGA DE ACTIVOS Y CONTADORES ---
+        // SISTEMA DE REPORTES E INTELIGENCIA DE CAMBIO DE ESTADO
+        function crearReporte(assetName, assetId) {
+            const falla = prompt("¿Qué defecto o daño detectaste en el " + assetName + "?");
+            if (!falla) return;
+
+            const reportData = {
+                assetId: assetId,
+                assetName: assetName,
+                issue: falla,
+                reportedBy: auth.currentUser.email,
+                timestamp: new Date().toLocaleString()
+            };
+
+            // 1. Guardar el reporte
+            db.ref('reports').push(reportData).then(() => {
+                // 2. ACTUALIZAR AUTOMÁTICAMENTE EL ESTADO DEL ACTIVO A "DAÑADO"
+                db.ref('assets/' + assetId).update({ cond: 'Dañado' }).then(() => {
+                    alert("✓ Reporte enviado. El estado del activo ha sido cambiado a 'DAÑADO' automáticamente.");
+                    showSection('reportes');
+                });
+            });
+        }
+
+        function loadReportsList() {
+            db.ref('reports').on('value', snap => {
+                const container = document.getElementById('sec-reportes');
+                container.innerHTML = `<h3 class="text-xl font-black mb-6 uppercase text-red-400">Historial de Incidencias</h3>`;
+                if (!snap.exists()) {
+                    container.innerHTML += `<div class="glass-card p-12 text-center text-slate-500 font-bold">Sin reportes pendientes</div>`;
+                    return;
+                }
+                snap.forEach(doc => {
+                    const r = doc.val();
+                    container.innerHTML += `
+                        <div class="glass-card p-6 mb-4 border-l-4 border-red-500">
+                            <div class="flex justify-between mb-2"><span class="text-[9px] text-red-400 font-black uppercase">Falla Activa</span><span class="text-[9px] text-slate-500">${r.timestamp}</span></div>
+                            <h4 class="font-black text-white uppercase text-lg">${r.assetName}</h4>
+                            <p class="text-sm text-slate-300 italic">"Defecto: ${r.issue}"</p>
+                            <div class="mt-4 flex justify-between items-center">
+                                <span class="text-[8px] text-slate-500 font-bold uppercase">Reportado por: ${r.reportedBy}</span>
+                                ${currentRole === 'admin' ? `<button onclick="borrarReporte('${doc.key}')" class="text-red-500 text-[10px] font-black uppercase bg-red-500/10 px-3 py-1 rounded">Resolver</button>` : ''}
+                            </div>
+                        </div>`;
+                });
+            });
+        }
+
+        function borrarReporte(id) { if(confirm("¿Marcar como resuelto?")) db.ref('reports/' + id).remove(); }
+
+        // GESTIÓN DE ACTIVOS
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
                 let total = 0, excelente = 0, mantenimiento = 0, danado = 0;
-
                 snap.forEach(doc => {
-                    const a = doc.val(); 
-                    total++; 
+                    const a = doc.val(); total++;
                     if(a.cond === 'Excelente') excelente++;
                     else if(a.cond === 'Mantenimiento') mantenimiento++;
-                    else if(a.cond === 'Dañado') danado++;
+                    else danado++;
 
                     const card = document.createElement('div');
                     card.className = "glass-card p-6 flex flex-col items-center relative transition-all hover:border-cyan-400/50";
                     card.innerHTML = `
-                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] transition-transform hover:scale-110"><i class="fas fa-edit"></i></button>` : ''}
+                        ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px]"><i class="fas fa-edit"></i></button>` : ''}
                         <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4 shadow-lg">
                         <h3 class="font-black text-xs uppercase text-white">${a.name}</h3>
                         <p class="text-[9px] text-slate-400 mt-1 uppercase font-bold">${a.cond}</p>
-                        <div class="bg-white p-2 rounded-xl mt-4 cursor-pointer hover:scale-105 transition-transform" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
+                        <div class="bg-white p-2 rounded-xl mt-4" id="qr-${doc.key}" onclick="openQrModal('${doc.key}', '${a.name}')"></div>
                     `;
                     container.appendChild(card);
                     new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
-
                 document.getElementById('dash-total').textContent = total;
                 document.getElementById('dash-excelente').textContent = excelente;
                 document.getElementById('dash-mantenimiento').textContent = mantenimiento;
@@ -306,29 +351,23 @@
             });
         }
 
-        // FORMULARIOS Y FUNCIONES ORIGINALES
+        function showSection(id) {
+            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.getElementById('section-title').textContent = id.toUpperCase();
+            if(id === 'reportes') loadReportsList();
+        }
+
         document.getElementById('form-asset').onsubmit = (e) => {
             e.preventDefault();
             const data = {
-                name: document.getElementById('as-name').value, 
-                serial: document.getElementById('as-serial').value,
-                location: document.getElementById('as-loc').value,
-                imageUrl: document.getElementById('as-photo').value, 
-                cond: document.getElementById('as-cond').value,
-                updatedAt: new Date().toISOString()
+                name: document.getElementById('as-name').value, serial: document.getElementById('as-serial').value,
+                location: document.getElementById('as-loc').value, imageUrl: document.getElementById('as-photo').value,
+                cond: document.getElementById('as-cond').value, updatedAt: new Date().toISOString()
             };
             const id = document.getElementById('edit-id').value;
-            if (id) {
-                db.ref('assets/' + id).update(data).then(() => { 
-                    alert('✓ Registro actualizado correctamente'); 
-                    resetAssetForm(); 
-                });
-            } else {
-                db.ref('assets').push(data).then(() => { 
-                    alert('✓ Nuevo activo registrado'); 
-                    e.target.reset(); 
-                });
-            }
+            if (id) db.ref('assets/' + id).update(data).then(() => { alert('✓ Actualizado'); resetAssetForm(); });
+            else db.ref('assets').push(data).then(() => { alert('✓ Registrado'); e.target.reset(); });
         };
 
         function prepareEdit(id) {
@@ -340,15 +379,15 @@
                 document.getElementById('as-loc').value = a.location;
                 document.getElementById('as-photo').value = a.imageUrl;
                 document.getElementById('as-cond').value = a.cond;
-                document.getElementById('asset-form-title').textContent = "Modificar Activo (ADMIN)";
-                document.getElementById('sec-inventario').scrollIntoView({ behavior: 'smooth' });
+                document.getElementById('asset-form-title').textContent = "Editando Activo...";
+                showSection('inventario');
             });
         }
 
         function resetAssetForm() {
             document.getElementById('form-asset').reset();
             document.getElementById('edit-id').value = '';
-            document.getElementById('asset-form-title').textContent = "Registrar Activo";
+            document.getElementById('asset-form-title').textContent = "Gestión de Activos";
         }
 
         function openQrModal(id, name) {
@@ -361,12 +400,12 @@
 
         function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
         function logout() { auth.signOut().then(() => location.href = location.pathname); }
-        
-        function showSection(id) { 
-            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden')); 
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.replace('scan-view', 'ACTIVO').toUpperCase();
-        }
+
+        document.getElementById('login-form').onsubmit = (e) => {
+            e.preventDefault();
+            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
+                .catch(() => alert('Credenciales incorrectas'));
+        };
 
         document.getElementById('form-user').onsubmit = async (e) => {
             e.preventDefault();
@@ -392,21 +431,12 @@
                             <td class="p-6 text-white">${u.name}</td>
                             <td class="p-6 text-slate-400">${u.email}</td>
                             <td class="p-6"><span class="px-3 py-1 rounded-full ${u.role === 'admin' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'}">${u.role}</span></td>
-                            <td class="p-6">${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:scale-110"><i class="fas fa-trash"></i></button>` : '-'}</td>
+                            <td class="p-6">${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500"><i class="fas fa-trash"></i></button>` : '-'}</td>
                         </tr>`;
                 });
             });
         }
-
         function deleteUser(uid) { if(confirm("¿Eliminar usuario?")) db.ref('users/' + uid).remove(); }
-
-        document.getElementById('login-form').onsubmit = (e) => {
-            e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
-                .catch(() => alert('Credenciales incorrectas'));
-        };
-
-        setInterval(() => { document.getElementById('current-time').textContent = new Date().toLocaleString(); }, 1000);
     </script>
 </body>
 </html>
