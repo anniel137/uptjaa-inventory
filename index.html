@@ -27,12 +27,12 @@
     <div id="login-screen" class="fixed inset-0 z-[1000] bg-[#0a0b10] flex items-center justify-center p-6">
         <div class="glass-card p-10 w-full max-w-md text-center">
             <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" class="w-24 h-24 mx-auto mb-6 rounded-full logo-glow object-cover">
-            <h2 class="text-4xl font-black italic mb-2">NEXUS-ID</h2>
+            <h2 class="text-4xl font-black italic mb-2 text-white">NEXUS-ID</h2>
             <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-8">Validación de Personal</p>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="user-input" placeholder="Correo" class="w-full input-dark" required>
-                <input type="password" id="pass-input" placeholder="Contraseña" class="w-full input-dark" required>
-                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Entrar</button>
+                <input type="email" id="user-input" placeholder="Correo Administrativo" class="w-full input-dark" required>
+                <input type="password" id="pass-input" placeholder="Contraseña de Acceso" class="w-full input-dark" required>
+                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm shadow-lg">Iniciar Sesión</button>
             </form>
         </div>
     </div>
@@ -41,13 +41,12 @@
         <aside id="main-sidebar" class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <div class="mb-12">
                 <h1 class="font-black text-3xl tracking-tighter">NEXUS-ID</h1>
-                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Control de Inventario</p>
+                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Gestión Central</p>
             </div>
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
                 <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-box-open w-8"></i> Inventario</button>
                 <button onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate uppercase"></p>
@@ -63,37 +62,34 @@
             <div id="content-area" class="p-8">
                 
                 <section id="sec-scan-view" class="hidden max-w-2xl mx-auto pb-20">
-                    <div id="scan-status-banner" class="w-full p-4 rounded-t-3xl text-center font-black text-[10px]"></div>
+                    <div id="scan-status-banner" class="w-full p-4 rounded-t-3xl text-center font-black text-[10px] bg-cyan-500/10 text-cyan-400">ACTIVO DETECTADO</div>
                     <div class="glass-card overflow-hidden rounded-t-none">
                         <img id="scan-img" src="" class="w-full h-72 object-cover">
                         <div class="p-8 space-y-6">
-                            <div>
-                                <h2 id="scan-name" class="text-4xl font-black uppercase"></h2>
-                                <p id="scan-id-display" class="text-cyan-400 font-bold text-xs mt-1"></p>
-                            </div>
+                            <h2 id="scan-name" class="text-4xl font-black uppercase"></h2>
                             <div class="grid grid-cols-2 gap-4">
-                                <div class="bg-white/5 p-4 rounded-2xl">
+                                <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
                                     <p class="text-[9px] text-slate-500 font-bold uppercase">Estado Actual</p>
                                     <p id="scan-cond" class="font-black text-white"></p>
                                 </div>
-                                <div class="bg-white/5 p-4 rounded-2xl">
+                                <div class="bg-white/5 p-4 rounded-2xl border border-white/10">
                                     <p class="text-[9px] text-slate-500 font-bold uppercase">Ubicación</p>
                                     <p id="scan-loc" class="font-black text-white"></p>
                                 </div>
                             </div>
                             <div id="scan-reason-box" class="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl hidden">
-                                <p class="text-[9px] text-red-400 font-bold uppercase">Nota de Estado:</p>
+                                <p class="text-[9px] text-red-400 font-bold uppercase italic">Observación del Activo:</p>
                                 <p id="scan-reason-text" class="text-sm italic text-white"></p>
                             </div>
                             <hr class="border-white/10">
                             <div class="space-y-4">
-                                <h3 class="font-black text-xs uppercase text-slate-400">Nuevo Reporte</h3>
+                                <h3 class="font-black text-xs uppercase text-slate-400">Generar Reporte de Novedad</h3>
                                 <select id="rep-new-cond" class="w-full input-dark bg-slate-800">
-                                    <option value="Dañado">Dañado</option>
-                                    <option value="Mantenimiento">Mantenimiento</option>
-                                    <option value="Excelente">Excelente</option>
+                                    <option value="Dañado">Marcar como Dañado</option>
+                                    <option value="Mantenimiento">Pasar a Mantenimiento</option>
+                                    <option value="Excelente">Volver a Excelente</option>
                                 </select>
-                                <textarea id="rep-reason" placeholder="Escriba el motivo del cambio..." class="w-full input-dark h-24"></textarea>
+                                <textarea id="rep-reason" placeholder="Describa el motivo del cambio de estado..." class="w-full input-dark h-24"></textarea>
                                 <button id="btn-send-report" class="w-full btn-primary p-4 rounded-2xl font-black uppercase">Enviar Reporte</button>
                             </div>
                         </div>
@@ -101,18 +97,18 @@
                 </section>
 
                 <section id="sec-dashboard" class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass-card p-8 border-l-4 border-purple-500"><h4 class="text-[10px] font-bold text-slate-400 uppercase">Total</h4><p id="dash-total" class="text-4xl font-black mt-2">0</p></div>
-                    <div class="glass-card p-8 border-l-4 border-emerald-500"><h4 class="text-[10px] font-bold text-emerald-400 uppercase">Buen Estado</h4><p id="dash-excelente" class="text-4xl font-black mt-2">0</p></div>
-                    <div class="glass-card p-8 border-l-4 border-orange-500"><h4 class="text-[10px] font-bold text-orange-400 uppercase">En Mantenimiento</h4><p id="dash-mantenimiento" class="text-4xl font-black mt-2">0</p></div>
-                    <div class="glass-card p-8 border-l-4 border-red-500"><h4 class="text-[10px] font-bold text-red-400 uppercase">Dañados</h4><p id="dash-danado" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-purple-500"><h4 class="text-[10px] font-bold text-slate-400 uppercase">Total Activos</h4><p id="dash-total" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-emerald-500"><h4 class="text-[10px] font-bold text-emerald-400 uppercase">Excelente</h4><p id="dash-excelente" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-orange-500"><h4 class="text-[10px] font-bold text-orange-400 uppercase">Mantenimiento</h4><p id="dash-mantenimiento" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-red-500"><h4 class="text-[10px] font-bold text-red-400 uppercase">Dañado</h4><p id="dash-danado" class="text-4xl font-black mt-2">0</p></div>
                 </section>
 
                 <section id="sec-inventario" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 text-purple-400 uppercase">Nuevo Registro</h3>
+                        <h3 class="text-xl font-black mb-6 text-purple-400 uppercase">Gestión de Archivos de Activos</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="text" id="as-name" placeholder="Nombre" class="input-dark" required>
-                            <input type="text" id="as-serial" placeholder="Serial" class="input-dark" required>
+                            <input type="text" id="as-name" placeholder="Nombre del Equipo" class="input-dark" required>
+                            <input type="text" id="as-serial" placeholder="Serial o ID" class="input-dark" required>
                             <input type="text" id="as-loc" placeholder="Ubicación" class="input-dark" required>
                             <input type="url" id="as-photo" placeholder="URL Imagen" class="input-dark" required>
                             <select id="as-cond" class="input-dark">
@@ -120,28 +116,19 @@
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <input type="text" id="as-reason" placeholder="Nota de por qué está en ese estado (Opcional)" class="input-dark">
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar en Sistema</button>
+                            <textarea id="as-reason" placeholder="Explique aquí el porqué del estado (ej: Falla en disco duro, limpieza semestral...)" class="input-dark h-32 md:col-span-1"></textarea>
+                            
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Registrar y Guardar</button>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
                 </section>
 
                 <section id="sec-reportes" class="hidden space-y-4">
-                    <h3 class="text-2xl font-black uppercase italic mb-6">Historial de Reportes y Novedades</h3>
                     <div id="reports-list-container" class="space-y-4"></div>
                 </section>
-
-                <section id="sec-usuarios" class="hidden"></section>
             </div>
         </main>
-    </div>
-
-    <div id="qr-modal" class="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md hidden flex items-center justify-center p-6">
-        <div class="glass-card p-8 max-w-sm w-full text-center">
-            <div id="qr-large" class="bg-white p-4 rounded-2xl inline-block mb-4"></div>
-            <button onclick="document.getElementById('qr-modal').classList.add('hidden')" class="w-full btn-primary p-3 rounded-xl font-black uppercase text-xs">Cerrar</button>
-        </div>
     </div>
 
     <script>
@@ -161,23 +148,25 @@
         const urlParams = new URLSearchParams(window.location.search);
         const scannedId = urlParams.get('id');
 
+        // LÓGICA DE LOGIN Y ESCANEO
         auth.onAuthStateChanged(user => {
             if (user) {
-                db.ref('users/' + user.uid).once('value', snap => {
-                    const userData = snap.val() || { name: 'Admin' };
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    document.getElementById('display-user').textContent = userData.name;
-                    if(scannedId) {
-                        document.getElementById('main-sidebar').classList.add('hidden');
-                        loadScannedAsset(scannedId);
-                    } else {
-                        showSection('dashboard');
-                        loadAssets();
-                        loadReports();
-                    }
-                });
+                // Si el usuario se loguea, ocultamos login y mostramos app
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('app-interface').classList.remove('hidden');
+                document.getElementById('display-user').textContent = user.email;
+
+                if(scannedId) {
+                    // Si viene de un QR, ocultamos menú lateral y mostramos solo el activo
+                    document.getElementById('main-sidebar').classList.add('hidden');
+                    loadScannedAsset(scannedId);
+                } else {
+                    showSection('dashboard');
+                    loadAssets();
+                    loadReports();
+                }
             } else {
+                // Si no hay usuario, forzamos la pantalla de login SIEMPRE
                 document.getElementById('login-screen').classList.remove('hidden');
                 document.getElementById('app-interface').classList.add('hidden');
             }
@@ -192,18 +181,34 @@
                 document.getElementById('scan-name').textContent = a.name;
                 document.getElementById('scan-cond').textContent = a.cond;
                 document.getElementById('scan-loc').textContent = a.location;
+                
                 const rBox = document.getElementById('scan-reason-box');
                 if(a.reason) {
                     rBox.classList.remove('hidden');
                     document.getElementById('scan-reason-text').textContent = a.reason;
+                } else {
+                    rBox.classList.add('hidden');
                 }
+
                 document.getElementById('btn-send-report').onclick = () => {
                     const motivo = document.getElementById('rep-reason').value;
-                    if(!motivo) return alert("Escriba el motivo");
+                    if(!motivo) return alert("Por favor, escriba el motivo del cambio.");
                     const newC = document.getElementById('rep-new-cond').value;
-                    const rep = { assetName: a.name, user: auth.currentUser.email, reason: motivo, oldC: a.cond, newC: newC, date: new Date().toLocaleString() };
-                    db.ref('reports').push(rep);
-                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => alert("Reporte Enviado"));
+                    
+                    const reportData = {
+                        assetName: a.name,
+                        user: auth.currentUser.email,
+                        reason: motivo,
+                        oldC: a.cond,
+                        newC: newC,
+                        date: new Date().toLocaleString()
+                    };
+
+                    db.ref('reports').push(reportData);
+                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => {
+                        alert("Estado actualizado y reporte enviado.");
+                        document.getElementById('rep-reason').value = "";
+                    });
                 };
             });
         }
@@ -216,16 +221,16 @@
                 snap.forEach(doc => {
                     const a = doc.val(); t++;
                     if(a.cond === 'Excelente') e++; else if(a.cond === 'Mantenimiento') m++; else d++;
+                    
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 relative group overflow-hidden";
+                    card.className = "glass-card p-6 border border-white/5";
                     card.innerHTML = `
-                        <img src="${a.imageUrl}" class="w-full h-40 object-cover rounded-2xl mb-4">
-                        <h4 class="font-black text-white uppercase">${a.name}</h4>
-                        <p class="text-[10px] font-bold uppercase ${a.cond === 'Dañado' ? 'text-red-500' : 'text-cyan-400'}">${a.cond}</p>
-                        <p class="text-[9px] text-slate-500 mt-2 italic">${a.reason || 'Sin observaciones'}</p>
+                        <img src="${a.imageUrl}" class="w-full h-40 object-cover rounded-2xl mb-4 shadow-lg">
+                        <h4 class="font-black text-white uppercase text-sm">${a.name}</h4>
+                        <p class="text-[10px] font-bold uppercase mt-1 ${a.cond === 'Dañado' ? 'text-red-500' : 'text-cyan-400'}">${a.cond}</p>
+                        <p class="text-[9px] text-slate-500 mt-2 line-clamp-2 italic">${a.reason || 'Sin observaciones iniciales'}</p>
                         <div class="flex gap-2 mt-4">
-                            <button onclick="openQR('${doc.key}')" class="flex-1 bg-white/10 p-2 rounded-lg text-[9px] font-bold uppercase hover:bg-white/20">QR</button>
-                            <button onclick="openManualReport('${doc.key}', '${a.name}')" class="flex-1 bg-red-500/20 text-red-400 p-2 rounded-lg text-[9px] font-bold uppercase hover:bg-red-500/40">Reportar</button>
+                            <button onclick="openQR('${doc.key}')" class="flex-1 bg-white/5 p-2 rounded-lg text-[9px] font-bold uppercase hover:bg-white/10">Generar QR</button>
                         </div>
                     `;
                     container.appendChild(card);
@@ -237,41 +242,24 @@
             });
         }
 
-        // Función para reportar sin escanear (Desde la interfaz principal)
-        function openManualReport(id, name) {
-            const motivo = prompt(`Reportar novedad para: ${name}\nEscriba el motivo:`);
-            if(!motivo) return;
-            const nuevoEstado = prompt(`Elija el nuevo estado:\n1. Excelente\n2. Mantenimiento\n3. Dañado`, "3");
-            let estadoStr = "Dañado";
-            if(nuevoEstado === "1") estadoStr = "Excelente";
-            if(nuevoEstado === "2") estadoStr = "Mantenimiento";
-
-            const rep = { assetName: name, user: auth.currentUser.email, reason: motivo, oldC: "Manual", newC: estadoStr, date: new Date().toLocaleString() };
-            db.ref('reports').push(rep);
-            db.ref('assets/' + id).update({ cond: estadoStr, reason: motivo }).then(() => alert("Actualizado desde Interfaz Principal"));
-        }
-
         function loadReports() {
-            db.ref('reports').limitToLast(20).on('value', snap => {
+            db.ref('reports').on('value', snap => {
                 const container = document.getElementById('reports-list-container');
-                container.innerHTML = '';
+                container.innerHTML = '<h3 class="text-2xl font-black italic mb-6">HISTORIAL DE NOVEDADES</h3>';
                 snap.forEach(doc => {
                     const r = doc.val();
-                    const card = document.createElement('div');
-                    card.className = "glass-card p-5 border-l-4 " + (r.newC === 'Dañado' ? 'border-red-500' : 'border-orange-500');
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h5 class="font-black text-white uppercase">${r.assetName}</h5>
-                                <p class="text-[10px] text-slate-400 font-bold">${r.date} - Por: ${r.user}</p>
-                            </div>
-                            <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-white font-bold uppercase">${r.newC}</span>
+                    const div = document.createElement('div');
+                    div.className = "glass-card p-5 border-l-4 " + (r.newC === 'Dañado' ? 'border-red-500' : 'border-orange-500');
+                    div.innerHTML = `
+                        <div class="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                            <span>${r.date}</span>
+                            <span>Usuario: ${r.user}</span>
                         </div>
-                        <p class="text-sm text-slate-300 mt-3 italic bg-black/20 p-3 rounded-xl border border-white/5">
-                            <i class="fas fa-comment-dots mr-2 text-cyan-400"></i>"${r.reason}"
-                        </p>
+                        <h5 class="text-lg font-black text-white mt-1 uppercase">${r.assetName}</h5>
+                        <p class="text-xs text-cyan-400 font-bold uppercase">Cambió a: ${r.newC}</p>
+                        <p class="text-sm text-slate-300 mt-3 p-3 bg-black/30 rounded-xl border border-white/5 italic">"${r.reason}"</p>
                     `;
-                    container.prepend(card);
+                    container.prepend(div);
                 });
             });
         }
@@ -290,22 +278,29 @@
                 location: document.getElementById('as-loc').value,
                 imageUrl: document.getElementById('as-photo').value,
                 cond: document.getElementById('as-cond').value,
-                reason: document.getElementById('as-reason').value || "Registro inicial"
+                reason: document.getElementById('as-reason').value
             };
-            db.ref('assets').push(data).then(() => { alert("Activo Registrado"); e.target.reset(); });
+            db.ref('assets').push(data).then(() => {
+                alert("Activo Guardado Correctamente");
+                e.target.reset();
+            });
         };
 
         function openQR(id) {
-            document.getElementById('qr-modal').classList.remove('hidden');
-            document.getElementById('qr-large').innerHTML = "";
-            new QRCode(document.getElementById('qr-large'), { text: BASE_URL + "?id=" + id, width: 200, height: 200 });
+            const modal = document.createElement('div');
+            modal.className = "fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center p-6";
+            modal.innerHTML = `<div class="glass-card p-8 text-center"><div id="qr-gen" class="bg-white p-4 rounded-2xl mb-4"></div><button onclick="this.parentElement.parentElement.remove()" class="w-full btn-primary p-3 rounded-xl font-black uppercase text-xs">Cerrar</button></div>`;
+            document.body.appendChild(modal);
+            new QRCode(document.getElementById('qr-gen'), { text: BASE_URL + "?id=" + id, width: 200, height: 200 });
         }
 
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
-                .catch(err => alert("Error de acceso"));
+            const u = document.getElementById('user-input').value;
+            const p = document.getElementById('pass-input').value;
+            auth.signInWithEmailAndPassword(u, p).catch(err => alert("Error de Acceso: Verifique sus credenciales."));
         };
+
         function logout() { auth.signOut().then(() => location.href = BASE_URL); }
     </script>
 </body>
