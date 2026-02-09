@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS-ID - Control Policial</title>
+    <title>NEXUS-ID - Sistema Integrado de Activos Tecnológicos</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -26,8 +26,8 @@
     <div id="login-screen" class="fixed inset-0 z-[2000] bg-[#0a0b10] flex items-center justify-center p-6">
         <div class="glass-card p-10 w-full max-w-md text-center">
             <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" class="w-24 h-24 mx-auto mb-6 rounded-full border-2 border-cyan-400 object-cover">
-            <h2 class="text-4xl font-black italic mb-2">NEXUS-ID</h2>
-            <p class="text-[10px] text-cyan-400 font-bold mb-8 uppercase tracking-widest">Identificación de Seguridad</p>
+            <h2 class="text-4xl font-black italic mb-1">NEXUS-ID</h2>
+            <p class="text-[9px] text-cyan-400 font-bold mb-8 uppercase tracking-widest">Sistema Integrado de Activos Tecnológicos</p>
             <form id="login-form" class="space-y-4">
                 <input type="email" id="user-input" placeholder="Correo Administrativo" class="w-full input-dark" required>
                 <input type="password" id="pass-input" placeholder="Contraseña" class="w-full input-dark" required>
@@ -40,7 +40,7 @@
         <aside id="main-sidebar" class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <div class="mb-12">
                 <h1 class="font-black text-3xl italic">NEXUS-ID</h1>
-                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Panel de Control</p>
+                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Sistema Integrado de Activos Tecnológicos</p>
             </div>
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
@@ -57,13 +57,13 @@
 
         <main class="flex-1 overflow-y-auto">
             <header class="p-8">
-                <h2 id="section-title" class="text-3xl font-black uppercase italic">Dashboard</h2>
+                <h2 id="section-title" class="text-3xl font-black uppercase italic text-white">Dashboard</h2>
             </header>
 
             <div id="content-area" class="p-8">
                 
                 <section id="sec-dashboard" class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                    <div class="glass-card p-8 border-l-4 border-purple-500"><h4>Total</h4><p id="dash-total" class="text-4xl font-black">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-purple-500"><h4>Total Activos</h4><p id="dash-total" class="text-4xl font-black">0</p></div>
                     <div class="glass-card p-8 border-l-4 border-emerald-500"><h4>Excelente</h4><p id="dash-excelente" class="text-4xl font-black">0</p></div>
                     <div class="glass-card p-8 border-l-4 border-orange-500"><h4>Mantenimiento</h4><p id="dash-mantenimiento" class="text-4xl font-black">0</p></div>
                     <div class="glass-card p-8 border-l-4 border-red-500"><h4>Dañado</h4><p id="dash-danado" class="text-4xl font-black">0</p></div>
@@ -71,7 +71,7 @@
 
                 <section id="sec-inventario" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 id="asset-form-title" class="text-xl font-black mb-6">GESTIÓN DE ACTIVO</h3>
+                        <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase">Gestión de Activo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
                             <input type="text" id="as-name" placeholder="Nombre" class="input-dark" required>
@@ -92,7 +92,7 @@
 
                 <section id="sec-usuarios" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 uppercase">Añadir Nuevo Usuario</h3>
+                        <h3 class="text-xl font-black mb-6 uppercase">Registrar Nuevo Personal</h3>
                         <form id="form-user" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input type="text" id="u-name" placeholder="Nombre" class="input-dark" required>
                             <input type="email" id="u-email" placeholder="Correo" class="input-dark" required>
@@ -100,11 +100,11 @@
                                 <option value="operario">Operador</option>
                                 <option value="admin">Administrador</option>
                             </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Registrar Personal</button>
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Añadir al Sistema</button>
                         </form>
                     </div>
                     <div id="admin-user-list" class="hidden glass-card p-8">
-                        <h3 class="text-xl font-black mb-6">PERSONAL REGISTRADO (CONTROL TOTAL)</h3>
+                        <h3 class="text-xl font-black mb-6 uppercase">Panel Administrativo de Usuarios</h3>
                         <div id="users-table-container" class="overflow-x-auto text-sm"></div>
                     </div>
                 </section>
@@ -127,14 +127,14 @@
                             </div>
                             <hr class="border-white/10">
                             <div class="space-y-4">
-                                <h3 class="font-black text-xs uppercase text-center">Actualizar Estado</h3>
+                                <h3 class="font-black text-xs uppercase text-center">Actualizar Novedad</h3>
                                 <select id="rep-new-cond" class="w-full input-dark bg-slate-800">
                                     <option value="Dañado">Dañado</option>
                                     <option value="Mantenimiento">Mantenimiento</option>
                                     <option value="Excelente">Excelente</option>
                                 </select>
-                                <textarea id="rep-reason" placeholder="Explicación del cambio..." class="w-full input-dark h-24"></textarea>
-                                <button id="btn-send-report" class="w-full btn-primary p-4 rounded-2xl font-black uppercase">Guardar Novedad</button>
+                                <textarea id="rep-reason" placeholder="Explicación detallada..." class="w-full input-dark h-24" required></textarea>
+                                <button id="btn-send-report" class="w-full btn-primary p-4 rounded-2xl font-black uppercase">Guardar Reporte</button>
                             </div>
                         </div>
                     </div>
@@ -161,7 +161,6 @@
         const urlParams = new URLSearchParams(window.location.search);
         const scannedId = urlParams.get('id');
 
-        // LOGICA DE SEGURIDAD
         auth.onAuthStateChanged(user => {
             if (user) {
                 db.ref('users/' + user.uid).on('value', snap => {
@@ -197,7 +196,6 @@
             }
         });
 
-        // INVENTARIO (Operadores y Admin pueden hacer todo aquí según tu petición)
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
@@ -224,7 +222,6 @@
             });
         }
 
-        // USUARIOS (Operario agrega, Admin controla)
         document.getElementById('form-user').onsubmit = (e) => {
             e.preventDefault();
             const data = {
@@ -232,14 +229,14 @@
                 email: document.getElementById('u-email').value,
                 role: document.getElementById('u-role').value
             };
-            db.ref('users').push(data).then(() => { alert("Usuario Registrado"); e.target.reset(); });
+            db.ref('users').push(data).then(() => { alert("Personal Añadido"); e.target.reset(); });
         };
 
         function loadAdminUsers() {
             db.ref('users').on('value', snap => {
                 const container = document.getElementById('users-table-container');
-                let html = `<table class="w-full text-left uppercase">
-                    <tr class="text-slate-500 border-b border-white/10"><th class="p-4">Nombre</th><th class="p-4">Rol</th><th class="p-4">Acción</th></tr>`;
+                let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
+                    <tr class="text-slate-500 border-b border-white/10"><th class="p-4">Nombre / Email</th><th class="p-4">Rol</th><th class="p-4">Acción</th></tr>`;
                 snap.forEach(doc => {
                     const u = doc.val();
                     html += `<tr class="border-b border-white/5">
@@ -254,7 +251,6 @@
             });
         }
 
-        // FUNCIONES GENERALES
         function showSection(id) {
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
             document.getElementById('sec-' + id).classList.remove('hidden');
@@ -300,14 +296,14 @@
                 document.getElementById('scan-loc').textContent = a.location;
                 if(a.reason) {
                     document.getElementById('scan-reason-box').classList.remove('hidden');
-                    document.getElementById('scan-reason-text').textContent = "NOTA: " + a.reason;
+                    document.getElementById('scan-reason-text').textContent = "NOTA ACTUAL: " + a.reason;
                 }
                 document.getElementById('btn-send-report').onclick = () => {
                     const motivo = document.getElementById('rep-reason').value;
                     const newC = document.getElementById('rep-new-cond').value;
-                    if(!motivo) return alert("Indique el motivo");
+                    if(!motivo) return alert("Indique el motivo de la novedad");
                     db.ref('reports').push({ assetName: a.name, user: auth.currentUser.email, reason: motivo, newC: newC, date: new Date().toLocaleString() });
-                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => alert("Actualizado"));
+                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => alert("Estado Actualizado con Éxito"));
                 };
             });
         }
@@ -315,14 +311,14 @@
         function loadReports() {
             db.ref('reports').on('value', snap => {
                 const container = document.getElementById('reports-list-container');
-                container.innerHTML = '';
+                container.innerHTML = '<h3 class="text-xl font-black mb-6 italic uppercase">Historial de Actividad</h3>';
                 snap.forEach(doc => {
                     const r = doc.val();
                     container.innerHTML = `
                         <div class="glass-card p-5 border-l-4 ${r.newC === 'Dañado' ? 'border-red-500' : 'border-orange-500'} mb-3">
                             <p class="text-[9px] text-slate-500">${r.date} - Por: ${r.user}</p>
                             <h5 class="text-white font-black uppercase">${r.assetName}</h5>
-                            <p class="text-xs text-cyan-400 font-black">NUEVO ESTADO: ${r.newC}</p>
+                            <p class="text-xs text-cyan-400 font-black">ESTADO ACTUALIZADO A: ${r.newC}</p>
                             <p class="mt-2 text-sm italic text-slate-300">"${r.reason}"</p>
                         </div>` + container.innerHTML;
                 });
@@ -332,17 +328,17 @@
         function openQR(id) {
             const m = document.createElement('div');
             m.className = "fixed inset-0 z-[3000] bg-black/95 flex items-center justify-center p-6";
-            m.innerHTML = `<div class="glass-card p-8 text-center"><div id="qr-gen" class="bg-white p-4 rounded-2xl mb-4"></div><button onclick="this.parentElement.parentElement.remove()" class="w-full btn-primary p-3 rounded-xl font-black uppercase">Cerrar</button></div>`;
+            m.innerHTML = `<div class="glass-card p-8 text-center"><div id="qr-gen" class="bg-white p-4 rounded-2xl mb-4"></div><button onclick="this.parentElement.parentElement.remove()" class="w-full btn-primary p-3 rounded-xl font-black uppercase text-xs">Cerrar</button></div>`;
             document.body.appendChild(m);
             new QRCode(document.getElementById('qr-gen'), { text: window.location.origin + window.location.pathname + "?id=" + id, width: 220, height: 220 });
         }
 
-        function deleteAsset(id) { if(confirm("¿Eliminar activo?")) db.ref('assets/' + id).remove(); }
-        function deleteUser(id) { if(confirm("¿Eliminar usuario?")) db.ref('users/' + id).remove(); }
+        function deleteAsset(id) { if(confirm("¿Seguro que desea eliminar este activo tecnológico?")) db.ref('assets/' + id).remove(); }
+        function deleteUser(id) { if(confirm("¿Eliminar acceso a este usuario?")) db.ref('users/' + id).remove(); }
         
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value).catch(() => alert("Credenciales Incorrectas"));
+            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value).catch(() => alert("Acceso denegado. Verifique sus credenciales."));
         };
         function logout() { auth.signOut().then(() => location.href = window.location.origin + window.location.pathname); }
     </script>
