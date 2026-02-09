@@ -55,7 +55,7 @@
             <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" alt="Logo" class="w-28 h-28 mb-6 rounded-full object-cover logo-glow">
             <div class="mb-8">
                 <h2 class="text-5xl font-black tracking-tighter italic text-white">NEXUS-ID</h2>
-                <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Acceso Administrativo Maestro</p>
+                <p id="login-subtitle" class="text-[10px] text-cyan-400 font-bold uppercase tracking-[0.2em] mt-2">Acceso Administrativo Maestro</p>
             </div>
             <form id="login-form" class="space-y-4 w-full">
                 <input type="email" id="user-input" placeholder="Correo" class="w-full p-4 bg-white/5 rounded-2xl border border-white/10 outline-none font-bold text-white" required>
@@ -74,8 +74,8 @@
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
                 <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-bell w-8"></i> Reportes</button>
+                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate"></p>
@@ -90,6 +90,26 @@
             </header>
             
             <div class="p-8 overflow-y-auto flex-1">
+                <section id="sec-scan-view" class="hidden max-w-2xl mx-auto">
+                    <div class="glass-card p-10 neon-purple flex flex-col items-center text-center">
+                        <img id="scan-img" src="" class="w-64 h-64 object-cover rounded-3xl mb-6 border-4 border-white/10">
+                        <h2 id="scan-name" class="text-4xl font-black uppercase italic mb-2"></h2>
+                        <span id="scan-cond" class="px-6 py-2 rounded-full bg-white/10 font-black text-xs mb-8 uppercase"></span>
+                        
+                        <div class="grid grid-cols-2 gap-4 w-full text-left">
+                            <div class="bg-white/5 p-4 rounded-2xl">
+                                <p class="text-[8px] text-cyan-400 font-black uppercase">Serial de Equipo</p>
+                                <p id="scan-serial" class="font-bold"></p>
+                            </div>
+                            <div class="bg-white/5 p-4 rounded-2xl">
+                                <p class="text-[8px] text-cyan-400 font-black uppercase">Ubicación Física</p>
+                                <p id="scan-loc" class="font-bold"></p>
+                            </div>
+                        </div>
+                        <button onclick="location.href=location.pathname" class="mt-8 text-[10px] font-black uppercase text-slate-400 hover:text-white">← Volver al Panel General</button>
+                    </div>
+                </section>
+
                 <section id="sec-dashboard">
                     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
                         <div class="glass-card p-8 neon-purple">
@@ -156,7 +176,10 @@
                 </section>
 
                 <section id="sec-reportes" class="hidden">
-                   <div class="glass-card p-8 text-center text-slate-500 font-bold uppercase tracking-widest">Historial de Reportes Críticos Activo</div>
+                   <div class="glass-card p-8 text-center text-slate-400 font-bold uppercase tracking-widest border border-dashed border-white/20">
+                        <i class="fas fa-satellite-dish mb-4 text-3xl text-purple-500"></i><br>
+                        Historial de Reportes Críticos Activo y Sincronizado
+                    </div>
                 </section>
             </div>
         </main>
@@ -175,8 +198,16 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth(); const db = firebase.database();
         let currentRole = 'operario';
-        let BASE_URL = window.location.origin + window.location.pathname.replace('index.html', '');
+        let BASE_URL = window.location.origin + window.location.pathname;
         const MASTER_EMAIL = "anniel137@gmail.com"; 
+
+        // DETECCION DE QR EN URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const scannedAssetId = urlParams.get('id');
+
+        if(scannedAssetId) {
+            document.getElementById('login-subtitle').textContent = "AUTENTICACIÓN REQUERIDA PARA VER ACTIVO";
+        }
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -198,10 +229,46 @@
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-interface').classList.remove('hidden');
                 document.getElementById('display-user').textContent = userData.name.toUpperCase() + " [" + currentRole + "]";
+                
+                // AJUSTE DE PERMISOS: Los operarios ahora ven reportes
                 document.getElementById('nav-usuarios').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-                document.getElementById('nav-reportes').style.display = (currentRole === 'admin') ? 'flex' : 'none';
-                loadAssets(); 
+                document.getElementById('nav-reportes').style.display = 'flex'; // Visible para ambos
+
+                // Lógica de visualización post-escaneo
+                if(scannedAssetId) {
+                    showScannedAsset(scannedAssetId);
+                } else {
+                    showSection('dashboard');
+                    loadAssets(); 
+                }
+                
                 if(currentRole === 'admin') loadUsersList();
+            });
+        }
+
+        // CARGAR UN SOLO ACTIVO (QR)
+        function showScannedAsset(id) {
+            db.ref('assets/' + id).once('value', snap => {
+                const a = snap.val();
+                if(a) {
+                    showSection('scan-view');
+                    document.getElementById('section-title').textContent = "VISTA DE ACTIVO ESCANEADO";
+                    document.getElementById('scan-img').src = a.imageUrl;
+                    document.getElementById('scan-name').textContent = a.name;
+                    document.getElementById('scan-cond').textContent = a.cond;
+                    document.getElementById('scan-serial').textContent = a.serial;
+                    document.getElementById('scan-loc').textContent = a.location;
+                    
+                    // Colores según condición
+                    const badge = document.getElementById('scan-cond');
+                    if(a.cond === 'Excelente') badge.className = "px-6 py-2 rounded-full bg-emerald-500/20 text-emerald-400 font-black text-xs mb-8 uppercase border border-emerald-500/30";
+                    if(a.cond === 'Mantenimiento') badge.className = "px-6 py-2 rounded-full bg-orange-500/20 text-orange-400 font-black text-xs mb-8 uppercase border border-orange-500/30";
+                    if(a.cond === 'Dañado') badge.className = "px-6 py-2 rounded-full bg-red-500/20 text-red-400 font-black text-xs mb-8 uppercase border border-red-500/30";
+
+                } else {
+                    alert("Activo no encontrado o eliminado.");
+                    location.href = BASE_URL;
+                }
             });
         }
 
@@ -210,21 +277,17 @@
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
-                
-                // Inicializar contadores
                 let total = 0, excelente = 0, mantenimiento = 0, danado = 0;
 
                 snap.forEach(doc => {
                     const a = doc.val(); 
                     total++; 
-                    
-                    // Lógica de conteo según condición
                     if(a.cond === 'Excelente') excelente++;
                     else if(a.cond === 'Mantenimiento') mantenimiento++;
                     else if(a.cond === 'Dañado') danado++;
 
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 flex flex-col items-center relative";
+                    card.className = "glass-card p-6 flex flex-col items-center relative transition-all hover:border-cyan-400/50";
                     card.innerHTML = `
                         ${currentRole === 'admin' ? `<button onclick="prepareEdit('${doc.key}')" class="absolute top-4 left-4 btn-edit p-2 rounded-lg text-[10px] transition-transform hover:scale-110"><i class="fas fa-edit"></i></button>` : ''}
                         <img src="${a.imageUrl}" class="w-full h-32 rounded-xl object-cover mb-4 shadow-lg">
@@ -236,7 +299,6 @@
                     new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 80, height: 80 });
                 });
 
-                // Actualizar interfaz con los nuevos contadores
                 document.getElementById('dash-total').textContent = total;
                 document.getElementById('dash-excelente').textContent = excelente;
                 document.getElementById('dash-mantenimiento').textContent = mantenimiento;
@@ -244,7 +306,7 @@
             });
         }
 
-        // --- FORMULARIO ACTIVOS ---
+        // FORMULARIOS Y FUNCIONES ORIGINALES
         document.getElementById('form-asset').onsubmit = (e) => {
             e.preventDefault();
             const data = {
@@ -269,7 +331,6 @@
             }
         };
 
-        // Mismas funciones de apoyo de tu código original
         function prepareEdit(id) {
             db.ref('assets/' + id).once('value', snap => {
                 const a = snap.val();
@@ -299,15 +360,14 @@
         }
 
         function closeQrModal() { document.getElementById('qr-modal').classList.add('hidden'); }
-        function logout() { auth.signOut().then(() => location.reload()); }
+        function logout() { auth.signOut().then(() => location.href = location.pathname); }
         
         function showSection(id) { 
             document.querySelectorAll('main section').forEach(s => s.classList.add('hidden')); 
             document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.toUpperCase();
+            document.getElementById('section-title').textContent = id.replace('scan-view', 'ACTIVO').toUpperCase();
         }
 
-        // Gestión de Usuarios (Original)
         document.getElementById('form-user').onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('new-u-email').value;
