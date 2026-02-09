@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NEXUS-ID - Sistema de Control</title>
+    <title>NEXUS-ID - Control Maestro</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
@@ -28,11 +28,11 @@
         <div class="glass-card p-10 w-full max-w-md text-center">
             <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" class="w-24 h-24 mx-auto mb-6 rounded-full logo-glow object-cover">
             <h2 class="text-4xl font-black italic mb-2">NEXUS-ID</h2>
-            <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-8">Identificación y Reporte</p>
+            <p class="text-[10px] text-cyan-400 font-bold uppercase tracking-widest mb-8">Validación de Personal</p>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="user-input" placeholder="Correo electrónico" class="w-full input-dark" required>
+                <input type="email" id="user-input" placeholder="Correo" class="w-full input-dark" required>
                 <input type="password" id="pass-input" placeholder="Contraseña" class="w-full input-dark" required>
-                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Validar Acceso</button>
+                <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm">Entrar</button>
             </form>
         </div>
     </div>
@@ -41,7 +41,7 @@
         <aside id="main-sidebar" class="w-72 bg-black/40 backdrop-blur-xl border-r border-white/10 flex flex-col p-6 shrink-0">
             <div class="mb-12">
                 <h1 class="font-black text-3xl tracking-tighter">NEXUS-ID</h1>
-                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Administración Central</p>
+                <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Control de Inventario</p>
             </div>
             <nav class="flex-1 space-y-3">
                 <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
@@ -51,13 +51,13 @@
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="display-user" class="text-[10px] font-black text-cyan-400 truncate uppercase"></p>
-                <button onclick="logout()" class="text-[9px] text-red-400 font-black mt-1 uppercase">Salir</button>
+                <button onclick="logout()" class="text-[9px] text-red-400 font-black mt-1 uppercase">Cerrar Sesión</button>
             </div>
         </aside>
 
         <main class="flex-1 overflow-y-auto">
             <header class="p-8 flex justify-between items-center">
-                <h2 id="section-title" class="text-3xl font-black uppercase italic">Cargando...</h2>
+                <h2 id="section-title" class="text-3xl font-black uppercase italic">Dashboard</h2>
             </header>
 
             <div id="content-area" class="p-8">
@@ -82,54 +82,56 @@
                                 </div>
                             </div>
                             <div id="scan-reason-box" class="bg-red-500/10 border border-red-500/20 p-4 rounded-2xl hidden">
-                                <p class="text-[9px] text-red-400 font-bold uppercase">Motivo del Estado:</p>
+                                <p class="text-[9px] text-red-400 font-bold uppercase">Nota de Estado:</p>
                                 <p id="scan-reason-text" class="text-sm italic text-white"></p>
                             </div>
-                            
                             <hr class="border-white/10">
-                            
                             <div class="space-y-4">
-                                <h3 class="font-black text-xs uppercase text-slate-400">Generar Reporte de Novedad</h3>
+                                <h3 class="font-black text-xs uppercase text-slate-400">Nuevo Reporte</h3>
                                 <select id="rep-new-cond" class="w-full input-dark bg-slate-800">
-                                    <option value="Dañado">Marcar como DAÑADO</option>
-                                    <option value="Mantenimiento">Pasar a MANTENIMIENTO</option>
-                                    <option value="Excelente">Restablecer a EXCELENTE</option>
+                                    <option value="Dañado">Dañado</option>
+                                    <option value="Mantenimiento">Mantenimiento</option>
+                                    <option value="Excelente">Excelente</option>
                                 </select>
-                                <textarea id="rep-reason" placeholder="Describa el motivo o la falla detectada..." class="w-full input-dark h-24"></textarea>
-                                <button id="btn-send-report" class="w-full btn-primary p-4 rounded-2xl font-black uppercase">Enviar Reporte y Actualizar</button>
+                                <textarea id="rep-reason" placeholder="Escriba el motivo del cambio..." class="w-full input-dark h-24"></textarea>
+                                <button id="btn-send-report" class="w-full btn-primary p-4 rounded-2xl font-black uppercase">Enviar Reporte</button>
                             </div>
-                            <button onclick="logout()" class="w-full text-slate-500 text-[10px] font-bold uppercase mt-4">Cerrar Sesión</button>
                         </div>
                     </div>
                 </section>
 
-                <section id="sec-dashboard" class="hidden">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="dash-stats">
-                        </div>
+                <section id="sec-dashboard" class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="glass-card p-8 border-l-4 border-purple-500"><h4 class="text-[10px] font-bold text-slate-400 uppercase">Total</h4><p id="dash-total" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-emerald-500"><h4 class="text-[10px] font-bold text-emerald-400 uppercase">Buen Estado</h4><p id="dash-excelente" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-orange-500"><h4 class="text-[10px] font-bold text-orange-400 uppercase">En Mantenimiento</h4><p id="dash-mantenimiento" class="text-4xl font-black mt-2">0</p></div>
+                    <div class="glass-card p-8 border-l-4 border-red-500"><h4 class="text-[10px] font-bold text-red-400 uppercase">Dañados</h4><p id="dash-danado" class="text-4xl font-black mt-2">0</p></div>
                 </section>
 
                 <section id="sec-inventario" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 id="asset-form-title" class="text-xl font-black mb-6 text-purple-400">REGISTRAR ACTIVO</h3>
+                        <h3 class="text-xl font-black mb-6 text-purple-400 uppercase">Nuevo Registro</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <input type="hidden" id="edit-id">
                             <input type="text" id="as-name" placeholder="Nombre" class="input-dark" required>
                             <input type="text" id="as-serial" placeholder="Serial" class="input-dark" required>
                             <input type="text" id="as-loc" placeholder="Ubicación" class="input-dark" required>
                             <input type="url" id="as-photo" placeholder="URL Imagen" class="input-dark" required>
-                            <select id="as-cond" class="input-dark bg-purple-900">
+                            <select id="as-cond" class="input-dark">
                                 <option value="Excelente">Excelente</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <input type="text" id="as-reason" placeholder="Motivo del estado (Si no es excelente)" class="input-dark">
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar Activo</button>
+                            <input type="text" id="as-reason" placeholder="Nota de por qué está en ese estado (Opcional)" class="input-dark">
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar en Sistema</button>
                         </form>
                     </div>
                     <div id="assets-container" class="grid grid-cols-1 md:grid-cols-3 gap-8"></div>
                 </section>
 
-                <section id="sec-reportes" class="hidden space-y-4"></section>
+                <section id="sec-reportes" class="hidden space-y-4">
+                    <h3 class="text-2xl font-black uppercase italic mb-6">Historial de Reportes y Novedades</h3>
+                    <div id="reports-list-container" class="space-y-4"></div>
+                </section>
+
                 <section id="sec-usuarios" class="hidden"></section>
             </div>
         </main>
@@ -159,22 +161,20 @@
         const urlParams = new URLSearchParams(window.location.search);
         const scannedId = urlParams.get('id');
 
-        // Control de Sesión
         auth.onAuthStateChanged(user => {
             if (user) {
                 db.ref('users/' + user.uid).once('value', snap => {
-                    const userData = snap.val() || { role: 'operario', name: 'User' };
+                    const userData = snap.val() || { name: 'Admin' };
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('app-interface').classList.remove('hidden');
                     document.getElementById('display-user').textContent = userData.name;
-
                     if(scannedId) {
-                        // MODO ESCANEO: Ocultar Sidebar y forzar vista de activo
                         document.getElementById('main-sidebar').classList.add('hidden');
                         loadScannedAsset(scannedId);
                     } else {
                         showSection('dashboard');
                         loadAssets();
+                        loadReports();
                     }
                 });
             } else {
@@ -183,77 +183,103 @@
             }
         });
 
-        // Carga de Activo Escaneado (MODO RESTRINGIDO)
         function loadScannedAsset(id) {
             db.ref('assets/' + id).on('value', snap => {
                 const a = snap.val();
-                if(!a) return alert("No existe");
-                
+                if(!a) return;
                 showSection('scan-view');
-                document.getElementById('section-title').textContent = "REPORTE DE ACTIVO";
                 document.getElementById('scan-img').src = a.imageUrl;
                 document.getElementById('scan-name').textContent = a.name;
-                document.getElementById('scan-id-display').textContent = "NEXUS-ID: " + id;
                 document.getElementById('scan-cond').textContent = a.cond;
                 document.getElementById('scan-loc').textContent = a.location;
-
-                const reasonBox = document.getElementById('scan-reason-box');
+                const rBox = document.getElementById('scan-reason-box');
                 if(a.reason) {
-                    reasonBox.classList.remove('hidden');
+                    rBox.classList.remove('hidden');
                     document.getElementById('scan-reason-text').textContent = a.reason;
-                } else { reasonBox.classList.add('hidden'); }
-
-                // Configurar el botón de reporte
+                }
                 document.getElementById('btn-send-report').onclick = () => {
-                    const newCond = document.getElementById('rep-new-cond').value;
-                    const reason = document.getElementById('rep-reason').value;
-                    if(!reason) return alert("Por favor escriba el motivo");
-
-                    const report = {
-                        assetId: id,
-                        assetName: a.name,
-                        oldCond: a.cond,
-                        newCond: newCond,
-                        reason: reason,
-                        user: auth.currentUser.email,
-                        date: new Date().toLocaleString()
-                    };
-
-                    db.ref('reports').push(report);
-                    db.ref('assets/' + id).update({ cond: newCond, reason: reason }).then(() => {
-                        alert("Reporte guardado y estado actualizado.");
-                        document.getElementById('rep-reason').value = "";
-                    });
+                    const motivo = document.getElementById('rep-reason').value;
+                    if(!motivo) return alert("Escriba el motivo");
+                    const newC = document.getElementById('rep-new-cond').value;
+                    const rep = { assetName: a.name, user: auth.currentUser.email, reason: motivo, oldC: a.cond, newC: newC, date: new Date().toLocaleString() };
+                    db.ref('reports').push(rep);
+                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => alert("Reporte Enviado"));
                 };
             });
-        }
-
-        // Funciones generales
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            if(id !== 'scan-view') document.getElementById('section-title').textContent = id.toUpperCase();
         }
 
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
+                let t=0, e=0, m=0, d=0;
                 snap.forEach(doc => {
-                    const a = doc.val();
+                    const a = doc.val(); t++;
+                    if(a.cond === 'Excelente') e++; else if(a.cond === 'Mantenimiento') m++; else d++;
                     const card = document.createElement('div');
-                    card.className = "glass-card p-6 text-center";
+                    card.className = "glass-card p-6 relative group overflow-hidden";
                     card.innerHTML = `
-                        <img src="${a.imageUrl}" class="w-full h-32 object-cover rounded-xl mb-4">
+                        <img src="${a.imageUrl}" class="w-full h-40 object-cover rounded-2xl mb-4">
                         <h4 class="font-black text-white uppercase">${a.name}</h4>
-                        <p class="text-[10px] text-cyan-400 font-bold">${a.cond}</p>
-                        <p class="text-[9px] text-slate-500 mt-2">${a.reason || ''}</p>
-                        <div id="qr-${doc.key}" class="mt-4 inline-block bg-white p-2 rounded-lg" onclick="openQR('${doc.key}')"></div>
+                        <p class="text-[10px] font-bold uppercase ${a.cond === 'Dañado' ? 'text-red-500' : 'text-cyan-400'}">${a.cond}</p>
+                        <p class="text-[9px] text-slate-500 mt-2 italic">${a.reason || 'Sin observaciones'}</p>
+                        <div class="flex gap-2 mt-4">
+                            <button onclick="openQR('${doc.key}')" class="flex-1 bg-white/10 p-2 rounded-lg text-[9px] font-bold uppercase hover:bg-white/20">QR</button>
+                            <button onclick="openManualReport('${doc.key}', '${a.name}')" class="flex-1 bg-red-500/20 text-red-400 p-2 rounded-lg text-[9px] font-bold uppercase hover:bg-red-500/40">Reportar</button>
+                        </div>
                     `;
                     container.appendChild(card);
-                    new QRCode(document.getElementById(`qr-${doc.key}`), { text: BASE_URL + "?id=" + doc.key, width: 60, height: 60 });
+                });
+                document.getElementById('dash-total').textContent = t;
+                document.getElementById('dash-excelente').textContent = e;
+                document.getElementById('dash-mantenimiento').textContent = m;
+                document.getElementById('dash-danado').textContent = d;
+            });
+        }
+
+        // Función para reportar sin escanear (Desde la interfaz principal)
+        function openManualReport(id, name) {
+            const motivo = prompt(`Reportar novedad para: ${name}\nEscriba el motivo:`);
+            if(!motivo) return;
+            const nuevoEstado = prompt(`Elija el nuevo estado:\n1. Excelente\n2. Mantenimiento\n3. Dañado`, "3");
+            let estadoStr = "Dañado";
+            if(nuevoEstado === "1") estadoStr = "Excelente";
+            if(nuevoEstado === "2") estadoStr = "Mantenimiento";
+
+            const rep = { assetName: name, user: auth.currentUser.email, reason: motivo, oldC: "Manual", newC: estadoStr, date: new Date().toLocaleString() };
+            db.ref('reports').push(rep);
+            db.ref('assets/' + id).update({ cond: estadoStr, reason: motivo }).then(() => alert("Actualizado desde Interfaz Principal"));
+        }
+
+        function loadReports() {
+            db.ref('reports').limitToLast(20).on('value', snap => {
+                const container = document.getElementById('reports-list-container');
+                container.innerHTML = '';
+                snap.forEach(doc => {
+                    const r = doc.val();
+                    const card = document.createElement('div');
+                    card.className = "glass-card p-5 border-l-4 " + (r.newC === 'Dañado' ? 'border-red-500' : 'border-orange-500');
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h5 class="font-black text-white uppercase">${r.assetName}</h5>
+                                <p class="text-[10px] text-slate-400 font-bold">${r.date} - Por: ${r.user}</p>
+                            </div>
+                            <span class="text-[9px] bg-white/10 px-2 py-1 rounded text-white font-bold uppercase">${r.newC}</span>
+                        </div>
+                        <p class="text-sm text-slate-300 mt-3 italic bg-black/20 p-3 rounded-xl border border-white/5">
+                            <i class="fas fa-comment-dots mr-2 text-cyan-400"></i>"${r.reason}"
+                        </p>
+                    `;
+                    container.prepend(card);
                 });
             });
+        }
+
+        function showSection(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById('sec-' + id).classList.remove('hidden');
+            document.getElementById('section-title').textContent = id.toUpperCase();
         }
 
         document.getElementById('form-asset').onsubmit = (e) => {
@@ -264,9 +290,9 @@
                 location: document.getElementById('as-loc').value,
                 imageUrl: document.getElementById('as-photo').value,
                 cond: document.getElementById('as-cond').value,
-                reason: document.getElementById('as-reason').value
+                reason: document.getElementById('as-reason').value || "Registro inicial"
             };
-            db.ref('assets').push(data).then(() => { alert("Guardado"); e.target.reset(); });
+            db.ref('assets').push(data).then(() => { alert("Activo Registrado"); e.target.reset(); });
         };
 
         function openQR(id) {
@@ -278,9 +304,8 @@
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
             auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value)
-                .catch(err => alert("Error: " + err.message));
+                .catch(err => alert("Error de acceso"));
         };
-
         function logout() { auth.signOut().then(() => location.href = BASE_URL); }
     </script>
 </body>
