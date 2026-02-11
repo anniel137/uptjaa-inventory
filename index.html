@@ -19,6 +19,26 @@
         .btn-primary { background: linear-gradient(90deg, #bc13fe, #7a12f5); transition: all 0.3s ease; }
         .input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; border-radius: 1rem; outline: none; }
         .input-dark:focus { border-color: var(--neon-cyan); }
+
+        /* ESTILOS DE IMPRESIÓN AGREGADOS */
+        @media print {
+            body * { visibility: hidden; }
+            #print-area, #print-area * { visibility: visible; }
+            #print-area { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100%; 
+                display: flex !important; 
+                flex-direction: column;
+                justify-content: center; 
+                align-items: center; 
+                background: white !important;
+            }
+            .no-print { display: none !important; }
+            #qr-gen { border: none !important; }
+            #qr-label { color: black !important; font-size: 14pt !important; margin-top: 10px; }
+        }
     </style>
 </head>
 <body>
@@ -326,11 +346,30 @@
         }
 
         function openQR(id) {
-            const m = document.createElement('div');
-            m.className = "fixed inset-0 z-[3000] bg-black/95 flex items-center justify-center p-6";
-            m.innerHTML = `<div class="glass-card p-8 text-center"><div id="qr-gen" class="bg-white p-4 rounded-2xl mb-4"></div><button onclick="this.parentElement.parentElement.remove()" class="w-full btn-primary p-3 rounded-xl font-black uppercase text-xs">Cerrar</button></div>`;
-            document.body.appendChild(m);
-            new QRCode(document.getElementById('qr-gen'), { text: window.location.origin + window.location.pathname + "?id=" + id, width: 220, height: 220 });
+            db.ref('assets/' + id).once('value', snap => {
+                const a = snap.val();
+                const m = document.createElement('div');
+                m.className = "fixed inset-0 z-[3000] bg-black/95 flex items-center justify-center p-6";
+                m.innerHTML = `
+                    <div class="glass-card p-8 text-center" id="print-area">
+                        <div id="qr-gen" class="bg-white p-4 rounded-2xl mb-4 inline-block"></div>
+                        <h4 id="qr-label" class="text-white font-black uppercase text-sm mb-4">${a.name}</h4>
+                        <div class="flex flex-col gap-2 w-full no-print">
+                            <button onclick="window.print()" class="w-full bg-emerald-600 hover:bg-emerald-500 p-3 rounded-xl font-black uppercase text-xs transition">
+                                <i class="fas fa-print mr-2"></i>Imprimir QR
+                            </button>
+                            <button onclick="this.parentElement.parentElement.parentElement.remove()" class="w-full btn-primary p-3 rounded-xl font-black uppercase text-xs">
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>`;
+                document.body.appendChild(m);
+                new QRCode(document.getElementById('qr-gen'), { 
+                    text: window.location.origin + window.location.pathname + "?id=" + id, 
+                    width: 220, 
+                    height: 220 
+                });
+            });
         }
 
         function deleteAsset(id) { if(confirm("¿Seguro que desea eliminar este activo tecnológico?")) db.ref('assets/' + id).remove(); }
