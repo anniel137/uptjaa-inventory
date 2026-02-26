@@ -70,6 +70,29 @@
         .letterhead-header { background: linear-gradient(135deg, #1a1b25, #0d0e17); border-bottom: 3px solid #bc13fe; }
         /* Scroll suave en manual */
         .manual-content { scroll-behavior: smooth; }
+
+        /* ===== ROLE LEVEL BADGES ===== */
+        .role-badge-admin {
+            background: linear-gradient(90deg,rgba(188,19,254,0.25),rgba(122,18,245,0.25));
+            color: #e879f9; border: 1px solid rgba(188,19,254,0.5);
+            padding: 2px 10px; border-radius: 20px; font-size: 9px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .role-badge-operario {
+            background: rgba(0,229,255,0.1);
+            color: #22d3ee; border: 1px solid rgba(0,229,255,0.3);
+            padding: 2px 10px; border-radius: 20px; font-size: 9px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        .role-badge-mantenimiento {
+            background: rgba(251,146,60,0.12);
+            color: #fb923c; border: 1px solid rgba(251,146,60,0.35);
+            padding: 2px 10px; border-radius: 20px; font-size: 9px; font-weight: 800;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        /* Nav items visibility by role */
+        .operario-only { display: none; }
+        .admin-only    { display: none; }
         /* Row highlight en tablas */
         .table-row-hover:hover { background: rgba(255,255,255,0.04); transition: background 0.15s; }
     </style>
@@ -166,17 +189,47 @@
                 <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Sistema Integrado de Activos Tecnológicos</p>
             </div>
             <nav class="flex-1 space-y-3">
-                <button id="nav-dashboard" onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
-                <button id="nav-inventario" onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button id="nav-asignaciones" onclick="showSection('asignaciones')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-link w-8"></i> Asignaciones</button>
-                <button id="nav-departamentos" onclick="showSection('departamentos')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only"><i class="fas fa-sitemap w-8"></i> Departamentos</button>
-                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
-                <button id="nav-registrados" onclick="showSection('registrados')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only">
+                <button id="nav-dashboard" onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all">
+                    <i class="fas fa-chart-line w-8"></i> Panel
+                </button>
+                <!-- Nivel 3,2,1 — todos ven inventario -->
+                <button id="nav-inventario" onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all">
+                    <i class="fas fa-box-open w-8"></i> Inventario
+                </button>
+                <!-- Nivel 2 y 1 — Operario y Administrativo -->
+                <button id="nav-asignaciones" onclick="showSection('asignaciones')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all operario-only admin-only">
+                    <i class="fas fa-link w-8"></i> Asignaciones
+                </button>
+                <!-- Nivel 2 y 1 — Operario y Administrativo -->
+                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all operario-only admin-only">
+                    <i class="fas fa-bell w-8"></i> Reportes
+                </button>
+                <!-- Nivel 1 solo — Administrativo -->
+                <button id="nav-departamentos" onclick="showSection('departamentos')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all admin-only">
+                    <i class="fas fa-sitemap w-8"></i> Departamentos
+                </button>
+                <!-- Nivel 1 solo — Administrativo -->
+                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all admin-only">
+                    <i class="fas fa-users-cog w-8"></i> Usuarios
+                </button>
+                <!-- Nivel 1 solo — Administrativo -->
+                <button id="nav-registrados" onclick="showSection('registrados')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all admin-only">
                     <i class="fas fa-user-check w-8"></i> Registrados
                     <span id="pending-badge" class="hidden ml-auto bg-yellow-500 text-black text-[8px] font-black px-2 py-0.5 rounded-full">!</span>
                 </button>
-                <button id="nav-manual" onclick="showSection('manual')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-book w-8"></i> Manual</button>
+                <!-- Todos ven el manual -->
+                <button id="nav-manual" onclick="showSection('manual')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all">
+                    <i class="fas fa-book w-8"></i> Manual
+                </button>
+                <!-- Separador visual de nivel -->
+                <div id="role-level-indicator" class="mt-4 p-3 rounded-2xl border border-white/10 text-center hidden">
+                    <p class="text-[8px] text-slate-500 uppercase font-black mb-1">Nivel de Acceso</p>
+                    <div id="role-level-bar" class="flex gap-1 justify-center mt-1">
+                        <div id="lvl-dot-3" class="w-3 h-3 rounded-full bg-orange-500/30 border border-orange-500/50" title="Mantenimiento"></div>
+                        <div id="lvl-dot-2" class="w-3 h-3 rounded-full bg-cyan-500/30 border border-cyan-500/50" title="Operario"></div>
+                        <div id="lvl-dot-1" class="w-3 h-3 rounded-full bg-purple-500/30 border border-purple-500/50" title="Administrativo"></div>
+                    </div>
+                </div>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="user-role-badge" class="text-[8px] font-black text-cyan-400 uppercase mb-1"></p>
@@ -250,8 +303,9 @@
                                 <option value="">Departamento</option>
                             </select>
                             <select id="u-role" class="input-dark bg-slate-800">
-                                <option value="operario">Operador</option>
-                                <option value="admin">Administrador</option>
+                                <option value="mantenimiento">🔧 Nivel 3 — Personal de Mantenimiento</option>
+                                <option value="operario">⚙️ Nivel 2 — Personal Operario</option>
+                                <option value="admin">🛡️ Nivel 1 — Personal Administrativo</option>
                             </select>
                             <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Añadir al Sistema</button>
                         </form>
@@ -557,20 +611,37 @@
         // (user form handler moved to enhanced section above)
         function _ORIGINAL_form_user_placeholder() { // original user form handler removed, new one above
         }
-        };
 
         function loadAdminUsers() {
             db.ref('users').on('value', snap => {
                 const container = document.getElementById('users-table-container');
+                const roleLabel = r => {
+                    if (r === 'admin') return '<span class="role-badge-admin">🛡️ Nivel 1 — Administrativo</span>';
+                    if (r === 'operario') return '<span class="role-badge-operario">⚙️ Nivel 2 — Operario</span>';
+                    return '<span class="role-badge-mantenimiento">🔧 Nivel 3 — Mantenimiento</span>';
+                };
                 let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
-                    <tr class="text-slate-500 border-b border-white/10"><th class="p-4">Nombre / Email</th><th class="p-4">Rol</th><th class="p-4">Acción</th></tr>`;
+                    <tr class="text-slate-500 border-b border-white/10">
+                        <th class="p-4">Nombre / Email</th>
+                        <th class="p-4">Cédula</th>
+                        <th class="p-4">Nivel de Acceso</th>
+                        <th class="p-4">Permisos</th>
+                        <th class="p-4">Acción</th>
+                    </tr>`;
                 snap.forEach(doc => {
                     const u = doc.val();
-                    html += `<tr class="border-b border-white/5">
-                        <td class="p-4">${u.name}<br><span class="text-[9px] text-slate-500">${u.email}</span></td>
-                        <td class="p-4">${u.role}</td>
+                    const perms = getRolePermissions(u.role);
+                    html += `<tr class="border-b border-white/5 table-row-hover">
+                        <td class="p-4">${u.name}<br><span class="text-[9px] text-slate-500 normal-case">${u.email}</span></td>
+                        <td class="p-4 text-slate-400">${u.cedula||'-'}</td>
+                        <td class="p-4">${roleLabel(u.role)}</td>
                         <td class="p-4">
-                            ${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500"><i class="fas fa-trash-alt"></i></button>` : '-'}
+                            <div class="flex gap-1 flex-wrap">
+                                ${perms.map(p=>`<span class="text-[8px] px-1.5 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">${p}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td class="p-4">
+                            ${u.email !== MASTER_EMAIL ? `<button onclick="deleteUser('${doc.key}')" class="text-red-500 hover:text-red-400"><i class="fas fa-trash-alt"></i></button>` : '—'}
                         </td>
                     </tr>`;
                 });
@@ -583,10 +654,8 @@
         // (asset form handler moved to enhanced section above)
         function _ORIGINAL_form_asset_placeholder() { // original handler removed
         }
-        };
 
         function _editAsset_original_replaced(id) { // replaced by enhanced version above
-        }
         }
 
         function loadScannedAsset(id) {
@@ -988,21 +1057,26 @@
             db.ref('users').on('value', snap => {
                 const container = document.getElementById('all-auth-users-container');
                 if (!container) return;
+                const roleBadge = r => {
+                    if (r === 'admin') return '<span class="role-badge-admin">🛡️ Niv.1 Admin</span>';
+                    if (r === 'operario') return '<span class="role-badge-operario">⚙️ Niv.2 Operario</span>';
+                    return '<span class="role-badge-mantenimiento">🔧 Niv.3 Mant.</span>';
+                };
                 let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
                     <thead><tr class="text-slate-500 border-b border-white/10">
-                        <th class="p-4">ID Sistema</th><th class="p-4">Nombre</th><th class="p-4">Correo</th><th class="p-4">C.I.</th><th class="p-4">Cargo</th><th class="p-4">Depto</th><th class="p-4">Rol</th>
+                        <th class="p-4">ID Sistema</th><th class="p-4">Nombre</th><th class="p-4">Correo</th><th class="p-4">C.I.</th><th class="p-4">Cargo</th><th class="p-4">Depto</th><th class="p-4">Nivel</th>
                     </tr></thead><tbody>`;
                 snap.forEach(doc => {
                     const u = doc.val();
-                    const dept = allDepts.find(d=>d.key===u.deptKey);
+                    const dept = allDepts.find(d => d.key === u.deptKey);
                     html += `<tr class="border-b border-white/5 table-row-hover">
                         <td class="p-4 font-mono text-[9px] text-slate-500">${doc.key.substring(0,12)}...</td>
                         <td class="p-4 text-white">${u.name}</td>
-                        <td class="p-4 text-slate-400">${u.email}</td>
+                        <td class="p-4 text-slate-400 normal-case">${u.email}</td>
                         <td class="p-4 text-slate-400">${u.cedula||'-'}</td>
-                        <td class="p-4 text-slate-400">${u.cargo||'-'}</td>
+                        <td class="p-4 text-slate-400 normal-case">${u.cargo||'-'}</td>
                         <td class="p-4"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${dept?.name||'-'}</span></td>
-                        <td class="p-4"><span class="${u.role==='admin'?'text-purple-400':'text-cyan-400'}">${u.role}</span></td>
+                        <td class="p-4">${roleBadge(u.role)}</td>
                     </tr>`;
                 });
                 container.innerHTML = html + '</tbody></table>';
@@ -1096,38 +1170,88 @@
                     <li class="flex gap-2"><span class="text-purple-400">›</span> Filtros aplicados al momento de la impresión</li>
                 </ul>`,
             roles: `
-                <h2 class="text-2xl font-black text-white uppercase mb-4">👥 Roles y Permisos</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                    <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-5">
-                        <h3 class="text-lg font-black text-purple-400 mb-3">🛡️ Administrador</h3>
-                        <ul class="space-y-1 text-xs">
-                            <li>✅ Gestión completa del inventario</li>
-                            <li>✅ Crear/eliminar usuarios</li>
-                            <li>✅ Ver y gestionar departamentos</li>
-                            <li>✅ Registrar y eliminar asignaciones</li>
-                            <li>✅ Ver solicitudes de acceso y aprobarlas</li>
-                            <li>✅ Ver todos los registrados en el sistema</li>
-                            <li>✅ Imprimir reportes membretados</li>
-                            <li>✅ Acceso completo a todas las secciones</li>
+                <h2 class="text-2xl font-black text-white uppercase mb-2">👥 Niveles de Acceso</h2>
+                <p class="text-xs text-slate-400 mb-6">El sistema tiene <strong class="text-white">3 niveles jerárquicos</strong>. Cada nivel tiene acceso a todo lo que el nivel inferior tiene, más permisos adicionales.</p>
+                
+                <!-- Pirámide visual -->
+                <div class="flex flex-col items-center gap-1 mb-8">
+                    <div class="bg-purple-500/20 border border-purple-500/40 rounded-xl px-10 py-3 text-center w-72">
+                        <p class="text-[9px] text-purple-400 uppercase font-black tracking-widest mb-0.5">Nivel 1 — Mayor acceso</p>
+                        <p class="font-black text-white text-base">🛡️ Personal Administrativo</p>
+                    </div>
+                    <div class="text-slate-600 text-lg">▼</div>
+                    <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-xl px-10 py-3 text-center w-80">
+                        <p class="text-[9px] text-cyan-400 uppercase font-black tracking-widest mb-0.5">Nivel 2</p>
+                        <p class="font-black text-white text-base">⚙️ Personal Operario</p>
+                    </div>
+                    <div class="text-slate-600 text-lg">▼</div>
+                    <div class="bg-orange-500/10 border border-orange-500/30 rounded-xl px-10 py-3 text-center w-96">
+                        <p class="text-[9px] text-orange-400 uppercase font-black tracking-widest mb-0.5">Nivel 3 — Acceso básico</p>
+                        <p class="font-black text-white text-base">🔧 Personal de Mantenimiento</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-4">
+                    <div class="bg-orange-500/10 border border-orange-500/30 rounded-2xl p-5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">🔧</span>
+                            <div>
+                                <p class="text-[8px] text-orange-400 uppercase font-black">Nivel 3</p>
+                                <h3 class="text-sm font-black text-white">Mantenimiento</h3>
+                            </div>
+                        </div>
+                        <ul class="space-y-1.5 text-xs">
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver Panel / Dashboard</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver inventario de activos</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Escanear QR y reportar novedad de estado</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Consultar Manual de usuario</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No ve Reportes históricos</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No ve Asignaciones</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No gestiona usuarios ni departamentos</li>
                         </ul>
                     </div>
                     <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-5">
-                        <h3 class="text-lg font-black text-cyan-400 mb-3">⚙️ Operador</h3>
-                        <ul class="space-y-1 text-xs">
-                            <li>✅ Ver inventario de activos</li>
-                            <li>✅ Escanear QR y reportar novedades</li>
-                            <li>✅ Ver reportes de su área</li>
-                            <li>✅ Ver asignaciones</li>
-                            <li>❌ No puede crear/eliminar usuarios</li>
-                            <li>❌ No puede eliminar activos</li>
-                            <li>❌ No accede a sección Registrados</li>
-                            <li>❌ No gestiona departamentos</li>
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">⚙️</span>
+                            <div>
+                                <p class="text-[8px] text-cyan-400 uppercase font-black">Nivel 2</p>
+                                <h3 class="text-sm font-black text-white">Operario</h3>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-cyan-400/70 italic mb-2">Todo lo del Nivel 3, más:</p>
+                        <ul class="space-y-1.5 text-xs">
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver historial de Reportes</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver tabla de Asignaciones</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Filtrar reportes por período y estado</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No crea ni elimina activos</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No gestiona usuarios</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No ve solicitudes de acceso</li>
+                            <li class="flex gap-2 items-start"><span class="text-red-400 mt-0.5">❌</span> No gestiona departamentos</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-5">
+                        <div class="flex items-center gap-2 mb-3">
+                            <span class="text-2xl">🛡️</span>
+                            <div>
+                                <p class="text-[8px] text-purple-400 uppercase font-black">Nivel 1</p>
+                                <h3 class="text-sm font-black text-white">Administrativo</h3>
+                            </div>
+                        </div>
+                        <p class="text-[9px] text-purple-400/70 italic mb-2">Todo lo del Nivel 2, más:</p>
+                        <ul class="space-y-1.5 text-xs">
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Crear, editar y eliminar activos</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Registrar y eliminar usuarios</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Gestionar departamentos</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Registrar y eliminar asignaciones</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver y aprobar solicitudes de acceso</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Ver todos los usuarios registrados</li>
+                            <li class="flex gap-2 items-start"><span class="text-emerald-400 mt-0.5">✅</span> Imprimir reportes membretados</li>
                         </ul>
                     </div>
                 </div>
-                <div class="mt-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-xs">
-                    <p class="text-yellow-400 font-black uppercase mb-1">🔒 Verificación de Identidad</p>
-                    <p>El sistema valida que cada usuario sea personal activo antes de permitir operaciones. No se permite que personas externas ingresen información al inventario.</p>
+                <div class="mt-5 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-xs">
+                    <p class="text-yellow-400 font-black uppercase mb-1">🔒 Principio de mínimo privilegio</p>
+                    <p>Cada usuario solo puede ver y hacer lo que su nivel permite. El Personal de Mantenimiento <strong>no puede ver</strong> datos administrativos ni históricos completos. El Personal Operario <strong>no puede modificar</strong> la estructura del sistema. Solo el Personal Administrativo tiene control total.</p>
                 </div>`,
             qr: `
                 <h2 class="text-2xl font-black text-white uppercase mb-4">📱 Códigos QR</h2>
@@ -1367,6 +1491,55 @@
             });
         }
 
+        // ===================== ROLE PERMISSIONS MAP =====================
+        function getRolePermissions(role) {
+            const all = ['Panel','Inventario','Asignaciones','Reportes','Departamentos','Usuarios','Registrados','Manual'];
+            const operario = ['Panel','Inventario','Asignaciones','Reportes','Manual'];
+            const mant = ['Panel','Inventario','Manual'];
+            if (role === 'admin') return all;
+            if (role === 'operario') return operario;
+            return mant;
+        }
+
+        function applyRoleUI(role) {
+            userRole = role;
+            // Reset all nav visibility
+            document.querySelectorAll('.admin-only').forEach(el => {
+                el.style.display = 'none';
+            });
+            document.querySelectorAll('.operario-only').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // Level indicator
+            const indicator = document.getElementById('role-level-indicator');
+            if (indicator) indicator.classList.remove('hidden');
+
+            if (role === 'admin') {
+                // Level 1 — sees everything
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'flex');
+                document.querySelectorAll('.operario-only').forEach(el => el.style.display = 'flex');
+                document.getElementById('user-role-badge').innerHTML = '<span class="role-badge-admin">🛡️ Nivel 1 — Administrativo</span>';
+                // Light all dots
+                document.getElementById('lvl-dot-1').className = 'w-3 h-3 rounded-full bg-purple-500 border border-purple-300';
+                document.getElementById('lvl-dot-2').className = 'w-3 h-3 rounded-full bg-purple-500/60 border border-purple-400';
+                document.getElementById('lvl-dot-3').className = 'w-3 h-3 rounded-full bg-purple-500/40 border border-purple-500/60';
+            } else if (role === 'operario') {
+                // Level 2 — sees operario sections
+                document.querySelectorAll('.operario-only').forEach(el => el.style.display = 'flex');
+                document.getElementById('user-role-badge').innerHTML = '<span class="role-badge-operario">⚙️ Nivel 2 — Operario</span>';
+                document.getElementById('lvl-dot-1').className = 'w-3 h-3 rounded-full bg-purple-500/20 border border-purple-500/30';
+                document.getElementById('lvl-dot-2').className = 'w-3 h-3 rounded-full bg-cyan-400 border border-cyan-300';
+                document.getElementById('lvl-dot-3').className = 'w-3 h-3 rounded-full bg-cyan-500/50 border border-cyan-400/60';
+            } else {
+                // Level 3 — mantenimiento — minimal access
+                document.getElementById('user-role-badge').innerHTML = '<span class="role-badge-mantenimiento">🔧 Nivel 3 — Mantenimiento</span>';
+                document.getElementById('lvl-dot-1').className = 'w-3 h-3 rounded-full bg-orange-500/20 border border-orange-500/30';
+                document.getElementById('lvl-dot-2').className = 'w-3 h-3 rounded-full bg-orange-500/20 border border-orange-500/30';
+                document.getElementById('lvl-dot-3').className = 'w-3 h-3 rounded-full bg-orange-400 border border-orange-300';
+            }
+        }
+
         // ===================== ENHANCED AUTH STATE =====================
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -1376,38 +1549,42 @@
                         userData = { name: "Admin General", role: "admin", email: user.email, cedula: 'N/A', cargo: 'Administrador del Sistema' };
                         db.ref('users/' + user.uid).set(userData);
                     }
-                    userRole = userData?.role || "operario";
-                    
+
+                    const role = userData?.role || "mantenimiento";
+
                     document.getElementById('login-screen').classList.add('hidden');
                     document.getElementById('public-scan-screen').classList.add('hidden');
                     document.getElementById('app-interface').classList.remove('hidden');
                     document.getElementById('display-user').textContent = user.email;
-                    document.getElementById('user-role-badge').textContent = userRole === 'admin' ? '🛡️ ADMIN' : '⚙️ OPERADOR';
 
-                    // Show/hide admin-only nav items
-                    document.querySelectorAll('.admin-only').forEach(el => {
-                        el.classList.toggle('hidden', userRole !== 'admin');
-                    });
+                    // Apply role UI (nav visibility + badge + dots)
+                    applyRoleUI(role);
 
-                    if (userRole === 'admin') {
+                    // Load data based on role level
+                    if (role === 'admin') {
                         document.getElementById('admin-user-list').classList.remove('hidden');
                         loadAdminUsers();
                         loadRegistrados();
                     }
 
-                    // Load all data
+                    // Load shared data
                     loadDepts();
-                    loadAssignments();
-                    populateAssignSelects();
 
-                    if(scannedId) {
+                    // Level 2+ load assignments
+                    if (role === 'admin' || role === 'operario') {
+                        loadAssignments();
+                        populateAssignSelects();
+                    }
+
+                    if (scannedId) {
                         document.getElementById('main-sidebar').classList.add('hidden');
                         loadScannedAsset(scannedId);
                     } else {
                         showSection('dashboard');
                         loadAssets();
-                        loadReports();
-                        // Initialize manual
+                        if (role === 'admin' || role === 'operario') {
+                            loadReports();
+                        }
                         setTimeout(() => showManualTab('intro'), 100);
                     }
                 });
