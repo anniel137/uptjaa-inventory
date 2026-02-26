@@ -20,6 +20,16 @@
         .input-dark { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 1rem; border-radius: 1rem; outline: none; }
         .input-dark:focus { border-color: var(--neon-cyan); }
 
+        /* ESTILOS DE REPORTES */
+        .active-filter { background: linear-gradient(90deg, #bc13fe, #7a12f5); color: white; }
+        .report-card { animation: fadeInUp 0.3s ease both; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .badge-danado { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-mantenimiento { background: rgba(249,115,22,0.15); color: #fb923c; border: 1px solid rgba(249,115,22,0.3); }
+        .badge-excelente { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .report-item { transition: transform 0.2s ease; }
+        .report-item:hover { transform: translateX(4px); }
+
         /* ESTILOS DE IMPRESIÓN AGREGADOS */
         @media print {
             body * { visibility: hidden; }
@@ -38,7 +48,30 @@
             .no-print { display: none !important; }
             #qr-gen { border: none !important; }
             #qr-label { color: black !important; font-size: 14pt !important; margin-top: 10px; }
+            /* Estilos para reporte membretado impreso */
+            #report-print-area, #report-print-area * { visibility: visible !important; }
+            #report-print-area {
+                position: absolute; left: 0; top: 0; width: 100%;
+                background: white !important; color: black !important;
+                padding: 30px; font-family: Arial, sans-serif;
+            }
         }
+        /* Tabs manual */
+        .manual-tab { cursor: pointer; transition: all 0.2s; }
+        .manual-tab.active { background: linear-gradient(90deg, #bc13fe, #7a12f5); color: white; }
+        /* Badge departamento */
+        .badge-dept { background: rgba(99,102,241,0.15); color: #818cf8; border: 1px solid rgba(99,102,241,0.3); }
+        /* Filtro tiempo activo */
+        .time-filter-btn.active-time { background: linear-gradient(90deg, #bc13fe, #7a12f5); color: white; }
+        /* Animación pulse para usuarios pendientes */
+        .pulse-dot { width:8px; height:8px; background:#f59e0b; border-radius:50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+        /* Estilo de membrete en pantalla */
+        .letterhead-header { background: linear-gradient(135deg, #1a1b25, #0d0e17); border-bottom: 3px solid #bc13fe; }
+        /* Scroll suave en manual */
+        .manual-content { scroll-behavior: smooth; }
+        /* Row highlight en tablas */
+        .table-row-hover:hover { background: rgba(255,255,255,0.04); transition: background 0.15s; }
     </style>
 </head>
 <body>
@@ -102,10 +135,27 @@
             <h2 class="text-4xl font-black italic mb-1">NEXUS-ID</h2>
             <p class="text-[9px] text-cyan-400 font-bold mb-8 uppercase tracking-widest">Sistema Integrado de Activos Tecnológicos</p>
             <form id="login-form" class="space-y-4">
-                <input type="email" id="user-input" placeholder="Correo Administrativo" class="w-full input-dark" required>
+                <input type="email" id="user-input" placeholder="Correo Institucional" class="w-full input-dark" required>
                 <input type="password" id="pass-input" placeholder="Contraseña" class="w-full input-dark" required>
                 <button type="submit" class="w-full btn-primary p-4 rounded-2xl font-black uppercase text-sm shadow-lg hover:scale-105 transition">Entrar al Sistema</button>
             </form>
+            <div class="mt-6 border-t border-white/10 pt-6 text-center">
+                <p class="text-[10px] text-slate-500 mb-3 uppercase font-bold">¿Eres personal de la institución y no tienes acceso?</p>
+                <button onclick="toggleRegRequest()" class="text-xs text-cyan-400 font-black uppercase hover:text-cyan-300 transition">
+                    <i class="fas fa-user-plus mr-1"></i> Solicitar Acceso
+                </button>
+            </div>
+            <!-- Formulario de solicitud de registro -->
+            <div id="reg-request-form" class="hidden mt-4 space-y-3">
+                <input type="text" id="reg-name" placeholder="Nombre Completo" class="w-full input-dark">
+                <input type="text" id="reg-cedula" placeholder="Cédula de Identidad" class="w-full input-dark">
+                <input type="email" id="reg-email" placeholder="Correo Institucional" class="w-full input-dark">
+                <input type="text" id="reg-cargo" placeholder="Cargo / Departamento" class="w-full input-dark">
+                <button onclick="submitRegRequest()" class="w-full bg-cyan-600 hover:bg-cyan-500 p-3 rounded-2xl font-black uppercase text-sm transition">
+                    <i class="fas fa-paper-plane mr-1"></i> Enviar Solicitud
+                </button>
+                <p class="text-[9px] text-slate-600 text-center">Tu solicitud será revisada por un administrador. La información solo será usada para verificar que eres personal activo.</p>
+            </div>
         </div>
     </div>
 
@@ -116,10 +166,17 @@
                 <p class="text-[8px] font-bold text-purple-500 uppercase mt-1">Sistema Integrado de Activos Tecnológicos</p>
             </div>
             <nav class="flex-1 space-y-3">
-                <button onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-chart-line w-8"></i> Panel</button>
-                <button onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-box-open w-8"></i> Inventario</button>
-                <button onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-bell w-8"></i> Reportes</button>
-                <button onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button id="nav-dashboard" onclick="showSection('dashboard')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-chart-line w-8"></i> Panel</button>
+                <button id="nav-inventario" onclick="showSection('inventario')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-box-open w-8"></i> Inventario</button>
+                <button id="nav-asignaciones" onclick="showSection('asignaciones')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-link w-8"></i> Asignaciones</button>
+                <button id="nav-departamentos" onclick="showSection('departamentos')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only"><i class="fas fa-sitemap w-8"></i> Departamentos</button>
+                <button id="nav-reportes" onclick="showSection('reportes')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-bell w-8"></i> Reportes</button>
+                <button id="nav-usuarios" onclick="showSection('usuarios')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only"><i class="fas fa-users-cog w-8"></i> Usuarios</button>
+                <button id="nav-registrados" onclick="showSection('registrados')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all hidden admin-only">
+                    <i class="fas fa-user-check w-8"></i> Registrados
+                    <span id="pending-badge" class="hidden ml-auto bg-yellow-500 text-black text-[8px] font-black px-2 py-0.5 rounded-full">!</span>
+                </button>
+                <button id="nav-manual" onclick="showSection('manual')" class="w-full flex items-center p-4 rounded-2xl font-bold text-slate-400 hover:text-cyan-400 transition-all"><i class="fas fa-book w-8"></i> Manual</button>
             </nav>
             <div class="p-4 glass-card rounded-2xl text-center">
                 <p id="user-role-badge" class="text-[8px] font-black text-cyan-400 uppercase mb-1"></p>
@@ -147,16 +204,34 @@
                         <h3 id="asset-form-title" class="text-xl font-black mb-6 uppercase">Gestión de Activo</h3>
                         <form id="form-asset" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <input type="hidden" id="edit-id">
-                            <input type="text" id="as-name" placeholder="Nombre" class="input-dark" required>
-                            <input type="text" id="as-serial" placeholder="Serial" class="input-dark" required>
-                            <input type="text" id="as-loc" placeholder="Ubicación" class="input-dark" required>
+                            <input type="text" id="as-name" placeholder="Nombre del Activo" class="input-dark" required>
+                            <input type="text" id="as-serial" placeholder="Serial / Número de Inventario" class="input-dark" required>
+                            <input type="text" id="as-brand" placeholder="Marca" class="input-dark">
+                            <input type="text" id="as-model" placeholder="Modelo" class="input-dark">
+                            <input type="text" id="as-loc" placeholder="Ubicación Física" class="input-dark" required>
+                            <select id="as-type" class="input-dark bg-slate-800">
+                                <option value="">Tipo de Activo</option>
+                                <option value="Computadora">Computadora</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Monitor">Monitor</option>
+                                <option value="Impresora">Impresora</option>
+                                <option value="Servidor">Servidor</option>
+                                <option value="Proyector">Proyector</option>
+                                <option value="Teléfono IP">Teléfono IP</option>
+                                <option value="Switch/Router">Switch/Router</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                            <select id="as-dept" class="input-dark bg-slate-800">
+                                <option value="">Departamento (opcional)</option>
+                            </select>
                             <input type="url" id="as-photo" placeholder="Imagen (URL)" class="input-dark" required>
+                            <input type="date" id="as-purchase" placeholder="Fecha de Adquisición" class="input-dark">
                             <select id="as-cond" class="input-dark bg-slate-800">
                                 <option value="Excelente">Excelente</option>
                                 <option value="Mantenimiento">Mantenimiento</option>
                                 <option value="Dañado">Dañado</option>
                             </select>
-                            <textarea id="as-reason" placeholder="Detalle del estado del activo..." class="input-dark h-24"></textarea>
+                            <textarea id="as-reason" placeholder="Detalle del estado del activo..." class="input-dark h-24 col-span-full"></textarea>
                             <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Sincronizar Activo</button>
                         </form>
                     </div>
@@ -167,8 +242,13 @@
                     <div class="glass-card p-8">
                         <h3 class="text-xl font-black mb-6 uppercase">Registrar Nuevo Personal</h3>
                         <form id="form-user" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <input type="text" id="u-name" placeholder="Nombre" class="input-dark" required>
-                            <input type="email" id="u-email" placeholder="Correo" class="input-dark" required>
+                            <input type="text" id="u-name" placeholder="Nombre Completo" class="input-dark" required>
+                            <input type="text" id="u-cedula" placeholder="Cédula / ID Empleado" class="input-dark" required>
+                            <input type="email" id="u-email" placeholder="Correo Institucional" class="input-dark" required>
+                            <input type="text" id="u-cargo" placeholder="Cargo / Puesto" class="input-dark">
+                            <select id="u-dept-assign" class="input-dark bg-slate-800">
+                                <option value="">Departamento</option>
+                            </select>
                             <select id="u-role" class="input-dark bg-slate-800">
                                 <option value="operario">Operador</option>
                                 <option value="admin">Administrador</option>
@@ -182,8 +262,189 @@
                     </div>
                 </section>
 
-                <section id="sec-reportes" class="hidden space-y-4">
-                    <div id="reports-list-container"></div>
+                <section id="sec-reportes" class="hidden space-y-6">
+                    <!-- Stats Bar -->
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="report-stats-bar">
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                                <i class="fas fa-clipboard-list text-purple-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-500 uppercase font-bold">Total</p>
+                                <p id="stat-total" class="text-2xl font-black text-white">0</p>
+                            </div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
+                                <i class="fas fa-times-circle text-red-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-500 uppercase font-bold">Dañado</p>
+                                <p id="stat-danado" class="text-2xl font-black text-red-400">0</p>
+                            </div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
+                                <i class="fas fa-tools text-orange-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-500 uppercase font-bold">Mantenimiento</p>
+                                <p id="stat-mantenimiento" class="text-2xl font-black text-orange-400">0</p>
+                            </div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                                <i class="fas fa-check-circle text-emerald-400"></i>
+                            </div>
+                            <div>
+                                <p class="text-[9px] text-slate-500 uppercase font-bold">Excelente</p>
+                                <p id="stat-excelente" class="text-2xl font-black text-emerald-400">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controls -->
+                    <div class="glass-card p-5 flex flex-col md:flex-row gap-4 items-center">
+                        <div class="relative flex-1 w-full">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input id="report-search" type="text" placeholder="Buscar por activo, usuario o motivo..." 
+                                class="w-full input-dark pl-10 py-3 text-sm" oninput="filterReports()">
+                        </div>
+                        <div class="flex gap-2 flex-wrap">
+                            <button onclick="setReportFilter('todos')" id="filter-todos" class="report-filter-btn active-filter px-4 py-2 rounded-xl text-xs font-black uppercase transition-all">Todos</button>
+                            <button onclick="setReportFilter('Dañado')" id="filter-danado" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-red-400">Dañado</button>
+                            <button onclick="setReportFilter('Mantenimiento')" id="filter-mantenimiento" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-orange-400">Mantenimiento</button>
+                            <button onclick="setReportFilter('Excelente')" id="filter-excelente" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-emerald-400">Excelente</button>
+                        </div>
+                    </div>
+                    <!-- Time filter + print -->
+                    <div class="glass-card p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <div class="flex gap-2 flex-wrap items-center">
+                            <span class="text-[9px] text-slate-500 uppercase font-black mr-1"><i class="fas fa-calendar-alt mr-1"></i>Período:</span>
+                            <button onclick="setTimeFilter('all')" id="tfilter-all" class="time-filter-btn active-time px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all">Todo</button>
+                            <button onclick="setTimeFilter('day')" id="tfilter-day" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Hoy</button>
+                            <button onclick="setTimeFilter('week')" id="tfilter-week" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Esta Semana</button>
+                            <button onclick="setTimeFilter('month')" id="tfilter-month" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Este Mes</button>
+                        </div>
+                        <button onclick="printReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2">
+                            <i class="fas fa-print"></i> Imprimir Reporte Membretado
+                        </button>
+                    </div>
+                    <!-- Header row -->
+                    <div class="flex items-center justify-between px-1">
+                        <h3 class="text-sm font-black uppercase text-slate-400 tracking-widest">
+                            <i class="fas fa-history mr-2"></i>Historial de Actividad
+                        </h3>
+                        <span id="report-count-label" class="text-[9px] text-slate-600 font-bold uppercase"></span>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="reports-empty" class="hidden glass-card p-16 text-center">
+                        <i class="fas fa-inbox text-4xl text-slate-700 mb-4"></i>
+                        <p class="font-black text-slate-500 uppercase text-sm">Sin reportes encontrados</p>
+                        <p class="text-xs text-slate-600 mt-1">Intenta con otros filtros o términos de búsqueda</p>
+                    </div>
+
+                    <!-- Reports list -->
+                    <div id="reports-list-container" class="space-y-3"></div>
+                </section>
+
+                <!-- ===================== SECCIÓN: DEPARTAMENTOS ===================== -->
+                <section id="sec-departamentos" class="hidden space-y-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-black mb-6 uppercase">Gestión de Departamentos</h3>
+                        <form id="form-dept" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <input type="hidden" id="dept-edit-id">
+                            <input type="text" id="dept-name" placeholder="Nombre del Departamento" class="input-dark" required>
+                            <input type="text" id="dept-coord" placeholder="Coordinador / Jefe" class="input-dark">
+                            <input type="text" id="dept-floor" placeholder="Piso / Área" class="input-dark">
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar Departamento</button>
+                        </form>
+                    </div>
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-black mb-4 uppercase">Tabla de Departamentos</h3>
+                        <div id="depts-table-container" class="overflow-x-auto text-sm"></div>
+                    </div>
+                </section>
+
+                <!-- ===================== SECCIÓN: ASIGNACIONES ===================== -->
+                <section id="sec-asignaciones" class="hidden space-y-8">
+                    <div class="glass-card p-8">
+                        <h3 class="text-xl font-black mb-2 uppercase">Tabla de Asignación de Activos</h3>
+                        <p class="text-xs text-slate-500 mb-6">Asigna activos tecnológicos a usuarios registrados y departamentos. El ID del usuario queda grabado en la base de datos.</p>
+                        <form id="form-assign" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <input type="hidden" id="assign-edit-id">
+                            <select id="assign-asset" class="input-dark bg-slate-800" required>
+                                <option value="">Seleccionar Activo</option>
+                            </select>
+                            <select id="assign-user" class="input-dark bg-slate-800" required>
+                                <option value="">Seleccionar Personal</option>
+                            </select>
+                            <select id="assign-dept" class="input-dark bg-slate-800">
+                                <option value="">Departamento</option>
+                            </select>
+                            <input type="text" id="assign-location" placeholder="Ubicación específica" class="input-dark">
+                            <input type="date" id="assign-date" class="input-dark" title="Fecha de asignación">
+                            <select id="assign-status" class="input-dark bg-slate-800">
+                                <option value="Activo">Activo (en uso)</option>
+                                <option value="Devuelto">Devuelto</option>
+                                <option value="En reparación">En reparación</option>
+                            </select>
+                            <textarea id="assign-notes" placeholder="Notas de la asignación..." class="input-dark h-20 col-span-full"></textarea>
+                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase"><i class="fas fa-link mr-2"></i>Registrar Asignación</button>
+                        </form>
+                    </div>
+                    <div class="glass-card p-8">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-xl font-black uppercase">Registro de Asignaciones</h3>
+                            <input id="assign-search" type="text" placeholder="Buscar..." class="input-dark py-2 text-xs w-48" oninput="renderAssignments()">
+                        </div>
+                        <div id="assignments-table-container" class="overflow-x-auto text-sm"></div>
+                    </div>
+                </section>
+
+                <!-- ===================== SECCIÓN: USUARIOS REGISTRADOS ===================== -->
+                <section id="sec-registrados" class="hidden space-y-6">
+                    <div class="glass-card p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-black uppercase">Solicitudes de Acceso al Sistema</h3>
+                                <p class="text-xs text-slate-500 mt-1">Usuarios que se registraron en la app. Valida si pertenecen al personal antes de aprobar.</p>
+                            </div>
+                            <span id="pending-count-label" class="bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-[10px] font-black px-3 py-1 rounded-full uppercase">0 Pendientes</span>
+                        </div>
+                        <div id="registrados-container" class="space-y-3"></div>
+                    </div>
+                    <div class="glass-card p-6">
+                        <h3 class="text-xl font-black uppercase mb-4">Todos los Usuarios del Sistema</h3>
+                        <div id="all-auth-users-container" class="overflow-x-auto text-sm"></div>
+                    </div>
+                </section>
+
+                <!-- ===================== SECCIÓN: MANUAL DE USUARIO ===================== -->
+                <section id="sec-manual" class="hidden space-y-6 max-w-4xl mx-auto">
+                    <!-- Header membretado del manual -->
+                    <div class="letterhead-header glass-card p-8 flex items-center gap-6">
+                        <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg" class="w-20 h-20 rounded-full border-2 border-purple-500 object-cover shrink-0">
+                        <div>
+                            <h1 class="font-black text-3xl italic text-white">NEXUS-ID</h1>
+                            <p class="text-[9px] font-bold text-cyan-400 uppercase tracking-widest">Sistema Integrado de Activos Tecnológicos</p>
+                            <p class="text-xs text-slate-400 mt-1">Universidad Politécnica Territorial José Antonio Anzoátegui</p>
+                            <p class="text-[10px] text-slate-500 mt-0.5 font-black uppercase">Manual de Usuario — v2.0</p>
+                        </div>
+                    </div>
+                    <!-- Tabs del manual -->
+                    <div class="flex gap-2 flex-wrap">
+                        <button onclick="showManualTab('intro')" id="mtab-intro" class="manual-tab active px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Introducción</button>
+                        <button onclick="showManualTab('login')" id="mtab-login" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Acceso</button>
+                        <button onclick="showManualTab('inventario')" id="mtab-inventario" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Inventario</button>
+                        <button onclick="showManualTab('asignacion')" id="mtab-asignacion" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Asignaciones</button>
+                        <button onclick="showManualTab('reportes')" id="mtab-reportes" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Reportes</button>
+                        <button onclick="showManualTab('roles')" id="mtab-roles" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Roles</button>
+                        <button onclick="showManualTab('qr')" id="mtab-qr" class="manual-tab px-4 py-2 rounded-xl text-xs font-black uppercase bg-white/5 text-slate-400">Código QR</button>
+                    </div>
+                    <!-- Contenido dinámico del manual -->
+                    <div id="manual-content-area" class="manual-content glass-card p-8 space-y-6 text-sm leading-relaxed text-slate-300"></div>
                 </section>
 
                 <section id="sec-scan-view" class="hidden max-w-2xl mx-auto">
@@ -265,43 +526,7 @@
             });
         }
 
-        auth.onAuthStateChanged(user => {
-            if (user) {
-                db.ref('users/' + user.uid).on('value', snap => {
-                    let userData = snap.val();
-                    if (user.email === MASTER_EMAIL && !userData) {
-                        userData = { name: "Admin General", role: "admin", email: user.email };
-                        db.ref('users/' + user.uid).set(userData);
-                    }
-                    userRole = userData?.role || "operario";
-                    
-                    document.getElementById('login-screen').classList.add('hidden');
-                    document.getElementById('public-scan-screen').classList.add('hidden');
-                    document.getElementById('app-interface').classList.remove('hidden');
-                    document.getElementById('display-user').textContent = user.email;
-                    document.getElementById('user-role-badge').textContent = userRole;
-
-                    if (userRole === 'admin') {
-                        document.getElementById('admin-user-list').classList.remove('hidden');
-                        loadAdminUsers();
-                    }
-
-                    if(scannedId) {
-                        document.getElementById('main-sidebar').classList.add('hidden');
-                        loadScannedAsset(scannedId);
-                    } else {
-                        showSection('dashboard');
-                        loadAssets();
-                        loadReports();
-                    }
-                });
-            } else {
-                if (!scannedId) {
-                    document.getElementById('login-screen').classList.remove('hidden');
-                    document.getElementById('app-interface').classList.add('hidden');
-                }
-            }
-        });
+        // (original auth handler removed - enhanced version above handles all logic)
 
         function loadAssets() {
             db.ref('assets').on('value', snap => {
@@ -329,14 +554,9 @@
             });
         }
 
-        document.getElementById('form-user').onsubmit = (e) => {
-            e.preventDefault();
-            const data = {
-                name: document.getElementById('u-name').value,
-                email: document.getElementById('u-email').value,
-                role: document.getElementById('u-role').value
-            };
-            db.ref('users').push(data).then(() => { alert("Personal Añadido"); e.target.reset(); });
+        // (user form handler moved to enhanced section above)
+        function _ORIGINAL_form_user_placeholder() { // original user form handler removed, new one above
+        }
         };
 
         function loadAdminUsers() {
@@ -358,39 +578,15 @@
             });
         }
 
-        function showSection(id) {
-            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.toUpperCase();
-        }
+        // (showSection replaced by enhanced version in new functions block)
 
-        document.getElementById('form-asset').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const data = {
-                name: document.getElementById('as-name').value,
-                serial: document.getElementById('as-serial').value,
-                location: document.getElementById('as-loc').value,
-                imageUrl: document.getElementById('as-photo').value,
-                cond: document.getElementById('as-cond').value,
-                reason: document.getElementById('as-reason').value
-            };
-            if(id) db.ref('assets/' + id).update(data).then(() => { alert("Actualizado"); e.target.reset(); document.getElementById('edit-id').value=""; });
-            else db.ref('assets').push(data).then(() => { alert("Guardado"); e.target.reset(); });
+        // (asset form handler moved to enhanced section above)
+        function _ORIGINAL_form_asset_placeholder() { // original handler removed
+        }
         };
 
-        function editAsset(id) {
-            db.ref('assets/' + id).once('value', snap => {
-                const a = snap.val();
-                document.getElementById('edit-id').value = id;
-                document.getElementById('as-name').value = a.name;
-                document.getElementById('as-serial').value = a.serial;
-                document.getElementById('as-loc').value = a.location;
-                document.getElementById('as-photo').value = a.imageUrl;
-                document.getElementById('as-cond').value = a.cond;
-                document.getElementById('as-reason').value = a.reason || "";
-                showSection('inventario');
-            });
+        function _editAsset_original_replaced(id) { // replaced by enhanced version above
+        }
         }
 
         function loadScannedAsset(id) {
@@ -415,21 +611,101 @@
             });
         }
 
+        let allReports = [];
+        let activeFilter = 'todos';
+
         function loadReports() {
             db.ref('reports').on('value', snap => {
-                const container = document.getElementById('reports-list-container');
-                container.innerHTML = '<h3 class="text-xl font-black mb-6 italic uppercase">Historial de Actividad</h3>';
+                allReports = [];
                 snap.forEach(doc => {
-                    const r = doc.val();
-                    container.innerHTML = `
-                        <div class="glass-card p-5 border-l-4 ${r.newC === 'Dañado' ? 'border-red-500' : 'border-orange-500'} mb-3">
-                            <p class="text-[9px] text-slate-500">${r.date} - Por: ${r.user}</p>
-                            <h5 class="text-white font-black uppercase">${r.assetName}</h5>
-                            <p class="text-xs text-cyan-400 font-black">ESTADO ACTUALIZADO A: ${r.newC}</p>
-                            <p class="mt-2 text-sm italic text-slate-300">"${r.reason}"</p>
-                        </div>` + container.innerHTML;
+                    allReports.unshift({ key: doc.key, ...doc.val() });
                 });
+                updateReportStats();
+                renderReports();
             });
+        }
+
+        function updateReportStats() {
+            const total = allReports.length;
+            const danado = allReports.filter(r => r.newC === 'Dañado').length;
+            const mant = allReports.filter(r => r.newC === 'Mantenimiento').length;
+            const exc = allReports.filter(r => r.newC === 'Excelente').length;
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-danado').textContent = danado;
+            document.getElementById('stat-mantenimiento').textContent = mant;
+            document.getElementById('stat-excelente').textContent = exc;
+        }
+
+        function setReportFilter(f) {
+            activeFilter = f;
+            document.querySelectorAll('.report-filter-btn').forEach(b => {
+                b.classList.remove('active-filter');
+                b.classList.add('bg-white/5', 'text-slate-400');
+            });
+            const btn = document.getElementById('filter-' + f.toLowerCase().replace('é','e').replace('ó','o').replace('ñ','n'));
+            if (btn) { btn.classList.add('active-filter'); btn.classList.remove('bg-white/5','text-slate-400'); }
+            renderReports();
+        }
+
+        function filterReports() { renderReports(); }
+
+        function renderReports() {
+            const container = document.getElementById('reports-list-container');
+            const emptyEl = document.getElementById('reports-empty');
+            const search = (document.getElementById('report-search')?.value || '').toLowerCase();
+
+            let filtered = allReports.filter(r => {
+                const matchFilter = activeFilter === 'todos' || r.newC === activeFilter;
+                const matchSearch = !search || 
+                    (r.assetName||'').toLowerCase().includes(search) ||
+                    (r.user||'').toLowerCase().includes(search) ||
+                    (r.reason||'').toLowerCase().includes(search);
+                return matchFilter && matchSearch;
+            });
+
+            document.getElementById('report-count-label').textContent = `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''}`;
+
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+            emptyEl.classList.add('hidden');
+
+            const condConfig = {
+                'Dañado':        { border: 'border-red-500',    badge: 'badge-danado',        icon: 'fa-times-circle',  dot: 'bg-red-500' },
+                'Mantenimiento': { border: 'border-orange-500', badge: 'badge-mantenimiento', icon: 'fa-tools',         dot: 'bg-orange-500' },
+                'Excelente':     { border: 'border-emerald-500',badge: 'badge-excelente',     icon: 'fa-check-circle',  dot: 'bg-emerald-500' }
+            };
+
+            container.innerHTML = filtered.map((r, i) => {
+                const cfg = condConfig[r.newC] || condConfig['Mantenimiento'];
+                const initials = (r.user||'?').substring(0,2).toUpperCase();
+                return `
+                <div class="report-item glass-card p-5 border-l-4 ${cfg.border} flex gap-4 items-start" style="animation-delay:${i*0.04}s">
+                    <div class="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 text-[10px] font-black text-cyan-400 border border-white/10">
+                        ${initials}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                            <h5 class="text-white font-black uppercase text-sm truncate">${r.assetName || 'Activo'}</h5>
+                            <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase ${cfg.badge} shrink-0">
+                                <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
+                            </span>
+                        </div>
+                        <p class="text-xs italic text-slate-300 mb-2">"${r.reason}"</p>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="text-[9px] text-slate-500 flex items-center gap-1">
+                                <i class="fas fa-user text-[8px]"></i>${r.user}
+                            </span>
+                            <span class="text-[9px] text-slate-600">•</span>
+                            <span class="text-[9px] text-slate-500 flex items-center gap-1">
+                                <i class="fas fa-clock text-[8px]"></i>${r.date}
+                            </span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
         }
 
         function openQR(id) {
@@ -467,6 +743,681 @@
             auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value).catch(() => alert("Acceso denegado. Verifique sus credenciales."));
         };
         function logout() { auth.signOut().then(() => location.href = window.location.origin + window.location.pathname); }
+
+        // ===================== REGISTRO SOLICITUD =====================
+        function toggleRegRequest() {
+            const f = document.getElementById('reg-request-form');
+            f.classList.toggle('hidden');
+        }
+        function submitRegRequest() {
+            const name = document.getElementById('reg-name').value;
+            const cedula = document.getElementById('reg-cedula').value;
+            const email = document.getElementById('reg-email').value;
+            const cargo = document.getElementById('reg-cargo').value;
+            if (!name || !cedula || !email) { alert("Completa nombre, cédula y correo."); return; }
+            db.ref('access_requests').push({
+                name, cedula, email, cargo,
+                status: 'pendiente',
+                timestamp: new Date().toISOString(),
+                date: new Date().toLocaleString()
+            }).then(() => {
+                alert("✅ Solicitud enviada. Un administrador la revisará y verificará que eres personal activo de la institución.");
+                document.getElementById('reg-request-form').classList.add('hidden');
+                document.getElementById('reg-name').value = '';
+                document.getElementById('reg-cedula').value = '';
+                document.getElementById('reg-email').value = '';
+                document.getElementById('reg-cargo').value = '';
+            });
+        }
+
+        // ===================== SHOW SECTION (enhanced) =====================
+        function showSection(id) {
+            document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
+            const sec = document.getElementById('sec-' + id);
+            if (sec) sec.classList.remove('hidden');
+            document.getElementById('section-title').textContent = id.charAt(0).toUpperCase() + id.slice(1);
+            // Highlight nav
+            document.querySelectorAll('nav button').forEach(b => {
+                b.classList.remove('text-cyan-400','bg-white/10');
+                b.classList.add('text-slate-400');
+            });
+            const navBtn = document.getElementById('nav-' + id);
+            if (navBtn) { navBtn.classList.add('text-cyan-400','bg-white/10'); navBtn.classList.remove('text-slate-400'); }
+        }
+
+        // ===================== DEPARTAMENTOS =====================
+        let allDepts = [];
+        function loadDepts() {
+            db.ref('departments').on('value', snap => {
+                allDepts = [];
+                const container = document.getElementById('depts-table-container');
+                let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
+                    <thead><tr class="text-slate-500 border-b border-white/10">
+                        <th class="p-4">Depto</th><th class="p-4">Coordinador</th><th class="p-4">Área</th><th class="p-4">Activos</th><th class="p-4">Acción</th>
+                    </tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const d = doc.val(); allDepts.push({key: doc.key, ...d});
+                    html += `<tr class="border-b border-white/5 table-row-hover">
+                        <td class="p-4"><span class="badge-dept text-[10px] px-2 py-1 rounded-full">${d.name}</span></td>
+                        <td class="p-4 text-slate-300">${d.coordinator||'-'}</td>
+                        <td class="p-4 text-slate-400">${d.floor||'-'}</td>
+                        <td class="p-4"><span id="dept-asset-count-${doc.key}" class="text-cyan-400 font-black">-</span></td>
+                        <td class="p-4 flex gap-2">
+                            <button onclick="editDept('${doc.key}')" class="text-blue-400 hover:text-blue-300"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteDept('${doc.key}')" class="text-red-500 hover:text-red-400"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+                });
+                container.innerHTML = html + '</tbody></table>';
+                // Populate dept selects
+                populateDeptSelects();
+            });
+        }
+        function populateDeptSelects() {
+            ['as-dept','assign-dept','u-dept-assign'].forEach(sid => {
+                const sel = document.getElementById(sid);
+                if (!sel) return;
+                const cur = sel.value;
+                sel.innerHTML = `<option value="">Departamento</option>` + allDepts.map(d => `<option value="${d.key}">${d.name}</option>`).join('');
+                sel.value = cur;
+            });
+        }
+        document.getElementById('form-dept').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('dept-edit-id').value;
+            const data = {
+                name: document.getElementById('dept-name').value,
+                coordinator: document.getElementById('dept-coord').value,
+                floor: document.getElementById('dept-floor').value
+            };
+            const op = id ? db.ref('departments/'+id).update(data) : db.ref('departments').push(data);
+            op.then(() => { e.target.reset(); document.getElementById('dept-edit-id').value=''; });
+        };
+        function editDept(id) {
+            const d = allDepts.find(x=>x.key===id); if(!d) return;
+            document.getElementById('dept-edit-id').value = id;
+            document.getElementById('dept-name').value = d.name;
+            document.getElementById('dept-coord').value = d.coordinator||'';
+            document.getElementById('dept-floor').value = d.floor||'';
+            showSection('departamentos');
+        }
+        function deleteDept(id) { if(confirm("¿Eliminar departamento?")) db.ref('departments/'+id).remove(); }
+
+        // ===================== ASIGNACIONES =====================
+        let allAssignments = [];
+        let allUsers = [];
+        let allAssets = [];
+
+        function loadAssignments() {
+            db.ref('assignments').on('value', snap => {
+                allAssignments = [];
+                snap.forEach(doc => allAssignments.unshift({key: doc.key, ...doc.val()}));
+                renderAssignments();
+            });
+        }
+        function populateAssignSelects() {
+            db.ref('assets').once('value', snap => {
+                const sel = document.getElementById('assign-asset');
+                let opts = '<option value="">Seleccionar Activo</option>';
+                snap.forEach(doc => {
+                    const a = doc.val();
+                    opts += `<option value="${doc.key}">${a.name} (${a.serial||'S/N'})</option>`;
+                });
+                sel.innerHTML = opts;
+            });
+            db.ref('users').once('value', snap => {
+                const sel = document.getElementById('assign-user');
+                let opts = '<option value="">Seleccionar Personal</option>';
+                snap.forEach(doc => {
+                    const u = doc.val();
+                    opts += `<option value="${doc.key}" data-email="${u.email}">${u.name} — ${u.cargo||u.role} [ID: ${doc.key.substring(0,8)}]</option>`;
+                });
+                sel.innerHTML = opts;
+            });
+        }
+        function renderAssignments() {
+            const container = document.getElementById('assignments-table-container');
+            if (!container) return;
+            const search = (document.getElementById('assign-search')?.value||'').toLowerCase();
+            const filtered = allAssignments.filter(a =>
+                !search || (a.assetName||'').toLowerCase().includes(search) || (a.userName||'').toLowerCase().includes(search) || (a.deptName||'').toLowerCase().includes(search)
+            );
+            if (!filtered.length) { container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">Sin asignaciones registradas</p>'; return; }
+            const statusColor = s => s==='Activo'?'text-emerald-400':s==='Devuelto'?'text-slate-400':'text-orange-400';
+            let html = `<table class="w-full text-left text-[11px] font-bold">
+                <thead><tr class="text-slate-500 border-b border-white/10 uppercase">
+                    <th class="p-3">Activo</th><th class="p-3">Asignado a</th><th class="p-3">ID Usuario</th><th class="p-3">Departamento</th><th class="p-3">Fecha</th><th class="p-3">Estado</th><th class="p-3">Acción</th>
+                </tr></thead><tbody>`;
+            filtered.forEach(a => {
+                html += `<tr class="border-b border-white/5 table-row-hover">
+                    <td class="p-3 text-cyan-400">${a.assetName||'-'}</td>
+                    <td class="p-3 text-white">${a.userName||'-'}<br><span class="text-[9px] text-slate-500">${a.userEmail||''}</span></td>
+                    <td class="p-3 text-slate-400 font-mono text-[9px]">${(a.userId||'').substring(0,12)}...</td>
+                    <td class="p-3"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${a.deptName||'—'}</span></td>
+                    <td class="p-3 text-slate-500">${a.date||'-'}</td>
+                    <td class="p-3"><span class="${statusColor(a.status)} text-[10px]">${a.status||'—'}</span></td>
+                    <td class="p-3"><button onclick="deleteAssignment('${a.key}')" class="text-red-500 hover:text-red-400"><i class="fas fa-unlink"></i></button></td>
+                </tr>`;
+            });
+            container.innerHTML = html + '</tbody></table>';
+        }
+        document.getElementById('form-assign').onsubmit = (e) => {
+            e.preventDefault();
+            const assetSel = document.getElementById('assign-asset');
+            const userSel = document.getElementById('assign-user');
+            const deptSel = document.getElementById('assign-dept');
+            const assetId = assetSel.value;
+            const userId = userSel.value;
+            if (!assetId || !userId) { alert("Selecciona activo y personal."); return; }
+            const assetName = assetSel.options[assetSel.selectedIndex].text;
+            const userOption = userSel.options[userSel.selectedIndex];
+            const userName = userOption.text.split('—')[0].trim();
+            const userEmail = userOption.getAttribute('data-email')||'';
+            const deptKey = deptSel.value;
+            const deptName = deptKey ? (allDepts.find(d=>d.key===deptKey)?.name||'') : '';
+            const data = {
+                assetId, assetName, userId, userName, userEmail,
+                deptKey, deptName,
+                location: document.getElementById('assign-location').value,
+                date: document.getElementById('assign-date').value || new Date().toLocaleDateString(),
+                status: document.getElementById('assign-status').value,
+                notes: document.getElementById('assign-notes').value,
+                registeredAt: new Date().toISOString()
+            };
+            db.ref('assignments').push(data).then(() => { alert("Asignación registrada"); e.target.reset(); });
+        };
+        function deleteAssignment(id) { if(confirm("¿Eliminar asignación?")) db.ref('assignments/'+id).remove(); }
+
+        // ===================== USUARIOS REGISTRADOS (solicitudes) =====================
+        function loadRegistrados() {
+            db.ref('access_requests').on('value', snap => {
+                const container = document.getElementById('registrados-container');
+                const pendingBadge = document.getElementById('pending-badge');
+                const pendingLabel = document.getElementById('pending-count-label');
+                let pending = 0, html = '';
+                const items = [];
+                snap.forEach(doc => items.unshift({key: doc.key, ...doc.val()}));
+                items.forEach(r => {
+                    if (r.status === 'pendiente') pending++;
+                    const statusBadge = r.status === 'pendiente'
+                        ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
+                        : r.status === 'aprobado'
+                            ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            : 'bg-red-500/20 text-red-400 border-red-500/30';
+                    const isInPersonnel = r.status !== 'pendiente' ? '' : '';
+                    html += `<div class="glass-card p-5 flex items-center gap-4 border ${r.status==='pendiente'?'border-yellow-500/20':'border-white/5'}">
+                        <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center font-black text-sm text-cyan-400 border border-white/10 shrink-0">
+                            ${(r.name||'?').substring(0,2).toUpperCase()}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-black text-white text-sm">${r.name}</p>
+                            <p class="text-[10px] text-slate-400">${r.email} — C.I.: ${r.cedula}</p>
+                            <p class="text-[9px] text-slate-500">${r.cargo||'Cargo no especificado'} · ${r.date}</p>
+                        </div>
+                        <div class="flex flex-col items-end gap-2 shrink-0">
+                            <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase border ${statusBadge}">${r.status}</span>
+                            ${r.status === 'pendiente' ? `
+                            <div class="flex gap-2">
+                                <button onclick="approveRequest('${r.key}','${r.name}','${r.email}')" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase transition">
+                                    <i class="fas fa-check mr-1"></i>Aprobar
+                                </button>
+                                <button onclick="rejectRequest('${r.key}')" class="bg-red-600/50 hover:bg-red-600 text-white text-[9px] font-black px-3 py-1.5 rounded-lg uppercase transition">
+                                    <i class="fas fa-times mr-1"></i>Rechazar
+                                </button>
+                            </div>` : ''}
+                        </div>
+                    </div>`;
+                });
+                container.innerHTML = html || '<p class="text-slate-500 text-xs text-center py-8">No hay solicitudes de acceso</p>';
+                if (pendingBadge) { pendingBadge.classList.toggle('hidden', pending===0); pendingBadge.textContent = pending; }
+                if (pendingLabel) pendingLabel.textContent = `${pending} Pendiente${pending!==1?'s':''}`;
+            });
+            // Also load all system users
+            loadAllAuthUsers();
+        }
+        function approveRequest(key, name, email) {
+            if (!confirm(`¿Aprobar acceso a ${name}?\n\nVerifica que esta persona sea personal activo de la institución antes de aprobar.`)) return;
+            db.ref('access_requests/'+key).update({status:'aprobado', approvedAt: new Date().toISOString()})
+            .then(() => alert(`✅ Solicitud de ${name} aprobada. Ahora puede ser creado como usuario del sistema desde la sección Usuarios.`));
+        }
+        function rejectRequest(key) {
+            if (!confirm("¿Rechazar esta solicitud?")) return;
+            db.ref('access_requests/'+key).update({status:'rechazado', rejectedAt: new Date().toISOString()});
+        }
+        function loadAllAuthUsers() {
+            db.ref('users').on('value', snap => {
+                const container = document.getElementById('all-auth-users-container');
+                if (!container) return;
+                let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
+                    <thead><tr class="text-slate-500 border-b border-white/10">
+                        <th class="p-4">ID Sistema</th><th class="p-4">Nombre</th><th class="p-4">Correo</th><th class="p-4">C.I.</th><th class="p-4">Cargo</th><th class="p-4">Depto</th><th class="p-4">Rol</th>
+                    </tr></thead><tbody>`;
+                snap.forEach(doc => {
+                    const u = doc.val();
+                    const dept = allDepts.find(d=>d.key===u.deptKey);
+                    html += `<tr class="border-b border-white/5 table-row-hover">
+                        <td class="p-4 font-mono text-[9px] text-slate-500">${doc.key.substring(0,12)}...</td>
+                        <td class="p-4 text-white">${u.name}</td>
+                        <td class="p-4 text-slate-400">${u.email}</td>
+                        <td class="p-4 text-slate-400">${u.cedula||'-'}</td>
+                        <td class="p-4 text-slate-400">${u.cargo||'-'}</td>
+                        <td class="p-4"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${dept?.name||'-'}</span></td>
+                        <td class="p-4"><span class="${u.role==='admin'?'text-purple-400':'text-cyan-400'}">${u.role}</span></td>
+                    </tr>`;
+                });
+                container.innerHTML = html + '</tbody></table>';
+            });
+        }
+
+        // ===================== MANUAL DE USUARIO =====================
+        const manualContent = {
+            intro: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">📋 Introducción al Sistema NEXUS-ID</h2>
+                <p class="mb-4">NEXUS-ID es un <strong class="text-cyan-400">Sistema Integrado de Gestión de Activos Tecnológicos</strong> desarrollado para la Universidad Politécnica Territorial José Antonio Anzoátegui. Permite registrar, controlar, asignar y reportar el estado de todos los equipos tecnológicos de la institución.</p>
+                <h3 class="text-lg font-black text-white uppercase mt-6 mb-3">🎯 Objetivos del Sistema</h3>
+                <ul class="space-y-2 list-none">
+                    <li class="flex gap-2"><span class="text-cyan-400">›</span> Mantener un inventario actualizado y detallado de todos los activos tecnológicos</li>
+                    <li class="flex gap-2"><span class="text-cyan-400">›</span> Controlar la asignación de equipos a personal y departamentos</li>
+                    <li class="flex gap-2"><span class="text-cyan-400">›</span> Generar reportes periódicos membretados para auditoría</li>
+                    <li class="flex gap-2"><span class="text-cyan-400">›</span> Garantizar que solo personal verificado tenga acceso al sistema</li>
+                    <li class="flex gap-2"><span class="text-cyan-400">›</span> Rastrear el historial de cambios de estado mediante códigos QR</li>
+                </ul>
+                <h3 class="text-lg font-black text-white uppercase mt-6 mb-3">🏗️ Estructura del Sistema</h3>
+                <p>El sistema maneja <strong class="text-purple-400">5 tablas principales</strong> en su base de datos: <span class="text-cyan-400 font-black">Activos</span> (inventario de equipos), <span class="text-cyan-400 font-black">Usuarios</span> (personal autorizado), <span class="text-cyan-400 font-black">Departamentos</span> (unidades organizativas), <span class="text-cyan-400 font-black">Asignaciones</span> (vínculos activo-persona-departamento) y <span class="text-cyan-400 font-black">Reportes</span> (historial de novedades).</p>
+                <div class="mt-6 bg-purple-500/10 border border-purple-500/30 rounded-2xl p-5">
+                    <p class="text-[10px] text-purple-400 font-black uppercase mb-1">⚡ Potencial del sistema</p>
+                    <p class="text-xs">NEXUS-ID puede escalar para integrar: alertas automáticas de mantenimiento, notificaciones por correo, reportes de depreciación de activos, firma digital de actas de entrega, integración con sistemas administrativos institucionales y módulo de licitaciones.</p>
+                </div>`,
+            login: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">🔐 Acceso al Sistema</h2>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">¿Cómo ingresar?</h3>
+                <p class="mb-3">Ingresa tu <strong class="text-cyan-400">correo institucional</strong> y contraseña en la pantalla de inicio. Si no tienes credenciales, debes solicitar acceso.</p>
+                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
+                    <p class="text-[10px] text-yellow-400 font-black uppercase mb-1">⚠️ Control de Acceso Importante</p>
+                    <p class="text-xs">El sistema verifica que el usuario sea personal activo de la institución. No cualquier persona puede registrarse libremente. El administrador debe aprobar cada solicitud de acceso revisando la cédula y cargo del solicitante.</p>
+                </div>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">¿Cómo solicitar acceso?</h3>
+                <ol class="space-y-2 list-decimal list-inside text-xs">
+                    <li>En la pantalla de login, haz clic en <span class="text-cyan-400 font-bold">"Solicitar Acceso"</span></li>
+                    <li>Completa el formulario con tu nombre, cédula, correo y cargo</li>
+                    <li>Espera la revisión del administrador</li>
+                    <li>Una vez aprobado, el admin creará tus credenciales</li>
+                </ol>`,
+            inventario: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">📦 Gestión de Inventario</h2>
+                <p class="mb-4">La sección de inventario permite registrar y administrar todos los activos tecnológicos de la institución.</p>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">Campos del Activo</h3>
+                <div class="grid grid-cols-2 gap-3 text-xs">
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Nombre</strong><br>Identificación descriptiva del equipo</div>
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Serial</strong><br>Número único de inventario o serie del fabricante</div>
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Marca / Modelo</strong><br>Fabricante y modelo específico del equipo</div>
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Tipo</strong><br>Categoría del activo (PC, Laptop, Impresora, etc.)</div>
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Ubicación</strong><br>Lugar físico donde se encuentra el equipo</div>
+                    <div class="bg-white/5 p-3 rounded-xl"><strong class="text-cyan-400">Estado</strong><br>Excelente, En Mantenimiento, o Dañado</div>
+                </div>
+                <h3 class="text-lg font-black text-white mt-6 mb-2">Estados del Activo</h3>
+                <ul class="space-y-2 text-xs">
+                    <li><span class="text-emerald-400 font-black">● Excelente:</span> El equipo funciona correctamente y no requiere intervención.</li>
+                    <li><span class="text-orange-400 font-black">● Mantenimiento:</span> El equipo está siendo revisado o requiere servicio preventivo.</li>
+                    <li><span class="text-red-400 font-black">● Dañado:</span> El equipo presenta fallas o está fuera de servicio.</li>
+                </ul>`,
+            asignacion: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">🔗 Tabla de Asignaciones</h2>
+                <p class="mb-4">Las asignaciones vinculan un activo tecnológico a un usuario y un departamento específico. Cada asignación queda registrada con el <strong class="text-cyan-400">ID único del usuario en el sistema</strong>.</p>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">¿Cómo asignar un activo?</h3>
+                <ol class="space-y-2 list-decimal list-inside text-xs">
+                    <li>Ve a la sección <strong class="text-cyan-400">Asignaciones</strong> en el menú</li>
+                    <li>Selecciona el activo del inventario</li>
+                    <li>Selecciona el personal al que se asignará (el sistema toma su ID automáticamente)</li>
+                    <li>Selecciona el departamento y la ubicación específica</li>
+                    <li>Establece la fecha y el estado de la asignación</li>
+                    <li>Haz clic en <strong>Registrar Asignación</strong></li>
+                </ol>
+                <div class="mt-4 bg-cyan-500/10 border border-cyan-500/30 rounded-xl p-4 text-xs">
+                    <p class="text-cyan-400 font-black uppercase mb-1">📌 Trazabilidad</p>
+                    <p>Cada asignación queda vinculada al ID del usuario en la base de datos, garantizando trazabilidad completa: quién tiene qué equipo, desde cuándo, y en qué departamento.</p>
+                </div>`,
+            reportes: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">📊 Generación de Reportes</h2>
+                <p class="mb-4">Los reportes recogen el historial de novedades reportadas sobre los activos. Pueden filtrarse por estado y período de tiempo.</p>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">Filtros Disponibles</h3>
+                <ul class="space-y-2 text-xs">
+                    <li><strong class="text-white">Por estado:</strong> Todos, Dañado, Mantenimiento, Excelente</li>
+                    <li><strong class="text-white">Por período:</strong> Hoy, Esta semana, Este mes, Todo</li>
+                    <li><strong class="text-white">Búsqueda:</strong> Por nombre del activo, usuario o motivo</li>
+                </ul>
+                <h3 class="text-lg font-black text-white mt-6 mb-2">Reporte Membretado</h3>
+                <p class="mb-3 text-xs">Al hacer clic en <strong class="text-emerald-400">"Imprimir Reporte Membretado"</strong>, se genera un documento que incluye:</p>
+                <ul class="space-y-1 text-xs list-none">
+                    <li class="flex gap-2"><span class="text-purple-400">›</span> Logo institucional y nombre completo del sistema</li>
+                    <li class="flex gap-2"><span class="text-purple-400">›</span> Fecha y hora de generación del reporte</li>
+                    <li class="flex gap-2"><span class="text-purple-400">›</span> Estadísticas de resumen (total, dañados, en mantenimiento, excelentes)</li>
+                    <li class="flex gap-2"><span class="text-purple-400">›</span> Listado detallado con activo, usuario, estado y motivo</li>
+                    <li class="flex gap-2"><span class="text-purple-400">›</span> Filtros aplicados al momento de la impresión</li>
+                </ul>`,
+            roles: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">👥 Roles y Permisos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                    <div class="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-5">
+                        <h3 class="text-lg font-black text-purple-400 mb-3">🛡️ Administrador</h3>
+                        <ul class="space-y-1 text-xs">
+                            <li>✅ Gestión completa del inventario</li>
+                            <li>✅ Crear/eliminar usuarios</li>
+                            <li>✅ Ver y gestionar departamentos</li>
+                            <li>✅ Registrar y eliminar asignaciones</li>
+                            <li>✅ Ver solicitudes de acceso y aprobarlas</li>
+                            <li>✅ Ver todos los registrados en el sistema</li>
+                            <li>✅ Imprimir reportes membretados</li>
+                            <li>✅ Acceso completo a todas las secciones</li>
+                        </ul>
+                    </div>
+                    <div class="bg-cyan-500/10 border border-cyan-500/30 rounded-2xl p-5">
+                        <h3 class="text-lg font-black text-cyan-400 mb-3">⚙️ Operador</h3>
+                        <ul class="space-y-1 text-xs">
+                            <li>✅ Ver inventario de activos</li>
+                            <li>✅ Escanear QR y reportar novedades</li>
+                            <li>✅ Ver reportes de su área</li>
+                            <li>✅ Ver asignaciones</li>
+                            <li>❌ No puede crear/eliminar usuarios</li>
+                            <li>❌ No puede eliminar activos</li>
+                            <li>❌ No accede a sección Registrados</li>
+                            <li>❌ No gestiona departamentos</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-6 bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-xs">
+                    <p class="text-yellow-400 font-black uppercase mb-1">🔒 Verificación de Identidad</p>
+                    <p>El sistema valida que cada usuario sea personal activo antes de permitir operaciones. No se permite que personas externas ingresen información al inventario.</p>
+                </div>`,
+            qr: `
+                <h2 class="text-2xl font-black text-white uppercase mb-4">📱 Códigos QR</h2>
+                <p class="mb-4">Cada activo tecnológico puede generar un código QR único que permite acceder a su información y reportar novedades desde cualquier dispositivo.</p>
+                <h3 class="text-lg font-black text-white mt-4 mb-2">¿Cómo usar el QR?</h3>
+                <ol class="space-y-2 list-decimal list-inside text-xs">
+                    <li>En el inventario, haz clic en el botón <strong class="text-cyan-400">QR</strong> del activo</li>
+                    <li>Se genera un código QR con el enlace único del activo</li>
+                    <li>Imprime el QR y pégalo físicamente en el equipo</li>
+                    <li>Cualquier persona con el enlace puede ver el estado público del activo</li>
+                    <li>Para reportar una novedad, deben iniciar sesión como operario</li>
+                </ol>
+                <div class="mt-4 bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-4 text-xs">
+                    <p class="text-emerald-400 font-black uppercase mb-1">✅ Vista Pública</p>
+                    <p>Al escanear el QR sin estar autenticado, se muestra la información básica del activo (nombre, estado, ubicación, serial). Para reportar cambios, se requiere credenciales.</p>
+                </div>`
+        };
+        function showManualTab(tab) {
+            document.querySelectorAll('.manual-tab').forEach(t => t.classList.remove('active'));
+            const btn = document.getElementById('mtab-'+tab);
+            if (btn) btn.classList.add('active');
+            const area = document.getElementById('manual-content-area');
+            if (area) area.innerHTML = manualContent[tab] || '<p>Contenido no disponible</p>';
+        }
+
+        // ===================== TIME FILTER FOR REPORTS =====================
+        let activeTimeFilter = 'all';
+        function setTimeFilter(t) {
+            activeTimeFilter = t;
+            document.querySelectorAll('.time-filter-btn').forEach(b => {
+                b.classList.remove('active-time');
+                b.classList.add('bg-white/5','text-slate-400');
+            });
+            const btn = document.getElementById('tfilter-'+t);
+            if (btn) { btn.classList.add('active-time'); btn.classList.remove('bg-white/5','text-slate-400'); }
+            renderReports();
+        }
+
+        // ===================== PRINT REPORT (membretado) =====================
+        function printReport() {
+            const filtered = getCurrentFilteredReports();
+            const periodLabel = {'all':'Todo el período','day':'Hoy','week':'Esta semana','month':'Este mes'}[activeTimeFilter];
+            const condLabel = activeFilter === 'todos' ? 'Todos los estados' : activeFilter;
+            const now = new Date().toLocaleString('es-VE');
+            const total = filtered.length;
+            const danado = filtered.filter(r=>r.newC==='Dañado').length;
+            const mant = filtered.filter(r=>r.newC==='Mantenimiento').length;
+            const exc = filtered.filter(r=>r.newC==='Excelente').length;
+
+            const rows = filtered.map(r => `
+                <tr style="border-bottom:1px solid #eee;">
+                    <td style="padding:8px;font-size:11px;">${r.assetName||'-'}</td>
+                    <td style="padding:8px;font-size:11px;">${r.user||'-'}</td>
+                    <td style="padding:8px;font-size:11px;color:${r.newC==='Dañado'?'#dc2626':r.newC==='Mantenimiento'?'#ea580c':'#16a34a'};font-weight:bold;">${r.newC}</td>
+                    <td style="padding:8px;font-size:11px;font-style:italic;">${r.reason||'-'}</td>
+                    <td style="padding:8px;font-size:11px;color:#666;">${r.date||'-'}</td>
+                </tr>`).join('');
+
+            const win = window.open('','_blank');
+            win.document.write(`<!DOCTYPE html><html><head><title>Reporte NEXUS-ID</title>
+            <style>
+                body{font-family:Arial,sans-serif;margin:0;padding:0;color:#111;}
+                .header{background:linear-gradient(135deg,#1a1b25,#0d0e17);color:white;padding:30px 40px;display:flex;align-items:center;gap:20px;}
+                .header img{width:70px;height:70px;border-radius:50%;border:2px solid #00f2ff;object-fit:cover;}
+                .header-text h1{font-size:28px;font-weight:900;font-style:italic;margin:0;}
+                .header-text p{font-size:9px;color:#00f2ff;text-transform:uppercase;letter-spacing:2px;margin:4px 0 0;}
+                .header-text small{font-size:10px;color:#aaa;}
+                .meta{background:#f8f9fa;border-bottom:3px solid #bc13fe;padding:12px 40px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#666;}
+                .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;padding:20px 40px;}
+                .stat-card{border:1px solid #e5e7eb;border-radius:8px;padding:12px;text-align:center;}
+                .stat-card .num{font-size:28px;font-weight:900;} .stat-card .lbl{font-size:9px;text-transform:uppercase;color:#999;}
+                table{width:100%;border-collapse:collapse;margin:0 40px;width:calc(100% - 80px);}
+                thead th{background:#1a1b25;color:white;padding:10px 8px;font-size:10px;text-transform:uppercase;text-align:left;}
+                .footer{margin-top:30px;padding:15px 40px;border-top:1px solid #eee;display:flex;justify-content:space-between;font-size:9px;color:#999;}
+            </style></head><body>
+            <div class="header">
+                <img src="https://raw.githubusercontent.com/anniel137/uptjaa-inventory/main/gemini-2.5-flash-image_quiero_que_me_crees_el_logo_de_el_polianzoategui_que_sea_algo_mas_futurista-0.jpg">
+                <div class="header-text">
+                    <h1>NEXUS-ID</h1>
+                    <p>Sistema Integrado de Activos Tecnológicos</p>
+                    <small>Universidad Politécnica Territorial José Antonio Anzoátegui</small>
+                </div>
+            </div>
+            <div class="meta">
+                <span><strong>Reporte de Novedades</strong> — Generado: ${now}</span>
+                <span>Período: <strong>${periodLabel}</strong> | Estado: <strong>${condLabel}</strong></span>
+            </div>
+            <div class="stats">
+                <div class="stat-card"><div class="num" style="color:#7c3aed;">${total}</div><div class="lbl">Total Reportes</div></div>
+                <div class="stat-card"><div class="num" style="color:#dc2626;">${danado}</div><div class="lbl">Dañados</div></div>
+                <div class="stat-card"><div class="num" style="color:#ea580c;">${mant}</div><div class="lbl">Mantenimiento</div></div>
+                <div class="stat-card"><div class="num" style="color:#16a34a;">${exc}</div><div class="lbl">Excelentes</div></div>
+            </div>
+            <table>
+                <thead><tr><th>Activo</th><th>Reportado por</th><th>Estado</th><th>Motivo / Observación</th><th>Fecha</th></tr></thead>
+                <tbody>${rows}</tbody>
+            </table>
+            <div class="footer">
+                <span>NEXUS-ID — Sistema Integrado de Activos Tecnológicos</span>
+                <span>Documento generado automáticamente. ${now}</span>
+            </div>
+            </body></html>`);
+            win.document.close();
+            setTimeout(() => win.print(), 500);
+        }
+        function getCurrentFilteredReports() {
+            const search = (document.getElementById('report-search')?.value||'').toLowerCase();
+            const now = new Date();
+            return allReports.filter(r => {
+                const matchFilter = activeFilter === 'todos' || r.newC === activeFilter;
+                const matchSearch = !search ||
+                    (r.assetName||'').toLowerCase().includes(search) ||
+                    (r.user||'').toLowerCase().includes(search) ||
+                    (r.reason||'').toLowerCase().includes(search);
+                // Time filter
+                let matchTime = true;
+                if (activeTimeFilter !== 'all' && r.date) {
+                    try {
+                        const rd = new Date(r.date);
+                        if (!isNaN(rd)) {
+                            if (activeTimeFilter === 'day') {
+                                matchTime = rd.toDateString() === now.toDateString();
+                            } else if (activeTimeFilter === 'week') {
+                                const weekAgo = new Date(now); weekAgo.setDate(now.getDate()-7);
+                                matchTime = rd >= weekAgo;
+                            } else if (activeTimeFilter === 'month') {
+                                matchTime = rd.getMonth()===now.getMonth() && rd.getFullYear()===now.getFullYear();
+                            }
+                        }
+                    } catch(e) {}
+                }
+                return matchFilter && matchSearch && matchTime;
+            });
+        }
+
+        // ===================== ENHANCED RENDER REPORTS =====================
+        // Override original renderReports to use time filter
+        function renderReports() {
+            const container = document.getElementById('reports-list-container');
+            const emptyEl = document.getElementById('reports-empty');
+            const filtered = getCurrentFilteredReports();
+            document.getElementById('report-count-label').textContent = `${filtered.length} resultado${filtered.length!==1?'s':''}`;
+            if (filtered.length === 0) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+            emptyEl.classList.add('hidden');
+            const condConfig = {
+                'Dañado':        { border: 'border-red-500',    badge: 'badge-danado',        icon: 'fa-times-circle',  dot: 'bg-red-500' },
+                'Mantenimiento': { border: 'border-orange-500', badge: 'badge-mantenimiento', icon: 'fa-tools',         dot: 'bg-orange-500' },
+                'Excelente':     { border: 'border-emerald-500',badge: 'badge-excelente',     icon: 'fa-check-circle',  dot: 'bg-emerald-500' }
+            };
+            container.innerHTML = filtered.map((r, i) => {
+                const cfg = condConfig[r.newC] || condConfig['Mantenimiento'];
+                const initials = (r.user||'?').substring(0,2).toUpperCase();
+                return `
+                <div class="report-item glass-card p-5 border-l-4 ${cfg.border} flex gap-4 items-start" style="animation-delay:${i*0.04}s">
+                    <div class="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 text-[10px] font-black text-cyan-400 border border-white/10">${initials}</div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                            <h5 class="text-white font-black uppercase text-sm truncate">${r.assetName || 'Activo'}</h5>
+                            <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase ${cfg.badge} shrink-0">
+                                <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
+                            </span>
+                        </div>
+                        <p class="text-xs italic text-slate-300 mb-2">"${r.reason}"</p>
+                        <div class="flex items-center gap-3 flex-wrap">
+                            <span class="text-[9px] text-slate-500 flex items-center gap-1"><i class="fas fa-user text-[8px]"></i>${r.user}</span>
+                            <span class="text-[9px] text-slate-600">•</span>
+                            <span class="text-[9px] text-slate-500 flex items-center gap-1"><i class="fas fa-clock text-[8px]"></i>${r.date}</span>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ===================== ENHANCED USER FORM =====================
+        document.getElementById('form-user').onsubmit = (e) => {
+            e.preventDefault();
+            const deptKey = document.getElementById('u-dept-assign').value;
+            const dept = allDepts.find(d=>d.key===deptKey);
+            const data = {
+                name: document.getElementById('u-name').value,
+                cedula: document.getElementById('u-cedula').value,
+                email: document.getElementById('u-email').value,
+                cargo: document.getElementById('u-cargo').value,
+                deptKey: deptKey,
+                deptName: dept?.name||'',
+                role: document.getElementById('u-role').value,
+                registeredAt: new Date().toISOString()
+            };
+            db.ref('users').push(data).then(() => { alert("Personal añadido al sistema"); e.target.reset(); });
+        };
+
+        // ===================== ENHANCED ASSET FORM =====================
+        document.getElementById('form-asset').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const deptKey = document.getElementById('as-dept').value;
+            const dept = allDepts.find(d=>d.key===deptKey);
+            const data = {
+                name: document.getElementById('as-name').value,
+                serial: document.getElementById('as-serial').value,
+                brand: document.getElementById('as-brand').value,
+                model: document.getElementById('as-model').value,
+                type: document.getElementById('as-type').value,
+                location: document.getElementById('as-loc').value,
+                deptKey: deptKey, deptName: dept?.name||'',
+                imageUrl: document.getElementById('as-photo').value,
+                purchaseDate: document.getElementById('as-purchase').value,
+                cond: document.getElementById('as-cond').value,
+                reason: document.getElementById('as-reason').value,
+                updatedAt: new Date().toISOString()
+            };
+            if(id) db.ref('assets/'+id).update(data).then(() => { alert("Actualizado"); e.target.reset(); document.getElementById('edit-id').value=''; });
+            else db.ref('assets').push(data).then(() => { alert("Guardado"); e.target.reset(); });
+        };
+
+        // ===================== ENHANCED editAsset =====================
+        function editAsset(id) {
+            db.ref('assets/'+id).once('value', snap => {
+                const a = snap.val();
+                document.getElementById('edit-id').value = id;
+                document.getElementById('as-name').value = a.name;
+                document.getElementById('as-serial').value = a.serial;
+                document.getElementById('as-brand').value = a.brand||'';
+                document.getElementById('as-model').value = a.model||'';
+                document.getElementById('as-type').value = a.type||'';
+                document.getElementById('as-loc').value = a.location;
+                document.getElementById('as-dept').value = a.deptKey||'';
+                document.getElementById('as-photo').value = a.imageUrl;
+                document.getElementById('as-purchase').value = a.purchaseDate||'';
+                document.getElementById('as-cond').value = a.cond;
+                document.getElementById('as-reason').value = a.reason||'';
+                showSection('inventario');
+            });
+        }
+
+        // ===================== ENHANCED AUTH STATE =====================
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                db.ref('users/' + user.uid).on('value', snap => {
+                    let userData = snap.val();
+                    if (user.email === MASTER_EMAIL && !userData) {
+                        userData = { name: "Admin General", role: "admin", email: user.email, cedula: 'N/A', cargo: 'Administrador del Sistema' };
+                        db.ref('users/' + user.uid).set(userData);
+                    }
+                    userRole = userData?.role || "operario";
+                    
+                    document.getElementById('login-screen').classList.add('hidden');
+                    document.getElementById('public-scan-screen').classList.add('hidden');
+                    document.getElementById('app-interface').classList.remove('hidden');
+                    document.getElementById('display-user').textContent = user.email;
+                    document.getElementById('user-role-badge').textContent = userRole === 'admin' ? '🛡️ ADMIN' : '⚙️ OPERADOR';
+
+                    // Show/hide admin-only nav items
+                    document.querySelectorAll('.admin-only').forEach(el => {
+                        el.classList.toggle('hidden', userRole !== 'admin');
+                    });
+
+                    if (userRole === 'admin') {
+                        document.getElementById('admin-user-list').classList.remove('hidden');
+                        loadAdminUsers();
+                        loadRegistrados();
+                    }
+
+                    // Load all data
+                    loadDepts();
+                    loadAssignments();
+                    populateAssignSelects();
+
+                    if(scannedId) {
+                        document.getElementById('main-sidebar').classList.add('hidden');
+                        loadScannedAsset(scannedId);
+                    } else {
+                        showSection('dashboard');
+                        loadAssets();
+                        loadReports();
+                        // Initialize manual
+                        setTimeout(() => showManualTab('intro'), 100);
+                    }
+                });
+            } else {
+                if (!scannedId) {
+                    document.getElementById('login-screen').classList.remove('hidden');
+                    document.getElementById('app-interface').classList.add('hidden');
+                }
+            }
+        });
     </script>
 </body>
 </html>
