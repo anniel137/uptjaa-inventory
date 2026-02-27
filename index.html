@@ -631,11 +631,12 @@
 
         function loadAssets() {
             db.ref('assets').on('value', snap => {
+                allAssets = [];
                 const container = document.getElementById('assets-container');
                 container.innerHTML = '';
                 let stats = { total: 0, Excelente: 0, Mantenimiento: 0, Dañado: 0 };
                 snap.forEach(doc => {
-                    const a = doc.val(); stats.total++; stats[a.cond]++;
+                    const a = doc.val(); allAssets.push({key: doc.key, ...a}); stats.total++; stats[a.cond]++;
                     container.innerHTML += `
                         <div class="glass-card p-6 border border-white/5">
                             <img src="${a.imageUrl}" class="w-full h-32 object-cover rounded-xl mb-4">
@@ -652,6 +653,8 @@
                 document.getElementById('dash-excelente').textContent = stats.Excelente;
                 document.getElementById('dash-mantenimiento').textContent = stats.Mantenimiento;
                 document.getElementById('dash-danado').textContent = stats.Dañado;
+                // Re-render assignments table with updated asset list
+                renderAssignments();
             });
         }
 
@@ -973,19 +976,24 @@
         }
         function populateAssignSelects() {
             db.ref('assets').once('value', snap => {
+                allAssets = [];
                 const sel = document.getElementById('assign-asset');
                 let opts = '<option value="">Seleccionar Activo</option>';
                 snap.forEach(doc => {
                     const a = doc.val();
+                    allAssets.push({key: doc.key, ...a});
                     opts += `<option value="${doc.key}">${a.name} (${a.serial||'S/N'})</option>`;
                 });
                 sel.innerHTML = opts;
+                renderAssignments();
             });
             db.ref('users').once('value', snap => {
+                allUsers = [];
                 const sel = document.getElementById('assign-user');
                 let opts = '<option value="">Seleccionar Personal</option>';
                 snap.forEach(doc => {
                     const u = doc.val();
+                    allUsers.push({key: doc.key, ...u});
                     opts += `<option value="${doc.key}" data-email="${u.email}">${u.name} — ${u.cargo||u.role} [ID: ${doc.key.substring(0,8)}]</option>`;
                 });
                 sel.innerHTML = opts;
@@ -995,27 +1003,104 @@
             const container = document.getElementById('assignments-table-container');
             if (!container) return;
             const search = (document.getElementById('assign-search')?.value||'').toLowerCase();
-            const filtered = allAssignments.filter(a =>
-                !search || (a.assetName||'').toLowerCase().includes(search) || (a.userName||'').toLowerCase().includes(search) || (a.deptName||'').toLowerCase().includes(search)
-            );
-            if (!filtered.length) { container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">Sin asignaciones registradas</p>'; return; }
+
+            const condBadge = c => {
+                if (c === 'Excelente')     return '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">● Excelente</span>';
+                if (c === 'Mantenimiento') return '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-400 border border-orange-500/30">● Mantenim.</span>';
+                if (c === 'Dañado')        return '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 border border-red-500/30">● Dañado</span>';
+                return '<span class="text-[8px] px-1.5 py-0.5 rounded-full bg-white/10 text-slate-400">—</span>';
+            };
             const statusColor = s => s==='Activo'?'text-emerald-400':s==='Devuelto'?'text-slate-400':'text-orange-400';
+            const statusBg    = s => s==='Activo'?'bg-emerald-500/10 border-emerald-500/30':s==='Devuelto'?'bg-slate-500/10 border-slate-500/30':'bg-orange-500/10 border-orange-500/30';
+
+            // Build map of latest assignment per asset
+            const assignedMap = {};
+            allAssignments.forEach(a => {
+                if (!assignedMap[a.assetId] || a.registeredAt > (assignedMap[a.assetId].registeredAt||'')) {
+                    assignedMap[a.assetId] = a;
+                }
+            });
+
+            // Merge all assets with their assignment info
+            const rows = allAssets.map(asset => {
+                const assign = assignedMap[asset.key] || null;
+                return { asset, assign };
+            }).filter(row => {
+                if (!search) return true;
+                const n = (row.asset.name||'').toLowerCase();
+                const s = (row.asset.serial||'').toLowerCase();
+                const u = (row.assign?.userName||'').toLowerCase();
+                const d = (row.assign?.deptName||'').toLowerCase();
+                return n.includes(search) || s.includes(search) || u.includes(search) || d.includes(search);
+            });
+
+            if (!rows.length) {
+                container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">No hay activos registrados</p>';
+                return;
+            }
+
             let html = `<table class="w-full text-left text-[11px] font-bold">
-                <thead><tr class="text-slate-500 border-b border-white/10 uppercase">
-                    <th class="p-3">Activo</th><th class="p-3">Asignado a</th><th class="p-3">ID Usuario</th><th class="p-3">Departamento</th><th class="p-3">Fecha</th><th class="p-3">Estado</th><th class="p-3">Acción</th>
+                <thead><tr class="text-slate-500 border-b border-white/10 uppercase text-[9px]">
+                    <th class="p-3">Activo</th>
+                    <th class="p-3">Serial</th>
+                    <th class="p-3">Estado Físico</th>
+                    <th class="p-3">Asignado a</th>
+                    <th class="p-3">Departamento</th>
+                    <th class="p-3">Fecha Asignación</th>
+                    <th class="p-3">Estado Asignación</th>
+                    <th class="p-3">Acción</th>
                 </tr></thead><tbody>`;
-            filtered.forEach(a => {
-                html += `<tr class="border-b border-white/5 table-row-hover">
-                    <td class="p-3 text-cyan-400">${a.assetName||'-'}</td>
-                    <td class="p-3 text-white">${a.userName||'-'}<br><span class="text-[9px] text-slate-500">${a.userEmail||''}</span></td>
-                    <td class="p-3 text-slate-400 font-mono text-[9px]">${(a.userId||'').substring(0,12)}...</td>
-                    <td class="p-3"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${a.deptName||'—'}</span></td>
-                    <td class="p-3 text-slate-500">${a.date||'-'}</td>
-                    <td class="p-3"><span class="${statusColor(a.status)} text-[10px]">${a.status||'—'}</span></td>
-                    <td class="p-3"><button onclick="deleteAssignment('${a.key}')" class="text-red-500 hover:text-red-400"><i class="fas fa-unlink"></i></button></td>
+
+            rows.forEach(({asset, assign}) => {
+                const initials = assign ? (assign.userName||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase() : null;
+                const userCell = assign
+                    ? `<div class="flex items-center gap-2">
+                            <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500/30 to-cyan-500/20 flex items-center justify-center text-[9px] font-black text-cyan-300 border border-white/10 shrink-0">${initials}</div>
+                            <div>
+                                <p class="text-white font-black text-[10px]">${assign.userName||'-'}</p>
+                                <p class="text-slate-500 text-[8px] normal-case font-normal">${assign.userEmail||''}</p>
+                            </div>
+                       </div>`
+                    : `<span class="text-slate-600 italic text-[9px]"><i class="fas fa-user-slash mr-1"></i>Sin asignar</span>`;
+
+                const statusCell = assign
+                    ? `<span class="text-[9px] px-2 py-0.5 rounded-full font-black border ${statusBg(assign.status)} ${statusColor(assign.status)}">${assign.status||'—'}</span>`
+                    : `<span class="text-[9px] px-2 py-0.5 rounded-full font-black bg-white/5 border border-white/10 text-slate-500">—</span>`;
+
+                const actionCell = assign
+                    ? `<button onclick="deleteAssignment('${assign.key}')" title="Desasignar" class="text-red-500/60 hover:text-red-400 transition"><i class="fas fa-unlink"></i></button>`
+                    : `<span class="text-slate-700 text-[9px]">—</span>`;
+
+                html += `<tr class="border-b border-white/5 table-row-hover ${!assign ? 'opacity-60' : ''}">
+                    <td class="p-3">
+                        <div class="flex items-center gap-2">
+                            <img src="${asset.imageUrl||''}" onerror="this.style.display='none'" class="w-8 h-8 rounded-lg object-cover shrink-0 border border-white/10">
+                            <div>
+                                <p class="text-cyan-400 font-black text-[10px]">${asset.name||'-'}</p>
+                                <p class="text-slate-600 text-[8px]">${asset.type||''}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="p-3 text-slate-400 font-mono text-[9px]">${asset.serial||'—'}</td>
+                    <td class="p-3">${condBadge(asset.cond)}</td>
+                    <td class="p-3">${userCell}</td>
+                    <td class="p-3"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${assign?.deptName||'—'}</span></td>
+                    <td class="p-3 text-slate-500 text-[9px]">${assign?.date||'—'}</td>
+                    <td class="p-3">${statusCell}</td>
+                    <td class="p-3">${actionCell}</td>
                 </tr>`;
             });
+
             container.innerHTML = html + '</tbody></table>';
+
+            // Update summary counter
+            const total = rows.length;
+            const assigned = rows.filter(r => r.assign).length;
+            const unassigned = total - assigned;
+            const headerEl = document.querySelector('#sec-asignaciones .glass-card:last-child h3');
+            if (headerEl) {
+                headerEl.innerHTML = `Registro de Asignaciones <span class="ml-3 text-[10px] font-normal text-slate-500">${assigned} asignados · <span class="text-slate-600">${unassigned} sin asignar</span> · ${total} total</span>`;
+            }
         }
         document.getElementById('form-assign').onsubmit = (e) => {
             e.preventDefault();
