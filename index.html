@@ -71,6 +71,24 @@
         /* Scroll suave en manual */
         .manual-content { scroll-behavior: smooth; }
 
+
+        /* ===== TOAST NOTIFICATIONS ===== */
+        #toast-container { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; pointer-events: none; }
+        .toast {
+            display: flex; align-items: center; gap: 0.75rem;
+            padding: 0.875rem 1.25rem; border-radius: 1rem;
+            font-size: 12px; font-weight: 700; font-family: 'Plus Jakarta Sans', sans-serif;
+            backdrop-filter: blur(20px); border: 1px solid;
+            animation: toastIn 0.3s ease both; pointer-events: all;
+            max-width: 360px; box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .toast.hiding { animation: toastOut 0.3s ease forwards; }
+        .toast-success { background: rgba(16,185,129,0.15); border-color: rgba(16,185,129,0.4); color: #34d399; }
+        .toast-error   { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.4);  color: #f87171; }
+        .toast-warning { background: rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.4); color: #fbbf24; }
+        .toast-info    { background: rgba(0,242,255,0.10);  border-color: rgba(0,242,255,0.3);  color: #22d3ee; }
+        @keyframes toastIn  { from { opacity:0; transform: translateX(20px); } to { opacity:1; transform: translateX(0); } }
+        @keyframes toastOut { from { opacity:1; transform: translateX(0); }   to { opacity:0; transform: translateX(20px); } }
         /* ===== ROLE LEVEL BADGES ===== */
         .role-badge-admin {
             background: linear-gradient(90deg,rgba(188,19,254,0.25),rgba(122,18,245,0.25));
@@ -115,7 +133,7 @@
                 <p class="text-slate-400 font-bold uppercase text-sm">Cargando información del activo...</p>
             </div>
             <div id="public-asset-card" class="hidden glass-card overflow-hidden">
-                <img id="pub-img" class="w-full h-56 object-cover">
+                <img id="pub-img" class="w-full h-56 object-cover" onerror="this.style.display='none'">
                 <div class="p-6 space-y-4">
                     <h2 id="pub-name" class="text-3xl font-black uppercase italic text-cyan-400"></h2>
                     <div class="grid grid-cols-2 gap-3">
@@ -364,107 +382,169 @@
                 </section>
 
                 <section id="sec-reportes" class="hidden space-y-6">
+
                     <!-- Stats Bar -->
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4" id="report-stats-bar">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div class="glass-card p-5 flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                                <i class="fas fa-clipboard-list text-purple-400"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-slate-500 uppercase font-bold">Total</p>
-                                <p id="stat-total" class="text-2xl font-black text-white">0</p>
-                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0"><i class="fas fa-clipboard-list text-purple-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Total Reportes</p><p id="stat-total" class="text-2xl font-black text-white">0</p></div>
                         </div>
                         <div class="glass-card p-5 flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center">
-                                <i class="fas fa-times-circle text-red-400"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-slate-500 uppercase font-bold">Dañado</p>
-                                <p id="stat-danado" class="text-2xl font-black text-red-400">0</p>
-                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center shrink-0"><i class="fas fa-times-circle text-red-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Dañado</p><p id="stat-danado" class="text-2xl font-black text-red-400">0</p></div>
                         </div>
                         <div class="glass-card p-5 flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                                <i class="fas fa-tools text-orange-400"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-slate-500 uppercase font-bold">Mantenimiento</p>
-                                <p id="stat-mantenimiento" class="text-2xl font-black text-orange-400">0</p>
-                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-orange-500/20 flex items-center justify-center shrink-0"><i class="fas fa-tools text-orange-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Mantenimiento</p><p id="stat-mantenimiento" class="text-2xl font-black text-orange-400">0</p></div>
                         </div>
                         <div class="glass-card p-5 flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center">
-                                <i class="fas fa-check-circle text-emerald-400"></i>
-                            </div>
-                            <div>
-                                <p class="text-[9px] text-slate-500 uppercase font-bold">Excelente</p>
-                                <p id="stat-excelente" class="text-2xl font-black text-emerald-400">0</p>
-                            </div>
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0"><i class="fas fa-check-circle text-emerald-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Excelente</p><p id="stat-excelente" class="text-2xl font-black text-emerald-400">0</p></div>
                         </div>
                     </div>
 
-                    <!-- Controls -->
-                    <div class="glass-card p-5 flex flex-col md:flex-row gap-4 items-center">
-                        <div class="relative flex-1 w-full">
-                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                            <input id="report-search" type="text" placeholder="Buscar por activo, usuario o motivo..." 
-                                class="w-full input-dark pl-10 py-3 text-sm" oninput="filterReports()">
+                    <!-- View toggle + global controls -->
+                    <div class="glass-card p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
+                        <!-- View tabs -->
+                        <div class="flex gap-2">
+                            <button onclick="setReportView('assets')" id="view-btn-assets"
+                                class="report-view-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-gradient-to-r from-purple-600 to-violet-600 text-white">
+                                <i class="fas fa-box-open mr-1.5"></i>Por Activo
+                            </button>
+                            <button onclick="setReportView('history')" id="view-btn-history"
+                                class="report-view-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-white">
+                                <i class="fas fa-history mr-1.5"></i>Historial General
+                            </button>
                         </div>
-                        <div class="flex gap-2 flex-wrap">
-                            <button onclick="setReportFilter('todos')" id="filter-todos" class="report-filter-btn active-filter px-4 py-2 rounded-xl text-xs font-black uppercase transition-all">Todos</button>
-                            <button onclick="setReportFilter('Dañado')" id="filter-danado" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-red-400">Dañado</button>
-                            <button onclick="setReportFilter('Mantenimiento')" id="filter-mantenimiento" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-orange-400">Mantenimiento</button>
-                            <button onclick="setReportFilter('Excelente')" id="filter-excelente" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-emerald-400">Excelente</button>
+                        <button onclick="printReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2 shrink-0">
+                            <i class="fas fa-print"></i> Imprimir Reporte
+                        </button>
+                    </div>
+
+                    <!-- ====== VISTA: POR ACTIVO ====== -->
+                    <div id="view-assets-panel">
+                        <div class="relative mb-4">
+                            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                            <input id="asset-report-search" type="text" placeholder="Buscar activo por nombre o serial..."
+                                class="w-full input-dark pl-10 py-3 text-sm" oninput="renderAssetReportCards()">
+                        </div>
+                        <div id="asset-report-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6"></div>
+                        <div id="asset-report-empty" class="hidden glass-card p-16 text-center">
+                            <i class="fas fa-inbox text-4xl text-slate-700 mb-4"></i>
+                            <p class="font-black text-slate-500 uppercase text-sm">Sin activos con reportes</p>
                         </div>
                     </div>
-                    <!-- Time filter + print -->
-                    <div class="glass-card p-4 flex flex-col md:flex-row gap-3 items-center justify-between">
-                        <div class="flex gap-2 flex-wrap items-center">
-                            <span class="text-[9px] text-slate-500 uppercase font-black mr-1"><i class="fas fa-calendar-alt mr-1"></i>Período:</span>
+
+                    <!-- ====== VISTA: HISTORIAL GENERAL ====== -->
+                    <div id="view-history-panel" class="hidden space-y-4">
+                        <div class="glass-card p-5 flex flex-col md:flex-row gap-4 items-center">
+                            <div class="relative flex-1 w-full">
+                                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+                                <input id="report-search" type="text" placeholder="Buscar por activo, usuario o motivo..."
+                                    class="w-full input-dark pl-10 py-3 text-sm" oninput="filterReports()">
+                            </div>
+                            <div class="flex gap-2 flex-wrap">
+                                <button onclick="setReportFilter('todos')" id="filter-todos" class="report-filter-btn active-filter px-4 py-2 rounded-xl text-xs font-black uppercase transition-all">Todos</button>
+                                <button onclick="setReportFilter('Dañado')" id="filter-danado" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-red-400">Dañado</button>
+                                <button onclick="setReportFilter('Mantenimiento')" id="filter-mantenimiento" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-orange-400">Mantenimiento</button>
+                                <button onclick="setReportFilter('Excelente')" id="filter-excelente" class="report-filter-btn px-4 py-2 rounded-xl text-xs font-black uppercase transition-all bg-white/5 text-slate-400 hover:text-emerald-400">Excelente</button>
+                            </div>
+                        </div>
+                        <div class="glass-card p-4 flex gap-3 items-center flex-wrap">
+                            <span class="text-[9px] text-slate-500 uppercase font-black"><i class="fas fa-calendar-alt mr-1"></i>Período:</span>
                             <button onclick="setTimeFilter('all')" id="tfilter-all" class="time-filter-btn active-time px-3 py-1.5 rounded-lg text-[10px] font-black uppercase transition-all">Todo</button>
                             <button onclick="setTimeFilter('day')" id="tfilter-day" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Hoy</button>
                             <button onclick="setTimeFilter('week')" id="tfilter-week" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Esta Semana</button>
                             <button onclick="setTimeFilter('month')" id="tfilter-month" class="time-filter-btn px-3 py-1.5 rounded-lg text-[10px] font-black uppercase bg-white/5 text-slate-400 transition-all">Este Mes</button>
                         </div>
-                        <button onclick="printReport()" class="bg-emerald-600 hover:bg-emerald-500 px-4 py-2 rounded-xl text-[10px] font-black uppercase transition-all flex items-center gap-2">
-                            <i class="fas fa-print"></i> Imprimir Reporte Membretado
-                        </button>
-                    </div>
-                    <!-- Header row -->
-                    <div class="flex items-center justify-between px-1">
-                        <h3 class="text-sm font-black uppercase text-slate-400 tracking-widest">
-                            <i class="fas fa-history mr-2"></i>Historial de Actividad
-                        </h3>
-                        <span id="report-count-label" class="text-[9px] text-slate-600 font-bold uppercase"></span>
-                    </div>
-
-                    <!-- Empty state -->
-                    <div id="reports-empty" class="hidden glass-card p-16 text-center">
-                        <i class="fas fa-inbox text-4xl text-slate-700 mb-4"></i>
-                        <p class="font-black text-slate-500 uppercase text-sm">Sin reportes encontrados</p>
-                        <p class="text-xs text-slate-600 mt-1">Intenta con otros filtros o términos de búsqueda</p>
+                        <div class="flex items-center justify-between px-1">
+                            <h3 class="text-sm font-black uppercase text-slate-400 tracking-widest"><i class="fas fa-history mr-2"></i>Historial de Actividad</h3>
+                            <span id="report-count-label" class="text-[9px] text-slate-600 font-bold uppercase"></span>
+                        </div>
+                        <div id="reports-empty" class="hidden glass-card p-16 text-center">
+                            <i class="fas fa-inbox text-4xl text-slate-700 mb-4"></i>
+                            <p class="font-black text-slate-500 uppercase text-sm">Sin reportes encontrados</p>
+                            <p class="text-xs text-slate-600 mt-1">Intenta con otros filtros o términos de búsqueda</p>
+                        </div>
+                        <div id="reports-list-container" class="space-y-3"></div>
                     </div>
 
-                    <!-- Reports list -->
-                    <div id="reports-list-container" class="space-y-3"></div>
+                    <!-- Modal: reportes de un activo -->
+                    <div id="asset-report-modal" class="hidden fixed inset-0 z-[4000] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="glass-card w-full max-w-xl max-h-[88vh] flex flex-col overflow-hidden">
+                            <!-- Header fijo -->
+                            <div class="p-6 border-b border-white/10 flex items-center gap-4 shrink-0">
+                                <img id="arm-img" class="w-14 h-14 rounded-2xl object-cover border border-white/10 shrink-0" onerror="this.style.display='none'">
+                                <div class="flex-1 min-w-0">
+                                    <h3 id="arm-name" class="text-lg font-black uppercase text-cyan-400 truncate"></h3>
+                                    <p id="arm-serial" class="text-[9px] text-slate-500"></p>
+                                    <div id="arm-stats" class="flex gap-2 mt-1 flex-wrap"></div>
+                                </div>
+                                <button onclick="closeAssetReportModal()" class="text-slate-500 hover:text-white text-xl transition shrink-0"><i class="fas fa-times"></i></button>
+                            </div>
+                            <!-- Lista scrollable -->
+                            <div id="arm-list" class="overflow-y-auto p-5 space-y-3 flex-1"></div>
+                        </div>
+                    </div>
+
                 </section>
 
                 <!-- ===================== SECCIÓN: DEPARTAMENTOS ===================== -->
                 <section id="sec-departamentos" class="hidden space-y-8">
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-6 uppercase">Gestión de Departamentos</h3>
+                        <h3 id="dept-form-title" class="text-xl font-black mb-6 uppercase">Registrar Departamento</h3>
                         <form id="form-dept" class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <input type="hidden" id="dept-edit-id">
-                            <input type="text" id="dept-name" placeholder="Nombre del Departamento" class="input-dark" required>
+                            <input type="text" id="dept-name" placeholder="Nombre del Departamento" class="input-dark col-span-full md:col-span-2" required>
                             <input type="text" id="dept-coord" placeholder="Coordinador / Jefe" class="input-dark">
-                            <input type="text" id="dept-floor" placeholder="Piso / Área" class="input-dark">
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Guardar Departamento</button>
+                            <input type="text" id="dept-floor" placeholder="Piso / Área / Edificio" class="input-dark">
+                            <input type="text" id="dept-phone" placeholder="Teléfono / Extensión" class="input-dark">
+                            <input type="email" id="dept-email" placeholder="Correo del coordinador" class="input-dark col-span-full md:col-span-2">
+                            <textarea id="dept-desc" placeholder="Descripción o funciones del departamento..." class="input-dark h-20 col-span-full"></textarea>
+                            <div class="col-span-full flex gap-3">
+                                <button type="submit" id="btn-dept-submit" class="flex-1 btn-primary p-4 rounded-xl font-black uppercase"><i class="fas fa-save mr-2"></i>Guardar Departamento</button>
+                                <button type="button" id="btn-dept-cancel" onclick="cancelDeptEdit()" class="hidden px-6 bg-white/5 hover:bg-white/10 p-4 rounded-xl font-black uppercase text-sm text-slate-400 transition"><i class="fas fa-times mr-1"></i>Cancelar</button>
+                            </div>
                         </form>
                     </div>
+
+                    <!-- Stats cards -->
+                    <div id="dept-stats-row" class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0"><i class="fas fa-sitemap text-purple-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Departamentos</p><p id="stat-dept-total" class="text-2xl font-black">0</p></div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-cyan-500/20 flex items-center justify-center shrink-0"><i class="fas fa-box-open text-cyan-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Activos Totales</p><p id="stat-dept-assets" class="text-2xl font-black text-cyan-400">0</p></div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0"><i class="fas fa-users text-indigo-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Personal</p><p id="stat-dept-users" class="text-2xl font-black text-indigo-400">0</p></div>
+                        </div>
+                        <div class="glass-card p-5 flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center shrink-0"><i class="fas fa-link text-emerald-400"></i></div>
+                            <div><p class="text-[9px] text-slate-500 uppercase font-bold">Asignaciones</p><p id="stat-dept-assignments" class="text-2xl font-black text-emerald-400">0</p></div>
+                        </div>
+                    </div>
+
                     <div class="glass-card p-8">
-                        <h3 class="text-xl font-black mb-4 uppercase">Tabla de Departamentos</h3>
+                        <div class="flex items-center justify-between mb-4 flex-wrap gap-3">
+                            <h3 class="text-xl font-black uppercase">Tabla de Departamentos</h3>
+                            <input id="dept-search" type="text" placeholder="Buscar departamento..." class="input-dark py-2 text-xs w-52" oninput="renderDepts()">
+                        </div>
                         <div id="depts-table-container" class="overflow-x-auto text-sm"></div>
+                    </div>
+
+                    <!-- Modal detalle de departamento -->
+                    <div id="dept-detail-modal" class="hidden fixed inset-0 z-[4000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+                        <div class="glass-card w-full max-w-2xl max-h-[85vh] overflow-y-auto p-8">
+                            <div class="flex items-center justify-between mb-6">
+                                <h3 id="modal-dept-name" class="text-2xl font-black uppercase text-cyan-400"></h3>
+                                <button onclick="closeDeptModal()" class="text-slate-500 hover:text-white text-xl transition"><i class="fas fa-times"></i></button>
+                            </div>
+                            <div id="modal-dept-body" class="space-y-5"></div>
+                        </div>
                     </div>
                 </section>
 
@@ -550,7 +630,7 @@
 
                 <section id="sec-scan-view" class="hidden max-w-2xl mx-auto">
                     <div class="glass-card overflow-hidden">
-                        <img id="scan-img" class="w-full h-72 object-cover">
+                        <img id="scan-img" class="w-full h-72 object-cover" onerror="this.style.display='none'">
                         <div class="p-8 space-y-6">
                             <h2 id="scan-name" class="text-4xl font-black uppercase italic text-cyan-400"></h2>
                             <div class="grid grid-cols-2 gap-4">
@@ -578,8 +658,26 @@
         </main>
     </div>
 
+    <!-- TOAST CONTAINER -->
+    <div id="toast-container"></div>
+
     <script>
-        const firebaseConfig = {
+        // ===================== TOAST SYSTEM =====================
+        function showToast(msg, type = 'info', duration = 3500) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', warning: 'fa-exclamation-triangle', info: 'fa-info-circle' };
+            const t = document.createElement('div');
+            t.className = `toast toast-${type}`;
+            t.innerHTML = `<i class="fas ${icons[type]||icons.info}"></i><span>${msg}</span>`;
+            container.appendChild(t);
+            setTimeout(() => {
+                t.classList.add('hiding');
+                t.addEventListener('animationend', () => t.remove());
+            }, duration);
+        }
+
+                const firebaseConfig = {
             apiKey: "AIzaSyD0rFUIbW_494SmefO7FRVhsBVW1aXxcDo",
             authDomain: "control-de-activos-1c3b7.firebaseapp.com",
             databaseURL: "https://control-de-activos-1c3b7-default-rtdb.firebaseio.com",
@@ -592,6 +690,7 @@
         const auth = firebase.auth(); const db = firebase.database();
         const MASTER_EMAIL = "anniel137@gmail.com";
         let userRole = "operario";
+        let currentUserData = {};
 
         const urlParams = new URLSearchParams(window.location.search);
         const scannedId = urlParams.get('id');
@@ -627,40 +726,84 @@
             });
         }
 
-        // (original auth handler removed - enhanced version above handles all logic)
 
         function loadAssets() {
             db.ref('assets').on('value', snap => {
                 allAssets = [];
                 const container = document.getElementById('assets-container');
-                container.innerHTML = '';
                 let stats = { total: 0, Excelente: 0, Mantenimiento: 0, Dañado: 0 };
+                let cards = '';
+                const canEdit = (userRole === 'admin' || userRole === 'mantenimiento');
                 snap.forEach(doc => {
-                    const a = doc.val(); allAssets.push({key: doc.key, ...a}); stats.total++; stats[a.cond]++;
-                    container.innerHTML += `
+                    const a = doc.val();
+                    allAssets.push({key: doc.key, ...a});
+                    stats.total++; stats[a.cond]++;
+                    const condColor = a.cond === 'Dañado' ? 'text-red-500' : a.cond === 'Mantenimiento' ? 'text-orange-400' : 'text-cyan-400';
+                    const fallback = "this.style.display='none';this.nextElementSibling.style.display='flex'";
+                    // Build creator/editor badge
+                    const roleBadgeColor = r => r==='admin'?'text-purple-400 bg-purple-500/10 border-purple-500/30':r==='mantenimiento'?'text-orange-400 bg-orange-500/10 border-orange-500/30':'text-cyan-400 bg-cyan-500/10 border-cyan-500/30';
+                    const roleLabel = r => r==='admin'?'Admin':r==='mantenimiento'?'Mantenimiento':'Operario';
+                    const createdBy = a.createdBy;
+                    const updatedBy = a.updatedBy;
+                    const wasEdited = updatedBy && createdBy && updatedBy.uid !== createdBy.uid || (updatedBy && createdBy && updatedBy.date !== createdBy.date && updatedBy.uid === createdBy.uid && a.updatedAt !== a.createdBy?.date);
+                    const authorBlock = createdBy ? `
+                        <div class="mt-3 pt-3 border-t border-white/5 space-y-1.5">
+                            <div class="flex items-center gap-1.5">
+                                <i class="fas fa-plus-circle text-[8px] text-slate-600"></i>
+                                <span class="text-[8px] text-slate-600 uppercase font-black tracking-wide">Registrado por</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-5 h-5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[7px] font-black text-slate-400 shrink-0">
+                                    ${(createdBy.name||'?').substring(0,2).toUpperCase()}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[9px] text-white font-black truncate">${createdBy.name||createdBy.email}</p>
+                                    <span class="text-[7px] px-1.5 py-0.5 rounded-full border font-black uppercase ${roleBadgeColor(createdBy.role)}">${roleLabel(createdBy.role)}</span>
+                                </div>
+                            </div>
+                            ${updatedBy && updatedBy.date !== createdBy.date ? `
+                            <div class="flex items-center gap-1.5 mt-1">
+                                <i class="fas fa-pencil-alt text-[8px] text-slate-700"></i>
+                                <span class="text-[8px] text-slate-600 uppercase font-black tracking-wide">Editado por</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="w-5 h-5 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-[7px] font-black text-slate-400 shrink-0">
+                                    ${(updatedBy.name||'?').substring(0,2).toUpperCase()}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-[9px] text-white font-black truncate">${updatedBy.name||updatedBy.email}</p>
+                                    <span class="text-[7px] px-1.5 py-0.5 rounded-full border font-black uppercase ${roleBadgeColor(updatedBy.role)}">${roleLabel(updatedBy.role)}</span>
+                                </div>
+                            </div>` : ''}
+                        </div>` : '<div class="mt-3 pt-3 border-t border-white/5"><p class="text-[8px] text-slate-700 italic">Sin información de registro</p></div>';
+
+                    cards += `
                         <div class="glass-card p-6 border border-white/5">
-                            <img src="${a.imageUrl}" class="w-full h-32 object-cover rounded-xl mb-4">
+                            <div class="relative w-full h-32 mb-4 rounded-xl overflow-hidden bg-white/5">
+                                <img src="${a.imageUrl||''}" onerror="${fallback}" class="w-full h-full object-cover rounded-xl">
+                                <div style="display:none" class="absolute inset-0 items-center justify-center text-slate-600 text-3xl"><i class="fas fa-image"></i></div>
+                            </div>
                             <h4 class="text-white font-black uppercase text-xs">${a.name}</h4>
-                            <p class="text-[9px] font-bold ${a.cond === 'Dañado' ? 'text-red-500' : 'text-cyan-400'} uppercase">${a.cond}</p>
-                            <div class="flex gap-2 mt-4">
-                                <button onclick="editAsset('${doc.key}')" class="flex-1 bg-white/5 p-2 rounded-lg text-[9px] font-bold">EDITAR</button>
-                                <button onclick="openQR('${doc.key}')" class="flex-1 bg-white/5 p-2 rounded-lg text-[9px] font-bold">QR</button>
-                                <button onclick="deleteAsset('${doc.key}')" class="p-2 text-red-500/50 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                            <p class="text-[9px] text-slate-500 mt-0.5">${a.serial||''}</p>
+                            <p class="text-[9px] font-bold ${condColor} uppercase mt-1">${a.cond}</p>
+                            ${authorBlock}
+                            <div class="flex gap-2 mt-3">
+                                ${canEdit ? `<button onclick="editAsset('${doc.key}')" class="flex-1 bg-white/5 p-2 rounded-lg text-[9px] font-bold hover:bg-white/10 transition">EDITAR</button>` : ''}
+                                <button onclick="openQR('${doc.key}')" class="flex-1 bg-white/5 p-2 rounded-lg text-[9px] font-bold hover:bg-white/10 transition">QR</button>
+                                ${canEdit ? `<button onclick="deleteAsset('${doc.key}')" class="p-2 text-red-500/50 hover:text-red-500"><i class="fas fa-trash"></i></button>` : ''}
                             </div>
                         </div>`;
                 });
+                container.innerHTML = cards;
                 document.getElementById('dash-total').textContent = stats.total;
                 document.getElementById('dash-excelente').textContent = stats.Excelente;
                 document.getElementById('dash-mantenimiento').textContent = stats.Mantenimiento;
                 document.getElementById('dash-danado').textContent = stats.Dañado;
-                // Re-render assignments table with updated asset list
                 renderAssignments();
+                updateDeptStats();
             });
         }
 
-        // (user form handler moved to enhanced section above)
-        function _ORIGINAL_form_user_placeholder() { // original user form handler removed, new one above
-        }
 
         function loadAdminUsers() {
             db.ref('users').on('value', snap => {
@@ -699,14 +842,6 @@
             });
         }
 
-        // (showSection replaced by enhanced version in new functions block)
-
-        // (asset form handler moved to enhanced section above)
-        function _ORIGINAL_form_asset_placeholder() { // original handler removed
-        }
-
-        function _editAsset_original_replaced(id) { // replaced by enhanced version above
-        }
 
         function loadScannedAsset(id) {
             db.ref('assets/' + id).on('value', snap => {
@@ -721,11 +856,27 @@
                     document.getElementById('scan-reason-text').textContent = "NOTA ACTUAL: " + a.reason;
                 }
                 document.getElementById('btn-send-report').onclick = () => {
-                    const motivo = document.getElementById('rep-reason').value;
+                    if (!auth.currentUser) {
+                        showToast('Debes iniciar sesión para reportar una novedad.', 'warning');
+                        return;
+                    }
+                    const motivo = document.getElementById('rep-reason').value.trim();
                     const newC = document.getElementById('rep-new-cond').value;
-                    if(!motivo) return alert("Indique el motivo de la novedad");
+                    if (!motivo) { showToast('Indica el motivo de la novedad.', 'warning'); return; }
+                    const btn = document.getElementById('btn-send-report');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
                     db.ref('reports').push({ assetName: a.name, user: auth.currentUser.email, reason: motivo, newC: newC, date: new Date().toLocaleString() });
-                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => alert("Estado Actualizado con Éxito"));
+                    db.ref('assets/' + id).update({ cond: newC, reason: motivo }).then(() => {
+                        document.getElementById('rep-reason').value = '';
+                        btn.disabled = false;
+                        btn.innerHTML = 'Guardar Reporte';
+                        showToast('✅ Estado actualizado con éxito.', 'success');
+                    }).catch(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = 'Guardar Reporte';
+                        showToast('⚠️ Error al guardar. Intenta de nuevo.', 'error');
+                    });
                 };
             });
         }
@@ -740,7 +891,9 @@
                     allReports.unshift({ key: doc.key, ...doc.val() });
                 });
                 updateReportStats();
-                renderReports();
+                // Refresh whichever view is active
+                if (activeReportView === 'assets') renderAssetReportCards();
+                else renderReports();
             });
         }
 
@@ -767,65 +920,6 @@
         }
 
         function filterReports() { renderReports(); }
-
-        function renderReports() {
-            const container = document.getElementById('reports-list-container');
-            const emptyEl = document.getElementById('reports-empty');
-            const search = (document.getElementById('report-search')?.value || '').toLowerCase();
-
-            let filtered = allReports.filter(r => {
-                const matchFilter = activeFilter === 'todos' || r.newC === activeFilter;
-                const matchSearch = !search || 
-                    (r.assetName||'').toLowerCase().includes(search) ||
-                    (r.user||'').toLowerCase().includes(search) ||
-                    (r.reason||'').toLowerCase().includes(search);
-                return matchFilter && matchSearch;
-            });
-
-            document.getElementById('report-count-label').textContent = `${filtered.length} resultado${filtered.length !== 1 ? 's' : ''}`;
-
-            if (filtered.length === 0) {
-                container.innerHTML = '';
-                emptyEl.classList.remove('hidden');
-                return;
-            }
-            emptyEl.classList.add('hidden');
-
-            const condConfig = {
-                'Dañado':        { border: 'border-red-500',    badge: 'badge-danado',        icon: 'fa-times-circle',  dot: 'bg-red-500' },
-                'Mantenimiento': { border: 'border-orange-500', badge: 'badge-mantenimiento', icon: 'fa-tools',         dot: 'bg-orange-500' },
-                'Excelente':     { border: 'border-emerald-500',badge: 'badge-excelente',     icon: 'fa-check-circle',  dot: 'bg-emerald-500' }
-            };
-
-            container.innerHTML = filtered.map((r, i) => {
-                const cfg = condConfig[r.newC] || condConfig['Mantenimiento'];
-                const initials = (r.user||'?').substring(0,2).toUpperCase();
-                return `
-                <div class="report-item glass-card p-5 border-l-4 ${cfg.border} flex gap-4 items-start" style="animation-delay:${i*0.04}s">
-                    <div class="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 text-[10px] font-black text-cyan-400 border border-white/10">
-                        ${initials}
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
-                            <h5 class="text-white font-black uppercase text-sm truncate">${r.assetName || 'Activo'}</h5>
-                            <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase ${cfg.badge} shrink-0">
-                                <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
-                            </span>
-                        </div>
-                        <p class="text-xs italic text-slate-300 mb-2">"${r.reason}"</p>
-                        <div class="flex items-center gap-3 flex-wrap">
-                            <span class="text-[9px] text-slate-500 flex items-center gap-1">
-                                <i class="fas fa-user text-[8px]"></i>${r.user}
-                            </span>
-                            <span class="text-[9px] text-slate-600">•</span>
-                            <span class="text-[9px] text-slate-500 flex items-center gap-1">
-                                <i class="fas fa-clock text-[8px]"></i>${r.date}
-                            </span>
-                        </div>
-                    </div>
-                </div>`;
-            }).join('');
-        }
 
         function openQR(id) {
             db.ref('assets/' + id).once('value', snap => {
@@ -854,12 +948,20 @@
             });
         }
 
-        function deleteAsset(id) { if(confirm("¿Seguro que desea eliminar este activo tecnológico?")) db.ref('assets/' + id).remove(); }
-        function deleteUser(id) { if(confirm("¿Eliminar acceso a este usuario?")) db.ref('users/' + id).remove(); }
+        function deleteAsset(id) {
+            if (!confirm('¿Eliminar este activo? \n\nTambién se eliminarán sus asignaciones y reportes relacionados.')) return;
+            // Cascade: remove related assignments
+            allAssignments.filter(a => a.assetId === id).forEach(a => db.ref('assignments/' + a.key).remove());
+            db.ref('assets/' + id).remove().then(() => showToast('Activo eliminado.', 'success'));
+        }
+        function deleteUser(id) {
+            if (!confirm('¿Eliminar este usuario del sistema?\n\nSus asignaciones quedarán sin titular.')) return;
+            db.ref('users/' + id).remove().then(() => showToast('Usuario eliminado.', 'success'));
+        }
         
         document.getElementById('login-form').onsubmit = (e) => {
             e.preventDefault();
-            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value).catch(() => alert("Acceso denegado. Verifique sus credenciales."));
+            auth.signInWithEmailAndPassword(document.getElementById('user-input').value, document.getElementById('pass-input').value).catch(() => showToast('Acceso denegado. Verifica tus credenciales.', 'error'));
         };
         function logout() { auth.signOut().then(() => location.href = window.location.origin + window.location.pathname); }
 
@@ -873,14 +975,14 @@
             const cedula = document.getElementById('reg-cedula').value;
             const email = document.getElementById('reg-email').value;
             const cargo = document.getElementById('reg-cargo').value;
-            if (!name || !cedula || !email) { alert("Completa nombre, cédula y correo."); return; }
+            if (!name || !cedula || !email) { showToast('Completa nombre, cédula y correo.', 'warning'); return; }
             db.ref('access_requests').push({
                 name, cedula, email, cargo,
                 status: 'pendiente',
                 timestamp: new Date().toISOString(),
                 date: new Date().toLocaleString()
             }).then(() => {
-                alert("✅ Solicitud enviada. Un administrador la revisará y verificará que eres personal activo de la institución.");
+                showToast('✅ Solicitud enviada. Un administrador la revisará pronto.', 'success');
                 document.getElementById('reg-request-form').classList.add('hidden');
                 document.getElementById('reg-name').value = '';
                 document.getElementById('reg-cedula').value = '';
@@ -894,7 +996,12 @@
             document.querySelectorAll('main section').forEach(s => s.classList.add('hidden'));
             const sec = document.getElementById('sec-' + id);
             if (sec) sec.classList.remove('hidden');
-            document.getElementById('section-title').textContent = id.charAt(0).toUpperCase() + id.slice(1);
+            const sectionNames = {
+                dashboard: 'Panel Principal', inventario: 'Inventario', usuarios: 'Usuarios',
+                reportes: 'Reportes', departamentos: 'Departamentos', asignaciones: 'Asignaciones',
+                registrados: 'Solicitudes de Acceso', manual: 'Manual de Usuario', 'scan-view': 'Detalle de Activo'
+            };
+            document.getElementById('section-title').textContent = sectionNames[id] || id.charAt(0).toUpperCase() + id.slice(1);
             // Highlight nav
             document.querySelectorAll('nav button').forEach(b => {
                 b.classList.remove('text-cyan-400','bg-white/10');
@@ -902,36 +1009,175 @@
             });
             const navBtn = document.getElementById('nav-' + id);
             if (navBtn) { navBtn.classList.add('text-cyan-400','bg-white/10'); navBtn.classList.remove('text-slate-400'); }
+            // When entering reportes, make sure the active sub-view is rendered
+            if (id === 'reportes') {
+                if (typeof activeReportView !== 'undefined') setReportView(activeReportView);
+                else setReportView('assets');
+            }
         }
 
         // ===================== DEPARTAMENTOS =====================
         let allDepts = [];
+
         function loadDepts() {
             db.ref('departments').on('value', snap => {
                 allDepts = [];
-                const container = document.getElementById('depts-table-container');
-                let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
-                    <thead><tr class="text-slate-500 border-b border-white/10">
-                        <th class="p-4">Depto</th><th class="p-4">Coordinador</th><th class="p-4">Área</th><th class="p-4">Activos</th><th class="p-4">Acción</th>
-                    </tr></thead><tbody>`;
-                snap.forEach(doc => {
-                    const d = doc.val(); allDepts.push({key: doc.key, ...d});
-                    html += `<tr class="border-b border-white/5 table-row-hover">
-                        <td class="p-4"><span class="badge-dept text-[10px] px-2 py-1 rounded-full">${d.name}</span></td>
-                        <td class="p-4 text-slate-300">${d.coordinator||'-'}</td>
-                        <td class="p-4 text-slate-400">${d.floor||'-'}</td>
-                        <td class="p-4"><span id="dept-asset-count-${doc.key}" class="text-cyan-400 font-black">-</span></td>
-                        <td class="p-4 flex gap-2">
-                            <button onclick="editDept('${doc.key}')" class="text-blue-400 hover:text-blue-300"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteDept('${doc.key}')" class="text-red-500 hover:text-red-400"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>`;
-                });
-                container.innerHTML = html + '</tbody></table>';
-                // Populate dept selects
+                snap.forEach(doc => allDepts.push({key: doc.key, ...doc.val()}));
+                renderDepts();
                 populateDeptSelects();
+                updateDeptStats();
             });
         }
+
+        function updateDeptStats() {
+            const totalDepts = allDepts.length;
+            const totalAssets = allAssets.filter(a => a.deptKey).length;
+            const totalUsers = (typeof allUsers !== 'undefined') ? allUsers.filter(u => u.deptKey).length : 0;
+            const totalAssign = allAssignments.filter(a => a.deptKey).length;
+            const el = id => document.getElementById(id);
+            if(el('stat-dept-total'))       el('stat-dept-total').textContent = totalDepts;
+            if(el('stat-dept-assets'))      el('stat-dept-assets').textContent = totalAssets;
+            if(el('stat-dept-users'))       el('stat-dept-users').textContent = totalUsers;
+            if(el('stat-dept-assignments')) el('stat-dept-assignments').textContent = totalAssign;
+        }
+
+        function renderDepts() {
+            const container = document.getElementById('depts-table-container');
+            if (!container) return;
+            const search = (document.getElementById('dept-search')?.value||'').toLowerCase();
+            const filtered = allDepts.filter(d =>
+                !search ||
+                (d.name||'').toLowerCase().includes(search) ||
+                (d.coordinator||'').toLowerCase().includes(search) ||
+                (d.floor||'').toLowerCase().includes(search)
+            );
+            if (!filtered.length) {
+                container.innerHTML = '<p class="text-slate-500 text-xs text-center py-8">No hay departamentos registrados</p>';
+                return;
+            }
+            let html = `<table class="w-full text-left uppercase text-[11px] font-bold">
+                <thead><tr class="text-slate-500 border-b border-white/10 text-[9px]">
+                    <th class="p-4">Departamento</th>
+                    <th class="p-4">Coordinador</th>
+                    <th class="p-4">Área / Piso</th>
+                    <th class="p-4">Contacto</th>
+                    <th class="p-4">Activos</th>
+                    <th class="p-4">Personal</th>
+                    <th class="p-4">Asignaciones</th>
+                    <th class="p-4">Acción</th>
+                </tr></thead><tbody>`;
+            filtered.forEach(d => {
+                const assetCount   = allAssets.filter(a => a.deptKey === d.key).length;
+                const userCount    = (typeof allUsers !== 'undefined') ? allUsers.filter(u => u.deptKey === d.key).length : 0;
+                const assignCount  = allAssignments.filter(a => a.deptKey === d.key).length;
+                html += `<tr class="border-b border-white/5 table-row-hover">
+                    <td class="p-4">
+                        <button onclick="openDeptModal('${d.key}')" class="text-left group">
+                            <span class="badge-dept text-[10px] px-2 py-1 rounded-full group-hover:border-cyan-400/50 transition">${d.name}</span>
+                            ${d.description ? `<p class="text-[8px] text-slate-600 mt-1 normal-case max-w-[140px] truncate">${d.description}</p>` : ''}
+                        </button>
+                    </td>
+                    <td class="p-4 text-slate-300 normal-case">${d.coordinator||'—'}</td>
+                    <td class="p-4 text-slate-400 normal-case">${d.floor||'—'}</td>
+                    <td class="p-4 text-slate-500 normal-case text-[9px]">
+                        ${d.phone ? `<div><i class="fas fa-phone text-[8px] mr-1"></i>${d.phone}</div>` : ''}
+                        ${d.email ? `<div><i class="fas fa-envelope text-[8px] mr-1"></i>${d.email}</div>` : '—'}
+                    </td>
+                    <td class="p-4"><span class="${assetCount>0?'text-cyan-400':'text-slate-600'} font-black">${assetCount}</span></td>
+                    <td class="p-4"><span class="${userCount>0?'text-indigo-400':'text-slate-600'} font-black">${userCount}</span></td>
+                    <td class="p-4"><span class="${assignCount>0?'text-emerald-400':'text-slate-600'} font-black">${assignCount}</span></td>
+                    <td class="p-4 flex gap-2">
+                        <button onclick="openDeptModal('${d.key}')" title="Ver detalle" class="text-cyan-500 hover:text-cyan-300 transition"><i class="fas fa-eye"></i></button>
+                        <button onclick="editDept('${d.key}')" title="Editar" class="text-blue-400 hover:text-blue-300 transition"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteDept('${d.key}')" title="Eliminar" class="text-red-500 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            });
+            container.innerHTML = html + '</tbody></table>';
+            updateDeptStats();
+        }
+
+        function openDeptModal(deptKey) {
+            const d = allDepts.find(x => x.key === deptKey);
+            if (!d) return;
+            const assets  = allAssets.filter(a => a.deptKey === deptKey);
+            const users   = (typeof allUsers !== 'undefined') ? allUsers.filter(u => u.deptKey === deptKey) : [];
+            const assigns = allAssignments.filter(a => a.deptKey === deptKey);
+            const modal = document.getElementById('dept-detail-modal');
+            document.getElementById('modal-dept-name').textContent = d.name;
+            const condBadge = c => c==='Excelente'?'text-emerald-400':c==='Mantenimiento'?'text-orange-400':'text-red-400';
+            const roleBadge = r => r==='admin'?'<span class="role-badge-admin">Admin</span>':r==='mantenimiento'?'<span class="role-badge-mantenimiento">Mantenimiento</span>':'<span class="role-badge-operario">Operario</span>';
+            document.getElementById('modal-dept-body').innerHTML = `
+                <!-- Info general -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1"><i class="fas fa-user-tie mr-1"></i>Coordinador</p>
+                        <p class="text-sm font-black text-white">${d.coordinator||'—'}</p>
+                    </div>
+                    <div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1"><i class="fas fa-map-marker-alt mr-1"></i>Ubicación</p>
+                        <p class="text-sm font-black text-white">${d.floor||'—'}</p>
+                    </div>
+                    ${d.phone ? `<div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1"><i class="fas fa-phone mr-1"></i>Teléfono</p>
+                        <p class="text-sm font-black text-white">${d.phone}</p>
+                    </div>` : ''}
+                    ${d.email ? `<div class="bg-white/5 p-4 rounded-2xl">
+                        <p class="text-[8px] text-slate-500 uppercase font-black mb-1"><i class="fas fa-envelope mr-1"></i>Correo</p>
+                        <p class="text-sm font-black text-cyan-400 normal-case">${d.email}</p>
+                    </div>` : ''}
+                </div>
+                ${d.description ? `<div class="bg-white/5 p-4 rounded-2xl"><p class="text-[8px] text-slate-500 uppercase font-black mb-1">Descripción</p><p class="text-xs text-slate-300">${d.description}</p></div>` : ''}
+
+                <!-- Personal -->
+                <div>
+                    <h4 class="text-xs font-black uppercase text-slate-400 mb-3"><i class="fas fa-users mr-2"></i>Personal del Departamento (${users.length})</h4>
+                    ${users.length ? users.map(u => `
+                        <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl mb-2">
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-indigo-500/30 to-purple-500/20 flex items-center justify-center text-[9px] font-black text-indigo-300 border border-white/10 shrink-0">${(u.name||'?').substring(0,2).toUpperCase()}</div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-black text-xs">${u.name}</p>
+                                <p class="text-slate-500 text-[8px] normal-case">${u.email} · ${u.cargo||''}</p>
+                            </div>
+                            ${roleBadge(u.role)}
+                        </div>`).join('') : '<p class="text-slate-600 text-xs italic">Sin personal registrado en este departamento</p>'}
+                </div>
+
+                <!-- Activos -->
+                <div>
+                    <h4 class="text-xs font-black uppercase text-slate-400 mb-3"><i class="fas fa-box-open mr-2"></i>Activos en este Departamento (${assets.length})</h4>
+                    ${assets.length ? assets.map(a => `
+                        <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl mb-2">
+                            <div class="w-8 h-8 rounded-xl bg-white/5 border border-white/10 shrink-0 overflow-hidden">
+                                <img src="${a.imageUrl||''}" onerror="this.style.display='none'" class="w-full h-full object-cover">
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-black text-xs uppercase">${a.name}</p>
+                                <p class="text-slate-500 text-[8px]">${a.serial||''} · ${a.type||''}</p>
+                            </div>
+                            <span class="text-[9px] font-black ${condBadge(a.cond)}">${a.cond}</span>
+                        </div>`).join('') : '<p class="text-slate-600 text-xs italic">Sin activos registrados en este departamento</p>'}
+                </div>
+
+                <!-- Asignaciones activas -->
+                <div>
+                    <h4 class="text-xs font-black uppercase text-slate-400 mb-3"><i class="fas fa-link mr-2"></i>Asignaciones Activas (${assigns.filter(a=>a.status==='Activo').length})</h4>
+                    ${assigns.filter(a=>a.status==='Activo').length ? assigns.filter(a=>a.status==='Activo').map(a => `
+                        <div class="flex items-center gap-3 bg-white/5 p-3 rounded-xl mb-2">
+                            <i class="fas fa-link text-emerald-400 text-xs shrink-0"></i>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-white font-black text-xs">${a.assetName}</p>
+                                <p class="text-slate-500 text-[8px]">→ ${a.userName} · ${a.date||''}</p>
+                            </div>
+                        </div>`).join('') : '<p class="text-slate-600 text-xs italic">Sin asignaciones activas</p>'}
+                </div>`;
+            modal.classList.remove('hidden');
+        }
+
+        function closeDeptModal() {
+            document.getElementById('dept-detail-modal').classList.add('hidden');
+        }
+
         function populateDeptSelects() {
             ['as-dept','assign-dept','u-dept-assign'].forEach(sid => {
                 const sel = document.getElementById(sid);
@@ -941,26 +1187,52 @@
                 sel.value = cur;
             });
         }
+
         document.getElementById('form-dept').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('dept-edit-id').value;
             const data = {
-                name: document.getElementById('dept-name').value,
-                coordinator: document.getElementById('dept-coord').value,
-                floor: document.getElementById('dept-floor').value
+                name:        document.getElementById('dept-name').value.trim(),
+                coordinator: document.getElementById('dept-coord').value.trim(),
+                floor:       document.getElementById('dept-floor').value.trim(),
+                phone:       document.getElementById('dept-phone').value.trim(),
+                email:       document.getElementById('dept-email').value.trim(),
+                description: document.getElementById('dept-desc').value.trim()
             };
             const op = id ? db.ref('departments/'+id).update(data) : db.ref('departments').push(data);
-            op.then(() => { e.target.reset(); document.getElementById('dept-edit-id').value=''; });
+            op.then(() => {
+                showToast(id ? '✅ Departamento actualizado.' : '✅ Departamento registrado.', 'success');
+                cancelDeptEdit();
+            });
         };
-        function editDept(id) {
-            const d = allDepts.find(x=>x.key===id); if(!d) return;
-            document.getElementById('dept-edit-id').value = id;
-            document.getElementById('dept-name').value = d.name;
-            document.getElementById('dept-coord').value = d.coordinator||'';
-            document.getElementById('dept-floor').value = d.floor||'';
-            showSection('departamentos');
+
+        function cancelDeptEdit() {
+            document.getElementById('form-dept').reset();
+            document.getElementById('dept-edit-id').value = '';
+            document.getElementById('dept-form-title').textContent = 'Registrar Departamento';
+            document.getElementById('btn-dept-cancel').classList.add('hidden');
         }
-        function deleteDept(id) { if(confirm("¿Eliminar departamento?")) db.ref('departments/'+id).remove(); }
+
+        function editDept(id) {
+            const d = allDepts.find(x => x.key === id); if (!d) return;
+            document.getElementById('dept-edit-id').value  = id;
+            document.getElementById('dept-name').value     = d.name;
+            document.getElementById('dept-coord').value    = d.coordinator||'';
+            document.getElementById('dept-floor').value    = d.floor||'';
+            document.getElementById('dept-phone').value    = d.phone||'';
+            document.getElementById('dept-email').value    = d.email||'';
+            document.getElementById('dept-desc').value     = d.description||'';
+            document.getElementById('dept-form-title').textContent = 'Editar Departamento: ' + d.name;
+            document.getElementById('btn-dept-cancel').classList.remove('hidden');
+            showSection('departamentos');
+            window.scrollTo({top:0, behavior:'smooth'});
+        }
+
+        function deleteDept(id) {
+            const d = allDepts.find(x=>x.key===id);
+            if (!confirm(`¿Eliminar el departamento "${d?.name||''}"?\n\nLos activos y usuarios asignados a este departamento quedarán sin departamento.`)) return;
+            db.ref('departments/'+id).remove().then(() => showToast('Departamento eliminado.', 'success'));
+        }
 
         // ===================== ASIGNACIONES =====================
         let allAssignments = [];
@@ -1046,8 +1318,10 @@
                     <th class="p-3">Estado Físico</th>
                     <th class="p-3">Asignado a</th>
                     <th class="p-3">Departamento</th>
-                    <th class="p-3">Fecha Asignación</th>
-                    <th class="p-3">Estado Asignación</th>
+                    <th class="p-3">Ubicación</th>
+                    <th class="p-3">Fecha</th>
+                    <th class="p-3">Estado</th>
+                    <th class="p-3">Notas</th>
                     <th class="p-3">Acción</th>
                 </tr></thead><tbody>`;
 
@@ -1085,8 +1359,10 @@
                     <td class="p-3">${condBadge(asset.cond)}</td>
                     <td class="p-3">${userCell}</td>
                     <td class="p-3"><span class="badge-dept text-[9px] px-2 py-0.5 rounded-full">${assign?.deptName||'—'}</span></td>
+                    <td class="p-3 text-slate-400 text-[9px]">${assign?.location||'—'}</td>
                     <td class="p-3 text-slate-500 text-[9px]">${assign?.date||'—'}</td>
                     <td class="p-3">${statusCell}</td>
+                    <td class="p-3 text-slate-400 text-[9px] italic max-w-[120px] truncate" title="${assign?.notes||''}">${assign?.notes||'—'}</td>
                     <td class="p-3">${actionCell}</td>
                 </tr>`;
             });
@@ -1101,6 +1377,8 @@
             if (headerEl) {
                 headerEl.innerHTML = `Registro de Asignaciones <span class="ml-3 text-[10px] font-normal text-slate-500">${assigned} asignados · <span class="text-slate-600">${unassigned} sin asignar</span> · ${total} total</span>`;
             }
+            // Refresh dept stats since assignments changed
+            updateDeptStats();
         }
         document.getElementById('form-assign').onsubmit = (e) => {
             e.preventDefault();
@@ -1109,25 +1387,36 @@
             const deptSel = document.getElementById('assign-dept');
             const assetId = assetSel.value;
             const userId = userSel.value;
-            if (!assetId || !userId) { alert("Selecciona activo y personal."); return; }
+            if (!assetId || !userId) { showToast('Selecciona activo y personal.', 'warning'); return; }
             const assetName = assetSel.options[assetSel.selectedIndex].text;
             const userOption = userSel.options[userSel.selectedIndex];
             const userName = userOption.text.split('—')[0].trim();
             const userEmail = userOption.getAttribute('data-email')||'';
             const deptKey = deptSel.value;
             const deptName = deptKey ? (allDepts.find(d=>d.key===deptKey)?.name||'') : '';
-            const data = {
-                assetId, assetName, userId, userName, userEmail,
-                deptKey, deptName,
-                location: document.getElementById('assign-location').value,
-                date: document.getElementById('assign-date').value || new Date().toLocaleDateString(),
-                status: document.getElementById('assign-status').value,
-                notes: document.getElementById('assign-notes').value,
-                registeredAt: new Date().toISOString()
+            // Warn if asset already has an active assignment
+            const existing = allAssignments.find(a => a.assetId === assetId && a.status === 'Activo');
+            const doSave = () => {
+                const data = {
+                    assetId, assetName, userId, userName, userEmail,
+                    deptKey, deptName,
+                    location: document.getElementById('assign-location').value,
+                    date: document.getElementById('assign-date').value || new Date().toLocaleDateString(),
+                    status: document.getElementById('assign-status').value,
+                    notes: document.getElementById('assign-notes').value,
+                    registeredAt: new Date().toISOString()
+                };
+                db.ref('assignments').push(data).then(() => { showToast('✅ Asignación registrada correctamente.', 'success'); e.target.reset(); });
             };
-            db.ref('assignments').push(data).then(() => { alert("Asignación registrada"); e.target.reset(); });
+            if (existing) {
+                if (confirm('⚠️ Este activo ya está asignado a "' + existing.userName + '" con estado Activo.\n\n¿Deseas registrar una nueva asignación de todas formas?')) {
+                    doSave();
+                }
+            } else {
+                doSave();
+            }
         };
-        function deleteAssignment(id) { if(confirm("¿Eliminar asignación?")) db.ref('assignments/'+id).remove(); }
+        function deleteAssignment(id) { if(confirm('¿Desasignar este activo?')) db.ref('assignments/'+id).remove().then(() => showToast('Asignación eliminada.', 'success')); }
 
         // ===================== USUARIOS REGISTRADOS (solicitudes) =====================
         function loadRegistrados() {
@@ -1179,7 +1468,7 @@
         function approveRequest(key, name, email) {
             if (!confirm(`¿Aprobar acceso a ${name}?\n\nVerifica que esta persona sea personal activo de la institución antes de aprobar.`)) return;
             db.ref('access_requests/'+key).update({status:'aprobado', approvedAt: new Date().toISOString()})
-            .then(() => alert(`✅ Solicitud de ${name} aprobada. Ahora puede ser creado como usuario del sistema desde la sección Usuarios.`));
+            .then(() => showToast(`✅ Solicitud de ${name} aprobada.`, 'success'));
         }
         function rejectRequest(key) {
             if (!confirm("¿Rechazar esta solicitud?")) return;
@@ -1519,8 +1808,7 @@
             });
         }
 
-        // ===================== ENHANCED RENDER REPORTS =====================
-        // Override original renderReports to use time filter
+        // ===================== RENDER REPORTS =====================
         function renderReports() {
             const container = document.getElementById('reports-list-container');
             const emptyEl = document.getElementById('reports-empty');
@@ -1559,6 +1847,181 @@
                     </div>
                 </div>`;
             }).join('');
+        }
+
+        // ===================== REPORT VIEW TOGGLE =====================
+        let activeReportView = 'assets';
+
+        function setReportView(view) {
+            activeReportView = view;
+            document.getElementById('view-assets-panel').classList.toggle('hidden', view !== 'assets');
+            document.getElementById('view-history-panel').classList.toggle('hidden', view !== 'history');
+            document.querySelectorAll('.report-view-btn').forEach(b => {
+                b.classList.remove('bg-gradient-to-r','from-purple-600','to-violet-600','text-white');
+                b.classList.add('bg-white/5','text-slate-400');
+            });
+            const active = document.getElementById('view-btn-' + view);
+            if (active) {
+                active.classList.add('bg-gradient-to-r','from-purple-600','to-violet-600','text-white');
+                active.classList.remove('bg-white/5','text-slate-400');
+            }
+            if (view === 'assets') renderAssetReportCards();
+            else renderReports();
+        }
+
+        // ===================== ASSET REPORT CARDS =====================
+        function renderAssetReportCards() {
+            const container = document.getElementById('asset-report-cards');
+            const emptyEl   = document.getElementById('asset-report-empty');
+            if (!container) return;
+            const search = (document.getElementById('asset-report-search')?.value || '').toLowerCase();
+
+            // Group reports by assetName
+            const grouped = {};
+            allReports.forEach(r => {
+                const key = r.assetName || 'Sin nombre';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(r);
+            });
+
+            // Match with allAssets to get image/serial. Also include assets with 0 reports.
+            // Build list: assets that have at least 1 report come first, sorted by report count desc
+            const assetMap = {};
+            allAssets.forEach(a => { assetMap[a.name] = a; });
+
+            // Only show assets that have reports
+            let entries = Object.entries(grouped).map(([name, reports]) => {
+                const asset = assetMap[name] || null;
+                return { name, reports, asset };
+            }).filter(e => {
+                if (!search) return true;
+                return e.name.toLowerCase().includes(search) ||
+                       (e.asset?.serial||'').toLowerCase().includes(search);
+            }).sort((a,b) => b.reports.length - a.reports.length);
+
+            if (!entries.length) {
+                container.innerHTML = '';
+                emptyEl.classList.remove('hidden');
+                return;
+            }
+            emptyEl.classList.add('hidden');
+
+            const condConfig = {
+                'Dañado':        { color: 'text-red-400',     bg: 'bg-red-500/10',     border: 'border-red-500/30',     dot: 'bg-red-500'     },
+                'Mantenimiento': { color: 'text-orange-400',  bg: 'bg-orange-500/10',  border: 'border-orange-500/30',  dot: 'bg-orange-400'  },
+                'Excelente':     { color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', dot: 'bg-emerald-400' }
+            };
+
+            container.innerHTML = entries.map(({name, reports, asset}) => {
+                const last = reports[0]; // most recent first (allReports is unshifted)
+                const cfg  = condConfig[last?.newC] || condConfig['Excelente'];
+                const danado = reports.filter(r => r.newC === 'Dañado').length;
+                const mant   = reports.filter(r => r.newC === 'Mantenimiento').length;
+                const exc    = reports.filter(r => r.newC === 'Excelente').length;
+                const fallback = "this.style.display='none';this.nextElementSibling.style.display='flex'";
+                const safeKey = encodeURIComponent(name);
+                return `
+                <div onclick="openAssetReportModal('${safeKey}')"
+                    class="glass-card p-0 border border-white/5 hover:border-cyan-400/30 transition-all cursor-pointer overflow-hidden group">
+                    <!-- Image strip -->
+                    <div class="relative w-full h-28 bg-white/5">
+                        <img src="${asset?.imageUrl||''}" onerror="${fallback}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity">
+                        <div style="display:none" class="absolute inset-0 items-center justify-center text-slate-700 text-3xl"><i class="fas fa-image"></i></div>
+                        <!-- Badge estado actual -->
+                        <div class="absolute top-2 right-2">
+                            <span class="text-[8px] px-2 py-1 rounded-full font-black border ${cfg.bg} ${cfg.border} ${cfg.color}">
+                                <span class="inline-block w-1.5 h-1.5 rounded-full ${cfg.dot} mr-1"></span>${last?.newC||'—'}
+                            </span>
+                        </div>
+                        <!-- Report count badge -->
+                        <div class="absolute top-2 left-2">
+                            <span class="text-[9px] px-2 py-1 rounded-full font-black bg-black/60 text-white border border-white/10">
+                                <i class="fas fa-file-alt mr-1"></i>${reports.length} reporte${reports.length!==1?'s':''}
+                            </span>
+                        </div>
+                    </div>
+                    <!-- Info -->
+                    <div class="p-4">
+                        <h4 class="text-white font-black uppercase text-xs group-hover:text-cyan-400 transition truncate">${name}</h4>
+                        <p class="text-[8px] text-slate-600 mt-0.5 truncate">${asset?.serial ? 'S/N: '+asset.serial : asset?.type||''}</p>
+                        <!-- Mini stats -->
+                        <div class="flex gap-2 mt-3 flex-wrap">
+                            ${danado   ? `<span class="text-[8px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 border border-red-500/20 font-black">${danado} Dañado</span>` : ''}
+                            ${mant     ? `<span class="text-[8px] px-1.5 py-0.5 rounded bg-orange-500/10 text-orange-400 border border-orange-500/20 font-black">${mant} Mant.</span>` : ''}
+                            ${exc      ? `<span class="text-[8px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-black">${exc} Excelente</span>` : ''}
+                        </div>
+                        <!-- Last report -->
+                        <div class="mt-3 pt-3 border-t border-white/5">
+                            <p class="text-[8px] text-slate-600 uppercase font-black mb-1"><i class="fas fa-clock mr-1"></i>Último reporte</p>
+                            <p class="text-[9px] text-slate-400 italic truncate">"${last?.reason||'—'}"</p>
+                            <p class="text-[8px] text-slate-600 mt-0.5">${last?.user||''} · ${last?.date||''}</p>
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        // ===================== ASSET REPORT MODAL =====================
+        function openAssetReportModal(encodedName) {
+            const name = decodeURIComponent(encodedName);
+            const reports = allReports.filter(r => r.assetName === name);
+            const asset   = allAssets.find(a => a.name === name);
+            const modal   = document.getElementById('asset-report-modal');
+
+            // Header
+            document.getElementById('arm-img').src    = asset?.imageUrl || '';
+            document.getElementById('arm-name').textContent   = name;
+            document.getElementById('arm-serial').textContent = asset?.serial ? 'Serial: ' + asset.serial : asset?.type || '';
+
+            // Mini stats in header
+            const danado = reports.filter(r => r.newC === 'Dañado').length;
+            const mant   = reports.filter(r => r.newC === 'Mantenimiento').length;
+            const exc    = reports.filter(r => r.newC === 'Excelente').length;
+            document.getElementById('arm-stats').innerHTML = `
+                <span class="text-[8px] px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-slate-400 font-black">${reports.length} total</span>
+                ${danado ? `<span class="text-[8px] px-2 py-0.5 rounded-full bg-red-500/10 border border-red-500/20 text-red-400 font-black">${danado} Dañado</span>` : ''}
+                ${mant   ? `<span class="text-[8px] px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 font-black">${mant} Mant.</span>` : ''}
+                ${exc    ? `<span class="text-[8px] px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-black">${exc} Excelente</span>` : ''}`;
+
+            // Reports list (timeline style)
+            const condConfig = {
+                'Dañado':        { border: 'border-red-500',    badge: 'badge-danado',        icon: 'fa-times-circle',  line: 'bg-red-500'     },
+                'Mantenimiento': { border: 'border-orange-500', badge: 'badge-mantenimiento', icon: 'fa-tools',         line: 'bg-orange-400'  },
+                'Excelente':     { border: 'border-emerald-500',badge: 'badge-excelente',     icon: 'fa-check-circle',  line: 'bg-emerald-400' }
+            };
+
+            if (!reports.length) {
+                document.getElementById('arm-list').innerHTML = '<p class="text-slate-500 text-xs text-center py-8 italic">Sin reportes para este activo</p>';
+            } else {
+                document.getElementById('arm-list').innerHTML = reports.map((r, i) => {
+                    const cfg = condConfig[r.newC] || condConfig['Excelente'];
+                    const initials = (r.user||'?').substring(0,2).toUpperCase();
+                    const isLast = i === reports.length - 1;
+                    return `
+                    <div class="relative flex gap-3">
+                        <!-- Timeline line -->
+                        ${!isLast ? `<div class="absolute left-[19px] top-10 bottom-0 w-0.5 ${cfg.line} opacity-20"></div>` : ''}
+                        <!-- Avatar -->
+                        <div class="w-10 h-10 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 text-[10px] font-black text-cyan-400 border border-white/10 z-10">${initials}</div>
+                        <!-- Content -->
+                        <div class="flex-1 glass-card p-4 border-l-4 ${cfg.border} mb-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                                <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase ${cfg.badge}">
+                                    <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
+                                </span>
+                                <span class="text-[8px] text-slate-600"><i class="fas fa-clock mr-1"></i>${r.date||'—'}</span>
+                            </div>
+                            <p class="text-xs italic text-slate-300 mb-1">"${r.reason}"</p>
+                            <p class="text-[9px] text-slate-500"><i class="fas fa-user mr-1"></i>${r.user||'—'}</p>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closeAssetReportModal() {
+            document.getElementById('asset-report-modal').classList.add('hidden');
         }
 
         // ===================== TOGGLE PASSWORD VISIBILITY =====================
@@ -1647,7 +2110,7 @@
                 await db.ref('users/' + uid).set(userData);
 
                 // Success
-                alert(`✅ Usuario "${name}" creado exitosamente.\n\nCorreo: ${email}\nNivel: ${role}\n\nYa puede iniciar sesión con esas credenciales.`);
+                showToast(`✅ Usuario "${name}" creado. Ya puede iniciar sesión.`, 'success');
                 e.target.reset();
 
             } catch (err) {
@@ -1665,7 +2128,15 @@
             const id = document.getElementById('edit-id').value;
             const deptKey = document.getElementById('as-dept').value;
             const dept = allDepts.find(d=>d.key===deptKey);
-            const data = {
+            const now = new Date().toISOString();
+            const byInfo = {
+                uid:   currentUserData.uid   || '',
+                name:  currentUserData.name  || currentUserData.email || 'Desconocido',
+                email: currentUserData.email || '',
+                role:  currentUserData.role  || userRole,
+                date:  now
+            };
+            const baseData = {
                 name: document.getElementById('as-name').value,
                 serial: document.getElementById('as-serial').value,
                 brand: document.getElementById('as-brand').value,
@@ -1677,10 +2148,28 @@
                 purchaseDate: document.getElementById('as-purchase').value,
                 cond: document.getElementById('as-cond').value,
                 reason: document.getElementById('as-reason').value,
-                updatedAt: new Date().toISOString()
+                updatedAt: now,
+                updatedBy: byInfo
             };
-            if(id) db.ref('assets/'+id).update(data).then(() => { alert("Actualizado"); e.target.reset(); resetImageUpload(); document.getElementById('edit-id').value=''; });
-            else db.ref('assets').push(data).then(() => { alert("Guardado"); e.target.reset(); resetImageUpload(); });
+            if (id) {
+                // Editing: preserve original createdBy, just update updatedBy
+                db.ref('assets/'+id).once('value', snap => {
+                    const existing = snap.val() || {};
+                    const updateData = { ...baseData, createdBy: existing.createdBy || byInfo };
+                    db.ref('assets/'+id).update(updateData).then(() => {
+                        showToast('✅ Activo actualizado.', 'success');
+                        e.target.reset(); resetImageUpload();
+                        document.getElementById('edit-id').value = '';
+                    });
+                });
+            } else {
+                // New asset: set createdBy = current user
+                const newData = { ...baseData, createdBy: byInfo };
+                db.ref('assets').push(newData).then(() => {
+                    showToast('✅ Activo guardado.', 'success');
+                    e.target.reset(); resetImageUpload();
+                });
+            }
         };
 
         // ===================== ENHANCED editAsset =====================
@@ -1847,6 +2336,13 @@
                     document.getElementById('app-interface').classList.remove('hidden');
                     document.getElementById('display-user').textContent = user.email;
 
+                    // Store current user data globally for asset registration
+                    currentUserData = {
+                        uid: user.uid,
+                        email: user.email,
+                        name: userData?.name || user.email,
+                        role: role
+                    };
                     // Apply role UI (nav visibility + badge + dots)
                     applyRoleUI(role);
 
