@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -280,25 +280,29 @@
                                 <label class="block text-[10px] text-slate-400 uppercase font-black mb-2 tracking-wider">
                                     <i class="fas fa-image mr-1"></i> Imagen del Activo
                                 </label>
+                                <!-- Zona de subida de archivo -->
                                 <div id="img-upload-zone" onclick="document.getElementById('as-photo-file').click()"
-                                    class="relative w-full h-36 rounded-2xl border-2 border-dashed border-white/20 hover:border-cyan-400/50 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/8 overflow-hidden">
-                                    <!-- Preview -->
+                                    class="relative w-full h-36 rounded-2xl border-2 border-dashed border-white/20 hover:border-cyan-400/50 cursor-pointer transition-all flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/8 overflow-hidden mb-3">
                                     <img id="img-preview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl opacity-80">
-                                    <!-- Placeholder -->
                                     <div id="img-placeholder" class="flex flex-col items-center gap-2 pointer-events-none">
                                         <i class="fas fa-cloud-upload-alt text-3xl text-slate-500"></i>
                                         <p class="text-xs text-slate-400 font-bold">Haz clic para subir imagen</p>
                                         <p class="text-[9px] text-slate-600">JPG, PNG, WEBP — máx. 2 MB</p>
                                     </div>
-                                    <!-- Change overlay when image is loaded -->
                                     <div id="img-change-overlay" class="hidden absolute inset-0 bg-black/50 items-center justify-center rounded-2xl">
                                         <p class="text-white text-xs font-black uppercase"><i class="fas fa-pencil-alt mr-1"></i>Cambiar imagen</p>
                                     </div>
                                 </div>
                                 <input type="file" id="as-photo-file" accept="image/*" class="hidden" onchange="handleImageUpload(event)">
-                                <!-- Hidden field stores base64 -->
-                                <input type="hidden" id="as-photo">
-                                <p id="img-upload-error" class="hidden text-[10px] text-red-400 mt-1 font-bold"></p>
+                                <p id="img-upload-error" class="hidden text-[10px] text-red-400 mb-2 font-bold"></p>
+                                <!-- Separador -->
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="flex-1 h-px bg-white/10"></div>
+                                    <span class="text-[9px] text-slate-500 uppercase font-black">O ingresa una URL</span>
+                                    <div class="flex-1 h-px bg-white/10"></div>
+                                </div>
+                                <!-- Campo URL original -->
+                                <input type="url" id="as-photo" placeholder="https://... (URL de imagen)" class="input-dark w-full" oninput="handleUrlInput(this.value)">
                             </div>
                             <input type="date" id="as-purchase" placeholder="Fecha de Adquisición" class="input-dark">
                             <select id="as-cond" class="input-dark bg-slate-800">
@@ -329,7 +333,28 @@
                                 <option value="mantenimiento">🔧 Nivel 2 — Personal de Mantenimiento</option>
                                 <option value="admin">🛡️ Nivel 1 — Personal Administrativo</option>
                             </select>
-                            <button type="submit" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">Añadir al Sistema</button>
+                            <!-- Contraseña -->
+                            <div class="col-span-full">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="relative">
+                                        <input type="password" id="u-password" placeholder="Contraseña de acceso" class="input-dark w-full pr-12" required minlength="6">
+                                        <button type="button" onclick="togglePassVis('u-password','eye-1')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-cyan-400 transition">
+                                            <i id="eye-1" class="fas fa-eye text-sm"></i>
+                                        </button>
+                                    </div>
+                                    <div class="relative">
+                                        <input type="password" id="u-password-confirm" placeholder="Confirmar contraseña" class="input-dark w-full pr-12" required minlength="6">
+                                        <button type="button" onclick="togglePassVis('u-password-confirm','eye-2')" class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-cyan-400 transition">
+                                            <i id="eye-2" class="fas fa-eye text-sm"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <p class="text-[9px] text-slate-500 mt-2"><i class="fas fa-info-circle mr-1"></i>Mínimo 6 caracteres. El usuario usará este correo y contraseña para iniciar sesión.</p>
+                            </div>
+                            <p id="form-user-error" class="hidden col-span-full text-[11px] text-red-400 font-bold bg-red-500/10 border border-red-500/20 rounded-xl px-4 py-2"></p>
+                            <button type="submit" id="btn-add-user" class="col-span-full btn-primary p-4 rounded-xl font-black uppercase">
+                                <i class="fas fa-user-plus mr-2"></i>Añadir al Sistema
+                            </button>
                         </form>
                     </div>
                     <div id="admin-user-list" class="hidden glass-card p-8">
@@ -1451,22 +1476,102 @@
             }).join('');
         }
 
-        // ===================== ENHANCED USER FORM =====================
-        document.getElementById('form-user').onsubmit = (e) => {
+        // ===================== TOGGLE PASSWORD VISIBILITY =====================
+        function togglePassVis(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon  = document.getElementById(iconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+
+        // ===================== ENHANCED USER FORM (creates real Firebase Auth user) =====================
+        document.getElementById('form-user').onsubmit = async (e) => {
             e.preventDefault();
-            const deptKey = document.getElementById('u-dept-assign').value;
-            const dept = allDepts.find(d=>d.key===deptKey);
-            const data = {
-                name: document.getElementById('u-name').value,
-                cedula: document.getElementById('u-cedula').value,
-                email: document.getElementById('u-email').value,
-                cargo: document.getElementById('u-cargo').value,
-                deptKey: deptKey,
-                deptName: dept?.name||'',
-                role: document.getElementById('u-role').value,
-                registeredAt: new Date().toISOString()
-            };
-            db.ref('users').push(data).then(() => { alert("Personal añadido al sistema"); e.target.reset(); });
+
+            const errEl  = document.getElementById('form-user-error');
+            const btnEl  = document.getElementById('btn-add-user');
+            errEl.classList.add('hidden');
+
+            const name     = document.getElementById('u-name').value.trim();
+            const cedula   = document.getElementById('u-cedula').value.trim();
+            const email    = document.getElementById('u-email').value.trim();
+            const cargo    = document.getElementById('u-cargo').value.trim();
+            const deptKey  = document.getElementById('u-dept-assign').value;
+            const role     = document.getElementById('u-role').value;
+            const password = document.getElementById('u-password').value;
+            const confirm  = document.getElementById('u-password-confirm').value;
+
+            // Validations
+            if (password !== confirm) {
+                errEl.textContent = '⚠️ Las contraseñas no coinciden.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+            if (password.length < 6) {
+                errEl.textContent = '⚠️ La contraseña debe tener al menos 6 caracteres.';
+                errEl.classList.remove('hidden');
+                return;
+            }
+
+            // Loading state
+            btnEl.disabled = true;
+            btnEl.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creando usuario...';
+
+            try {
+                // Use Firebase Auth REST API to create user WITHOUT signing out current admin
+                const FIREBASE_API_KEY = firebaseConfig.apiKey;
+                const res = await fetch(
+                    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${FIREBASE_API_KEY}`,
+                    {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email, password, returnSecureToken: true })
+                    }
+                );
+                const result = await res.json();
+
+                if (result.error) {
+                    // Translate common Firebase errors to Spanish
+                    const msg = {
+                        'EMAIL_EXISTS':          '⚠️ Este correo ya está registrado en el sistema.',
+                        'INVALID_EMAIL':         '⚠️ El correo ingresado no es válido.',
+                        'WEAK_PASSWORD':         '⚠️ Contraseña muy débil. Usa al menos 6 caracteres.',
+                        'OPERATION_NOT_ALLOWED': '⚠️ El registro está deshabilitado en Firebase.',
+                    }[result.error.message] || `⚠️ Error: ${result.error.message}`;
+                    errEl.textContent = msg;
+                    errEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Save user profile in Realtime Database using the real UID
+                const uid  = result.localId;
+                const dept = allDepts.find(d => d.key === deptKey);
+                const userData = {
+                    name, cedula, email, cargo,
+                    deptKey:  deptKey  || '',
+                    deptName: dept?.name || '',
+                    role,
+                    registeredAt: new Date().toISOString()
+                };
+
+                await db.ref('users/' + uid).set(userData);
+
+                // Success
+                alert(`✅ Usuario "${name}" creado exitosamente.\n\nCorreo: ${email}\nNivel: ${role}\n\nYa puede iniciar sesión con esas credenciales.`);
+                e.target.reset();
+
+            } catch (err) {
+                errEl.textContent = '⚠️ Error de conexión. Verifica tu internet e intenta de nuevo.';
+                errEl.classList.remove('hidden');
+            } finally {
+                btnEl.disabled = false;
+                btnEl.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Añadir al Sistema';
+            }
         };
 
         // ===================== ENHANCED ASSET FORM =====================
@@ -1525,6 +1630,27 @@
         }
 
         // ===================== IMAGE UPLOAD HANDLER =====================
+        function handleUrlInput(url) {
+            // When user types a URL, show it in the preview
+            const preview = document.getElementById('img-preview');
+            const placeholder = document.getElementById('img-placeholder');
+            const overlay = document.getElementById('img-change-overlay');
+            if (url && url.startsWith('http')) {
+                preview.src = url;
+                preview.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                // Clear file input so URL takes priority
+                document.getElementById('as-photo-file').value = '';
+            } else {
+                preview.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                overlay.classList.add('hidden');
+                overlay.classList.remove('flex');
+            }
+        }
+
         function handleImageUpload(event) {
             const file = event.target.files[0];
             const errEl = document.getElementById('img-upload-error');
@@ -1542,8 +1668,9 @@
             const reader = new FileReader();
             reader.onload = function(e) {
                 const base64 = e.target.result;
-                // Store in hidden field
+                // Store base64 in the URL field (replaces any typed URL)
                 document.getElementById('as-photo').value = base64;
+                // Clear URL text visually by setting placeholder hint
                 // Show preview
                 const preview = document.getElementById('img-preview');
                 const placeholder = document.getElementById('img-placeholder');
