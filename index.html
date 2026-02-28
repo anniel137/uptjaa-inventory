@@ -275,7 +275,6 @@
                             <input type="hidden" id="edit-id">
                             <input type="text" id="as-name" placeholder="Nombre del Activo" class="input-dark" required>
                             <input type="text" id="as-serial" placeholder="Serial / Número de Inventario" class="input-dark" required>
-                            <input type="text" id="as-brand" placeholder="Marca" class="input-dark">
                             <input type="text" id="as-model" placeholder="Modelo" class="input-dark">
                             <input type="text" id="as-loc" placeholder="Ubicación Física" class="input-dark" required>
                             <select id="as-type" class="input-dark bg-slate-800">
@@ -1068,8 +1067,21 @@
                 </tr></thead><tbody>`;
             filtered.forEach(d => {
                 const assetCount   = allAssets.filter(a => a.deptKey === d.key).length;
-                const userCount    = (typeof allUsers !== 'undefined') ? allUsers.filter(u => u.deptKey === d.key).length : 0;
+                const deptUsers    = (typeof allUsers !== 'undefined') ? allUsers.filter(u => u.deptKey === d.key) : [];
+                const userCount    = deptUsers.length;
                 const assignCount  = allAssignments.filter(a => a.deptKey === d.key).length;
+                const roleBadge = r => r==='admin'?'<span class="role-badge-admin">Admin</span>':r==='mantenimiento'?'<span class="role-badge-mantenimiento">Mant.</span>':'<span class="role-badge-operario">Operario</span>';
+                const userListHtml = userCount > 0
+                    ? deptUsers.map(u => `
+                        <div class="flex items-center gap-1.5 py-0.5 border-t border-white/5 first:border-0">
+                            <div class="w-5 h-5 rounded-md bg-indigo-500/20 flex items-center justify-center text-[7px] font-black text-indigo-300 border border-white/10 shrink-0">${(u.name||'?').substring(0,2).toUpperCase()}</div>
+                            <div class="min-w-0">
+                                <p class="text-[9px] text-white font-black truncate">${u.name||'—'}</p>
+                                <p class="text-[8px] text-slate-500 normal-case">${u.cargo||u.role||''}</p>
+                            </div>
+                            <div class="ml-auto shrink-0">${roleBadge(u.role)}</div>
+                        </div>`).join('')
+                    : '<p class="text-[8px] text-slate-700 italic normal-case">Sin personal</p>';
                 html += `<tr class="border-b border-white/5 table-row-hover">
                     <td class="p-4">
                         <button onclick="openDeptModal('${d.key}')" class="text-left group">
@@ -1084,7 +1096,9 @@
                         ${d.email ? `<div><i class="fas fa-envelope text-[8px] mr-1"></i>${d.email}</div>` : '—'}
                     </td>
                     <td class="p-4"><span class="${assetCount>0?'text-cyan-400':'text-slate-600'} font-black">${assetCount}</span></td>
-                    <td class="p-4"><span class="${userCount>0?'text-indigo-400':'text-slate-600'} font-black">${userCount}</span></td>
+                    <td class="p-4 min-w-[180px]">
+                        <div class="space-y-0.5">${userListHtml}</div>
+                    </td>
                     <td class="p-4"><span class="${assignCount>0?'text-emerald-400':'text-slate-600'} font-black">${assignCount}</span></td>
                     <td class="p-4 flex gap-2">
                         <button onclick="openDeptModal('${d.key}')" title="Ver detalle" class="text-cyan-500 hover:text-cyan-300 transition"><i class="fas fa-eye"></i></button>
@@ -1259,7 +1273,7 @@
                 sel.innerHTML = opts;
                 renderAssignments();
             });
-            db.ref('users').once('value', snap => {
+            db.ref('users').on('value', snap => {
                 allUsers = [];
                 const sel = document.getElementById('assign-user');
                 let opts = '<option value="">Seleccionar Personal</option>';
@@ -1269,6 +1283,9 @@
                     opts += `<option value="${doc.key}" data-email="${u.email}">${u.name} — ${u.cargo||u.role} [ID: ${doc.key.substring(0,8)}]</option>`;
                 });
                 sel.innerHTML = opts;
+                // Re-render depts so the personnel list stays up to date
+                renderDepts();
+                updateDeptStats();
             });
         }
         function renderAssignments() {
@@ -1342,8 +1359,11 @@
                     : `<span class="text-[9px] px-2 py-0.5 rounded-full font-black bg-white/5 border border-white/10 text-slate-500">—</span>`;
 
                 const actionCell = assign
-                    ? `<button onclick="deleteAssignment('${assign.key}')" title="Desasignar" class="text-red-500/60 hover:text-red-400 transition"><i class="fas fa-unlink"></i></button>`
-                    : `<span class="text-slate-700 text-[9px]">—</span>`;
+                    ? `<div class="flex items-center gap-2">
+                          <button onclick="deleteAssignment('${assign.key}')" title="Quitar asignación" class="text-orange-500/70 hover:text-orange-400 transition" title="Desasignar"><i class="fas fa-unlink"></i></button>
+                          <button onclick="deleteAssetRecord('${asset.key}')" title="Eliminar activo" class="text-red-500/60 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>
+                       </div>`
+                    : `<button onclick="deleteAssetRecord('${asset.key}')" title="Eliminar activo" class="text-red-500/60 hover:text-red-400 transition"><i class="fas fa-trash"></i></button>`;
 
                 html += `<tr class="border-b border-white/5 table-row-hover ${!assign ? 'opacity-60' : ''}">
                     <td class="p-3">
@@ -1417,6 +1437,7 @@
             }
         };
         function deleteAssignment(id) { if(confirm('¿Desasignar este activo?')) db.ref('assignments/'+id).remove().then(() => showToast('Asignación eliminada.', 'success')); }
+        function deleteAssetRecord(id) { if(confirm('¿Eliminar este activo del inventario? Esta acción no se puede deshacer.')) db.ref('assets/'+id).remove().then(() => showToast('Activo eliminado.', 'success')); }
 
         // ===================== USUARIOS REGISTRADOS (solicitudes) =====================
         function loadRegistrados() {
@@ -1834,9 +1855,14 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
                             <h5 class="text-white font-black uppercase text-sm truncate">${r.assetName || 'Activo'}</h5>
-                            <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase ${cfg.badge} shrink-0">
-                                <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
-                            </span>
+                            <div class="flex items-center gap-2 shrink-0">
+                                <span class="text-[9px] px-3 py-1 rounded-full font-black uppercase ${cfg.badge}">
+                                    <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
+                                </span>
+                                <button onclick="event.stopPropagation();deleteReport('${r.key}')" title="Eliminar reporte" class="w-7 h-7 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-500/60 hover:text-red-400 border border-red-500/20 transition-all">
+                                    <i class="fas fa-trash text-[9px]"></i>
+                                </button>
+                            </div>
                         </div>
                         <p class="text-xs italic text-slate-300 mb-2">"${r.reason}"</p>
                         <div class="flex items-center gap-3 flex-wrap">
@@ -2009,7 +2035,12 @@
                                 <span class="text-[9px] px-2 py-0.5 rounded-full font-black uppercase ${cfg.badge}">
                                     <i class="fas ${cfg.icon} mr-1"></i>${r.newC}
                                 </span>
-                                <span class="text-[8px] text-slate-600"><i class="fas fa-clock mr-1"></i>${r.date||'—'}</span>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[8px] text-slate-600"><i class="fas fa-clock mr-1"></i>${r.date||'—'}</span>
+                                    <button onclick="deleteReport('${r.key}')" title="Eliminar" class="w-6 h-6 flex items-center justify-center rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-500/50 hover:text-red-400 border border-red-500/20 transition-all">
+                                        <i class="fas fa-trash text-[8px]"></i>
+                                    </button>
+                                </div>
                             </div>
                             <p class="text-xs italic text-slate-300 mb-1">"${r.reason}"</p>
                             <p class="text-[9px] text-slate-500"><i class="fas fa-user mr-1"></i>${r.user||'—'}</p>
@@ -2022,6 +2053,13 @@
 
         function closeAssetReportModal() {
             document.getElementById('asset-report-modal').classList.add('hidden');
+        }
+
+        function deleteReport(id) {
+            if (!confirm('¿Eliminar este reporte? Esta acción no se puede deshacer.')) return;
+            db.ref('reports/' + id).remove().then(() => {
+                showToast('Reporte eliminado.', 'success');
+            }).catch(() => showToast('Error al eliminar el reporte.', 'error'));
         }
 
         // ===================== TOGGLE PASSWORD VISIBILITY =====================
@@ -2139,7 +2177,6 @@
             const baseData = {
                 name: document.getElementById('as-name').value,
                 serial: document.getElementById('as-serial').value,
-                brand: document.getElementById('as-brand').value,
                 model: document.getElementById('as-model').value,
                 type: document.getElementById('as-type').value,
                 location: document.getElementById('as-loc').value,
@@ -2179,7 +2216,6 @@
                 document.getElementById('edit-id').value = id;
                 document.getElementById('as-name').value = a.name;
                 document.getElementById('as-serial').value = a.serial;
-                document.getElementById('as-brand').value = a.brand||'';
                 document.getElementById('as-model').value = a.model||'';
                 document.getElementById('as-type').value = a.type||'';
                 document.getElementById('as-loc').value = a.location;
